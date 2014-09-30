@@ -1,5 +1,6 @@
 /target/apidocs
 /target/classes/**
+/target/generated-sources/**
 /target/javadoc-bundle-options
 /target/maven-archiver
 /target/surefire-reports
