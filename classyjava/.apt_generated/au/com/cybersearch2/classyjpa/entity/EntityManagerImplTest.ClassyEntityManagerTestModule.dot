@@ -1,0 +1,5 @@
+digraph G1 {
+  concentrate = true;
+  EntityTransactionImpl -> PersistenceFactory;
+  NativeScriptDatabaseWork -> ResourceEnvironment;
+}

@@ -1,0 +1,9 @@
+digraph G1 {
+  concentrate = true;
+  n2 [label="au.com.cybersearch2.classyjpa.persist.PersistenceFactory"];
+  EntityTransactionImpl -> n2;
+  NativeScriptDatabaseWork -> ResourceEnvironment;
+  WorkerRunnable -> ThreadHelper;
+  n3 [label="members/au.com.cybersearch2.classyjpa.persist.PersistenceFactory"];
+  n3 -> ResourceEnvironment;
+}
