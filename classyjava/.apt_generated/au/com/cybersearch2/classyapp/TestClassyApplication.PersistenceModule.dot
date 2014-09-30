@@ -1,6 +1,0 @@
-digraph G1 {
-  concentrate = true;
-  JpaIntegrationTest -> PersistenceFactory;
-  PersistenceContainer -> PersistenceFactory;
-  TestClassyApplication -> PersistenceFactory;
-}

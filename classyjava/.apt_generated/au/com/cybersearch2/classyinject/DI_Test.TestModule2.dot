@@ -1,5 +1,0 @@
-digraph G1 {
-  concentrate = true;
-  n2 [label="DI_Test$Injectee"];
-  n2 -> Object;
-}
