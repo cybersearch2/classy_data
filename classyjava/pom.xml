@@ -5,11 +5,9 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classytools</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
-  <groupId>au.com.cybersearch2</groupId>
   <artifactId>classyjava</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
   <name>classyjava</name>
   <description>Portable lightweight Java Persistence API for persisting objects to SQL databases.</description>
   <url>http://cybersearch2.com.au</url>
@@ -165,8 +163,7 @@
       <groupId>com.j256.ormlite</groupId>
       <artifactId>ormlite-jdbc</artifactId>
       <version>4.49-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
+     </dependency>
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>

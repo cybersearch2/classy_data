@@ -5,11 +5,9 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classytools</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
-  <groupId>au.com.cybersearch2</groupId>
-  <artifactId>many2many-example</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+   <artifactId>many2many-example</artifactId>
   <name>many2many-example</name>
   <description>Many to many example using lightweight Java Persistence API for persisting objects to SQL databases.</description>
   <url>http://cybersearch2.com.au</url>
@@ -84,12 +82,12 @@
     <dependency>
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>classyjava</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
     <dependency>
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>classyjava</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
       <type>test-jar</type>
      </dependency>
     <dependency>
@@ -108,8 +106,13 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
+     </dependency>  
+    <dependency>
+      <groupId>com.j256.ormlite</groupId>
+      <artifactId>ormlite-jdbc</artifactId>
+      <version>4.49-SNAPSHOT</version>
       <scope>test</scope>
-    </dependency>  
+    </dependency>
     <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
