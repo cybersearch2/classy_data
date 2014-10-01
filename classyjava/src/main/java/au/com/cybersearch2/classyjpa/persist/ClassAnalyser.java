@@ -36,7 +36,7 @@ import au.com.cybersearch2.classybean.BeanUtil;
 import com.j256.ormlite.db.DatabaseType;
 import com.j256.ormlite.field.DataPersisterManager;
 import com.j256.ormlite.field.DatabaseFieldConfig;
-import com.j256.ormlite.misc.JavaxPersistence;
+import com.j256.ormlite.misc.JavaxPersistenceImpl;
 import com.j256.ormlite.table.DatabaseTableConfig;
 
 /**
@@ -185,7 +185,7 @@ public class ClassAnalyser
     {
         List<DatabaseFieldConfig> fieldConfigs = new ArrayList<DatabaseFieldConfig>();
         // Obtain table name from @Entity annotation if available, otherwise use default name
-        String tableName = JavaxPersistence.getEntityName(clazz);
+        String tableName = new JavaxPersistenceImpl().getEntityName(clazz);
         // Allow name to be omitted
         if (tableName == null)
             tableName = "table" + clazz.getSimpleName();

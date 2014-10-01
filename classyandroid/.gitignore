@@ -7,3 +7,4 @@
 /target/test-classes/**
 /target/.apt_generated
 /.apt_generated
+/target/
