@@ -37,9 +37,6 @@
       <timezone>+10</timezone>
     </developer>
   </developers>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
   <build>
     <plugins>
        <plugin>
@@ -82,19 +79,19 @@
     <dependency>
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>classyjava</artifactId>
-      <version>1.0.1</version>
+      <version>${classy.version}</version>
      </dependency>
     <dependency>
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>classyjava</artifactId>
-      <version>1.0.1</version>
+      <version>${classy.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
      </dependency>
     <dependency>
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>many2many-example</artifactId>
-      <version>1.0.1</version>
+      <version>${classy.version}</version>
       <scope>test</scope>
      </dependency>
     <!-- Exclude objenesis here in favour of Robolectric's later version -->
@@ -119,24 +116,18 @@
     <dependency>
       <groupId>com.j256.ormlite</groupId>
       <artifactId>ormlite-android</artifactId>
-      <version>4.49-SNAPSHOT</version>
+      <version>${ormlite.version}</version>
     </dependency>
     <dependency>
       <groupId>com.j256.ormlite</groupId>
       <artifactId>ormlite-jdbc</artifactId>
-      <version>4.49-SNAPSHOT</version>
+      <version>${ormlite.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
-      <version>18</version>
-      <scope>provided</scope>
-    </dependency>  
-    <dependency>
-      <groupId>com.android.support</groupId>
-      <artifactId>support-v4</artifactId>
-      <version>19.0.1</version>
+      <version>${android.sdk.version}</version>
       <scope>provided</scope>
     </dependency>  
     <dependency>
@@ -148,13 +139,13 @@
     <dependency>
       <groupId>org.robolectric</groupId>
       <artifactId>robolectric</artifactId>
-      <version>2.3</version>
+      <version>${robolectric.version}</version>
       <scope>test</scope>
     </dependency>  
     <dependency>
       <groupId>com.squareup.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
-      <version>1.2.2</version>
+      <version>${dagger.version}</version>
      <optional>true</optional>
     </dependency>
   </dependencies>

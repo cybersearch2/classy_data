@@ -92,7 +92,7 @@ import android.os.Message;
  * <p>Not all types are always used by a user task. To mark a type as unused,
  * simply use the type {@link Void}:</p>
  * <pre>
- * private class MyTask extends UserTask<Void, Void, Void) { ... }
+ * private class MyTask extends UserTask&lt;Void, Void, Void&gt; { ... }
  * </pre>
  *
  * <h2>The 4 steps</h2>
