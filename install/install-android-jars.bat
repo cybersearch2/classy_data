@@ -8,7 +8,7 @@ if exist maven-android-sdk-deployer\ goto deployer-install
 git clone https://github.com/mosabua/maven-android-sdk-deployer.git
 :deployer-install
 pushd maven-android-sdk-deployer
-@echo ** Install sdk level "%1"
+echo ** Install sdk level "%1"
 call mvn install -P "%1"
 popd
 echo ** Done!
