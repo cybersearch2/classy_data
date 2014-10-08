@@ -46,7 +46,14 @@
   </developers>
   <modules>
     <module>classyjava</module>
-    <module>classyandroid</module>
+<!-- For Android development, uncomment next module and run "mvn install" in the classyandroid directory.
+     Before doing so, ensure:
+         1. Android SDK is installed, 
+         2. ANDROID_HOME environment parameter is set, 
+         3. Android SDK Level 4.3 (API 18) is installed, including extra Google Apis 
+         4. Android Support Library is installed
+         5. Scripts install-android-jars and install-support-jars have run successfully -->
+<!--<module>classyandroid</module>-->
     <module>many2many-example</module>
   </modules>
 	<build>
