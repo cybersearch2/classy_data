@@ -24,7 +24,6 @@ import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import javax.persistence.TransactionRequiredException;
 
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.PersistenceConfig;
@@ -103,18 +102,9 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     
    /**
      * Make an entity instance managed and persistent.
-     * @param entity
-     * @throws EntityExistsException if the entity already exists.
-     * (The EntityExistsException may be thrown when the persist
-     * operation is invoked, or the EntityExistsException or
-     * another PersistenceException may be thrown at flush or commit
-     * time.)
-     * @throws IllegalStateException if this EntityManager has been closed.
+     * @param entity The entity instance
      * @throws IllegalArgumentException if not an entity
-     * @throws TransactionRequiredException if invoked on a
-     * container-managed entity manager of type
-     * PersistenceContextType.TRANSACTION and there is
-     * no transaction.
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public void persist(Object entity) 
@@ -144,13 +134,10 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     /**
      * Merge the state of the given entity into the
      * current persistence context.
-     * @param entity
-     * @return the instance that the state was merged to
-     * @throws IllegalStateException if this EntityManager has been closed.
+     * @param entity The entity instance
+     * @return The instance that the state was merged to
      * @throws IllegalArgumentException if instance is not an entity or is a removed entity
-     * @throws TransactionRequiredException if invoked on a
-     * container-managed entity manager of type PersistenceContextType.TRANSACTION
-     *  and there is no transaction.
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public <T> T merge(T entity) 
@@ -167,13 +154,9 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     /** 
      * Refresh the state of the instance from the database,
      * overwriting changes made to the entity, if any.
-     * @param entity
-     * @throws IllegalStateException if this EntityManager has been closed.
+     * @param entity The entity instance
      * @throws IllegalArgumentException if not an entity or entity is not managed
-     * @throws TransactionRequiredException if invoked on a
-     * container-managed entity manager of type PersistenceContextType.TRANSACTION
-     * and there is no transaction.
-     * @throws EntityNotFoundException if the entity no longer exists in the database.
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public void refresh(Object entity) 
@@ -194,11 +177,9 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
 
     /**
      * Remove the entity instance.
-     * @param entity
-     * @throws IllegalStateException if this EntityManager has been closed.
+     * @param entity The entity instance
      * @throws IllegalArgumentException if not an entity or if a detached entity
-     * @throws TransactionRequiredException if invoked on a container-managed entity manager of type
-     * PersistenceContextType.TRANSACTION and there is no transaction.
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public void remove(Object entity) 
@@ -216,8 +197,8 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     /**
      * Find by primary key.
      * Does not require transaction.
-     * @param entityClass
-     * @param primaryKey
+     * @param entityClass The class of the entity
+     * @param primaryKey The primary key as Object
      * @return the found entity instance or null if the entity does not exist
      * @throws IllegalStateException if this EntityManager has been closed.
      * @throws IllegalArgumentException if the first argument does
@@ -236,7 +217,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
 
     /**
      * Javax Persistence: "Get an instance, whose state may be lazily fetched".
-     * This implementation just an alias for find()
+     * This implementation is just an alias for find()
      * If the requested instance does not exist in the database,
      * throws {@link EntityNotFoundException} when the instance state is
      * first accessed.
@@ -244,16 +225,16 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
      * The application should not expect that the instance state will
      * be available upon detachment, unless it was accessed by the
      * application while the entity manager was open.
-     * @param entityClass
-     * @param primaryKey
+     * @param entityClass The class of the entity
+     * @param primaryKey The primary key as Object
      * @return the found entity instance
-     * @throws IllegalStateException if this EntityManager has been closed.
      * @throws IllegalArgumentException if the first argument does
      *    not denote an entity type or the second
      *    argument is not a valid type for that
      *    entity's primary key
      * @throws EntityNotFoundException if the entity state
      *    cannot be accessed
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public <T> T getReference(Class<T> entityClass, Object primaryKey) 
@@ -267,9 +248,8 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
 
     /**
      * Synchronize the persistence context to the underlying database.
-     * @throws IllegalStateException if this EntityManager has been closed.
-     * @throws TransactionRequiredException if there is no transaction
      * @throws PersistenceException if the flush fails
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public void flush() 
@@ -283,7 +263,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     /**
     * Set the flush mode that applies to all objects contained
     * in the persistence context.
-    * @param flushMode
+    * @param flushMode  The flush mode
     * @throws IllegalStateException if this EntityManager has been closed.
     */
     @Override
@@ -308,14 +288,11 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     }
 
     /**
+    * NOT SUPPORTED. 
     * Set the lock mode for an entity object contained in the persistence context.
     * @param entity
     * @param lockMode
-    * @throws IllegalStateException if this EntityManager has been closed.
-    * @throws PersistenceException if an unsupported lock call is made
-    * @throws IllegalArgumentException if the instance is not an entity or is a detached entity
-    * @throws TransactionRequiredException if there is no
-    * transaction
+    * @throws UnsupportedOperationException
     */
     @Override
     public void lock(Object entity, LockModeType lockMode) 
@@ -342,11 +319,11 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     /**
      * Check if the instance belongs to the current persistence
      * context.
-     * @param entity
+     * @param entity The entity instance
      * @return <code>true</code> if the instance belongs to 
      * the current persistence context.
-     * @throws IllegalStateException if this EntityManager has been closed.
      * @throws IllegalArgumentException if not an entity
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public boolean contains(Object entity) 
@@ -362,12 +339,12 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
 
     /**
      * Create an instance of Query for executing a
-     * named query (in the Java Persistence query language or in native SQL).
-     * @param name the name of a query defined in metadata
+     * named query (executed using OrmLite QueryBuilder or in native SQL).
+     * @param name The name of a query 
      * @return the new query instance
-     * @throws IllegalStateException if this EntityManager has been closed.
      * @throws IllegalArgumentException if a query has not been
      * defined with the given name
+     * @throws IllegalStateException if this EntityManager has been closed.
      */
     @Override
     public Query createNamedQuery(String name) 
@@ -386,14 +363,13 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     }
 
     /**
+     * NOT SUPPORTED
      * Indicate to the EntityManager that a JTA transaction is
      * active. This method should be called on a JTA application
      * managed EntityManager that was created outside the scope
      * of the active transaction to associate it with the current
      * JTA transaction.
-     * @throws IllegalStateException if this EntityManager has been closed.
-     * @throws TransactionRequiredException if there is
-     * no transaction.
+     * @throws UnsupportedOperationException
      */
     @Override
     public void joinTransaction() 
@@ -402,11 +378,10 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     }
 
     /**
-    * Return the underlying provider object for the EntityManager,
-    * if available. The result of this method is implementation
-    * specific.
-    * @return ConnectionSource - Do not call close() on this object
-     * @throws IllegalStateException if this EntityManager has been closed.
+    * Returns EntityManagerDelegate object which provides access to OrmLite DAOs.
+    * Return type of Object complies with Persistence API. Use cast to access the returned object as EntityManagerDelegate type.
+    * @return Object 
+    * @throws IllegalStateException if this EntityManager has been closed.
     */
     @Override
     public Object getDelegate() 
@@ -416,6 +391,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     }
 
     /**
+	 * DO NOT CALL close() as the container will do this automatically.
      * Close an application-managed EntityManager.
      * After the close method has been invoked, all methods
      * on the EntityManager instance and any Query objects obtained
@@ -425,7 +401,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
      * associated with an active transaction, the persistence
      * context remains managed until the transaction completes.
      * @throws IllegalStateException if the EntityManager
-     * is container-managed or has been already closed..
+     * is container-managed or has been already closed.
      */
     @Override
     public void close() 
@@ -438,18 +414,11 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
         // Do not close connection. This is managed by the EntityManagerFactory
     }
 
-    /**
-     * Close an application-managed EntityManager.
-     * After the close method has been invoked, all methods
-     * on the EntityManager instance and any Query objects obtained
-     * from it will throw the IllegalStateException except
-     * for getTransaction and isOpen (which will return false).
-     * If this method is called when the EntityManager is
-     * associated with an active transaction, the persistence
-     * context remains managed until the transaction completes.
-     * @throws IllegalStateException if the EntityManager
-     * is container-managed or has been already closed..
-     */
+	/**
+	 * Determine whether the entity manager is open.
+	 * 
+	 * @return true until the entity manager has been closed
+	 */
     @Override
     public boolean isOpen() 
     {
@@ -457,10 +426,9 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     }
 
     /**
-     * Returns the resource-level transaction object.
-     * The EntityTransaction instance may be used serially to begin and commit multiple transactions.
+     * Returns the resource-level transaction object, if User Transactions selected,  otherwise proxy object returned for which only setRollbackOnly() is active.
+     * In User Transaction mode, the EntityTransaction instance may be used serially to begin and commit multiple transactions.
      * @return EntityTransaction instance if in User Transaction mode, otherwise null
-     * @throws IllegalStateException if invoked on a JTA EntityManager.
      */
     @Override
     public EntityTransaction getTransaction() 
