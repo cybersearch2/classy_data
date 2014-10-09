@@ -3,7 +3,6 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              version="2.0">
    <persistence-unit name="manytomany">
-       <provider>com.j256.ormlite.examples.ManyToManyProvider</provider> 
        <class>au.com.cybersearch2.example.User</class>
        <class>au.com.cybersearch2.example.Post</class>
        <class>au.com.cybersearch2.example.UserPost</class>
