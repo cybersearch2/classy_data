@@ -9,7 +9,6 @@
   <description>JPA lite for Android - uses OrmLite and Dagger</description>
    <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <classy.version>1.0.1</classy.version>
     <android.plugin.version>4.0.0-rc.1</android.plugin.version>
     <android.sdk.version>4.3.1_r3</android.sdk.version>
     <android.support.version>20.0.0</android.support.version>
@@ -53,7 +52,7 @@
          3. Android SDK Level 4.3 (API 18) is installed, including extra Google Apis 
          4. Android Support Library is installed
          5. Scripts install-android-jars and install-support-jars have run successfully -->
-<!--<module>classyandroid</module>-->
+    <module>classyandroid</module>
     <module>many2many-example</module>
   </modules>
 	<build>

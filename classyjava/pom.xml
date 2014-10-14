@@ -84,7 +84,33 @@
              <additionalparam>-tag inheritDoc:X</additionalparam>
         </configuration>
        </plugin>
-    </plugins>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.9</version>
+            <configuration>
+              <outputDirectory>libs</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>false</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <includeArtifactIds>easymock,
+                                  mockito-core,
+                                  fest-assert-core,
+                                  fest-util,objenesis,
+                                  sqlite-jdbc,
+                                  openbeans,
+                                  persistence-api,
+                                  javax.inject,
+                                  commons-beanutils,
+                                  kxml2,
+                                  dagger,
+                                  ormlite-core,
+                                  ormlite-jdbc
+              </includeArtifactIds>
+              <excludeArtifactIds>maven-core,junit,dagger-compiler</excludeArtifactIds>
+            </configuration>
+        </plugin>
+     </plugins>
   </build>
   <dependencies>
     <dependency>

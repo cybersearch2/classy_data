@@ -77,14 +77,14 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>au.com.cybersearch2</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>classyjava</artifactId>
-      <version>${classy.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>au.com.cybersearch2</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>classyjava</artifactId>
-      <version>${classy.version}</version>
+      <version>${project.version}</version>
       <type>test-jar</type>
      </dependency>
     <dependency>
