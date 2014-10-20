@@ -22,10 +22,10 @@ if  [! -d "maven-android-sdk-deployer" ]; then
   echo "** Cloning  mosabua maven-android-sdk-deployer"
   git clone https://github.com/mosabua/maven-android-sdk-deployer.git
 fi
-pushd maven-android-sdk-deployer
+cd maven-android-sdk-deployer
 echo "** Install sdk level $1"
 mvn -q install -P "$1"
-popd
+cd ..
 echo "** Done!"
 
  

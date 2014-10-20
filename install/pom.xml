@@ -16,7 +16,7 @@
                  <goals>
                     <goal>install-file</goal>
                  </goals>
-                 <phase>validate</phase>
+                 <phase>initialize</phase>
                  <configuration>
                    <groupId>javax.persistence</groupId>
                    <artifactId>persistence-api</artifactId>
@@ -31,7 +31,7 @@
                  <goals>
                     <goal>install-file</goal>
                  </goals>
-                 <phase>validate</phase>
+                 <phase>initialize</phase>
                  <configuration>
                    <groupId>com.googlecode.openbeans</groupId>
                    <artifactId>openbeans</artifactId>
@@ -46,7 +46,7 @@
                  <goals>
                     <goal>install-file</goal>
                  </goals>
-                 <phase>validate</phase>
+                 <phase>initialize</phase>
                  <configuration>
                    <packaging>jar</packaging>
                    <file>${basedir}/ormlite-core/ormlite-core.jar</file>
@@ -59,7 +59,7 @@
                  <goals>
                     <goal>install-file</goal>
                  </goals>
-                 <phase>validate</phase>
+                 <phase>initialize</phase>
                  <configuration>
                    <packaging>jar</packaging>
                    <file>${basedir}/ormlite-jdbc/ormlite-jdbc.jar</file>
@@ -72,7 +72,7 @@
                  <goals>
                     <goal>install-file</goal>
                  </goals>
-                 <phase>validate</phase>
+                 <phase>initialize</phase>
                  <configuration>
                    <packaging>jar</packaging>
                    <file>${basedir}/ormlite-android/ormlite-android.jar</file>
