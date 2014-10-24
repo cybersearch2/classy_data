@@ -37,6 +37,84 @@
       <timezone>+10</timezone>
     </developer>
   </developers>
+	<profiles>
+	    <profile>
+	        <id>classic-test</id>
+	        <build>
+	            <plugins>
+                   <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.9</version>
+                     <configuration>
+                      <outputDirectory>test-libs</outputDirectory>
+                      <overWriteReleases>false</overWriteReleases>
+                      <overWriteSnapshots>false</overWriteSnapshots>
+                      <overWriteIfNewer>true</overWriteIfNewer>
+                      <excludeScope>runtime</excludeScope>
+		              <excludeArtifactIds>
+		                commons-logging,
+		                sqlite-jdbc,
+		                openbeans,
+		                persistence-api,
+		                javax.inject,
+		                commons-beanutils,
+		                kxml2,
+		                dagger,
+		                ormlite-core,
+		                ormlite-jdbc,
+		                junit,
+		                dagger-compiler,
+		              </excludeArtifactIds>
+		              <includeArtifactIds> 
+		              	easymock,
+		                mockito-core,
+		                fest-assert-core,
+		                fest-util,
+		                objenesis
+		              </includeArtifactIds>
+                    </configuration>
+                   </plugin>
+	            </plugins>
+	        </build>
+	    </profile>
+	    <profile>
+	        <id>classic</id>
+	        <build>
+	            <plugins>
+                   <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.9</version>
+                     <configuration>
+                      <outputDirectory>libs</outputDirectory>
+                      <overWriteReleases>false</overWriteReleases>
+                      <overWriteSnapshots>false</overWriteSnapshots>
+                      <overWriteIfNewer>true</overWriteIfNewer>
+                      <includeScope>runtime</includeScope>
+		              <includeArtifactIds>
+		                commons-logging,
+                        sqlite-jdbc,
+                        openbeans,
+                        persistence-api,
+                        javax.inject,
+                        commons-beanutils,
+                        kxml2,
+                        dagger,
+                        ormlite-core,
+                        ormlite-jdbc
+		              </includeArtifactIds>
+		              <excludeArtifactIds>
+		              	maven-core,
+		              	junit,
+		              	dagger-compiler
+		              </excludeArtifactIds>
+                    </configuration>
+                   </plugin>
+	            </plugins>
+	        </build>
+	    </profile>
+	</profiles>
   <build>
     <plugins>
        <plugin>
@@ -84,35 +162,24 @@
              <additionalparam>-tag inheritDoc:X</additionalparam>
         </configuration>
        </plugin>
+       <!-- Set skipTests = "true" to bypass test phase in build -->
        <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.9</version>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.17</version>
             <configuration>
-              <outputDirectory>libs</outputDirectory>
-              <overWriteReleases>false</overWriteReleases>
-              <overWriteSnapshots>false</overWriteSnapshots>
-              <overWriteIfNewer>true</overWriteIfNewer>
-              <includeArtifactIds>easymock,
-                                  mockito-core,
-                                  fest-assert-core,
-                                  fest-util,objenesis,
-                                  sqlite-jdbc,
-                                  openbeans,
-                                  persistence-api,
-                                  javax.inject,
-                                  commons-beanutils,
-                                  kxml2,
-                                  dagger,
-                                  ormlite-core,
-                                  ormlite-jdbc
-              </includeArtifactIds>
-              <excludeArtifactIds>maven-core,junit,dagger-compiler</excludeArtifactIds>
+             <skipTests>false</skipTests>
             </configuration>
         </plugin>
      </plugins>
   </build>
   <dependencies>
+    <dependency>
+	  <groupId>commons-logging</groupId>
+	  <artifactId>commons-logging</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+    </dependency>    
     <dependency>
       <groupId>org.bsc.maven</groupId>
       <artifactId>maven-processor-plugin</artifactId>
