@@ -53,8 +53,6 @@
                       <overWriteIfNewer>true</overWriteIfNewer>
                       <excludeScope>runtime</excludeScope>
 		              <excludeArtifactIds>
-		                commons-logging,
-		                sqlite-jdbc,
 		                openbeans,
 		                persistence-api,
 		                javax.inject,
@@ -67,11 +65,13 @@
 		                dagger-compiler,
 		              </excludeArtifactIds>
 		              <includeArtifactIds> 
+		                commons-logging,
 		              	easymock,
 		                mockito-core,
 		                fest-assert-core,
 		                fest-util,
-		                objenesis
+		                objenesis,
+		                sqlite-jdbc
 		              </includeArtifactIds>
                     </configuration>
                    </plugin>
