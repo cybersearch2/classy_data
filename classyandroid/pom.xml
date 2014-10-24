@@ -51,11 +51,9 @@
                       <overWriteReleases>false</overWriteReleases>
                       <overWriteSnapshots>false</overWriteSnapshots>
                       <overWriteIfNewer>true</overWriteIfNewer>
-                      <excludeScope>runtime</excludeScope>
 		              <excludeArtifactIds>
 		                commons-collections,
 		                ormlite-android,
-		                android,
 		                compatibility-v4,
 		              	classyjava,
 		              	many2many-example,
@@ -64,12 +62,12 @@
 		              	ormlite-jdbc,
 		                junit,
 		                dagger-compiler,
-<!-- Classic Eclipse requires download from: 
-    http://search.maven.org/remotecontent?filepath=org/robolectric/robolectric/2.3/robolectric-2.3-jar-with-dependencies.jar. -->		                
 		                robolectric 
 		              </excludeArtifactIds>
+<!-- Classic Eclipse requires download from: 
+    http://search.maven.org/remotecontent?filepath=org/robolectric/robolectric/2.3/robolectric-2.3-jar-with-dependencies.jar. -->		                
 		              <includeArtifactIds> 
-		                android,
+		                android
 		              </includeArtifactIds>
                     </configuration>
                    </plugin>
