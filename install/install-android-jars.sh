@@ -16,9 +16,9 @@ if [ "x$1" = "x" ]; then
   echo "  Installs jars for Android sdk level 4.3 (API 18), which is recommended level."
   return 1
 fi
-echo "NOTE: Run Android SDK Manager (from command line enter:  $ANDROID_HOME\tools\android)"
-echo "to check SDK Level $1 is installed, including Google Maps add-on plus Android Support Library"
-if  [! -d "maven-android-sdk-deployer" ]; then
+echo "NOTE: Run Android SDK Manager (from command line enter:  $ANDROID_HOME/tools/android)"
+echo "About to check SDK Level $1 is installed, including Google Maps add-on plus Android Support Library"
+if  [ ! -d "maven-android-sdk-deployer" ]; then
   echo "** Cloning  mosabua maven-android-sdk-deployer"
   git clone https://github.com/mosabua/maven-android-sdk-deployer.git
 fi
