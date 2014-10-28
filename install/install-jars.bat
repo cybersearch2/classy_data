@@ -38,6 +38,9 @@ if not errorlevel 0 goto error_exit
 echo ** Install ormlite-android.jar to local Maven repository
 call mvn install:install-file -Dfile=ormlite-android\ormlite-android.jar -DpomFile=ormlite-android\pom.xml -Dpackaging=jar 
 if not errorlevel 0 goto error_exit
+echo ** Install robolectric.jar to local Maven repository
+call mvn install:install-file -Dfile=robolectric\robolectric-2.4-SNAPSHOT.jar -DpomFile=robolectric\pom.xml -Dpackaging=jar 
+if not errorlevel 0 goto error_exit
 echo ** Done!
 goto :EOF
 :error_exit 
