@@ -79,6 +79,19 @@
                    <generatePom>false</generatePom>
                    <pomFile>${basedir}/ormlite-android/pom.xml</pomFile>
                  </configuration>
+              </execution> 
+              <execution>
+                 <id>install6</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>jar</packaging>
+                   <file>${basedir}/support/support-v4-19.0.1.jar</file>
+                   <generatePom>false</generatePom>
+                   <pomFile>${basedir}/support/support-v4-19.0.1.pom</pomFile>
+                 </configuration>
               </execution>
            </executions>
           </plugin>      
