@@ -11,7 +11,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <android.plugin.version>4.0.0-rc.1</android.plugin.version>
     <android.sdk.version>4.3.1_r3</android.sdk.version>
-    <android.support.version>20.0.0</android.support.version>
+    <android.support.version>21.0.0</android.support.version>
     <robolectric.version>2.3</robolectric.version>
     <ormlite.version>4.49-SNAPSHOT</ormlite.version>
     <dagger.version>1.2.2</dagger.version>
