@@ -41,5 +41,7 @@ echo "** Install ormlite-jdbc.jar to local Maven repository"
 mvn -q install:install-file -Dfile=ormlite-jdbc/ormlite-jdbc.jar -DpomFile=ormlite-jdbc/pom.xml -Dpackaging=jar 
 echo "** Install ormlite-android.jar to local Maven repository"
 mvn -q install:install-file -Dfile=ormlite-android/ormlite-android.jar -DpomFile=ormlite-android/pom.xml -Dpackaging=jar 
+echo "** Install support_v4.jar to local Maven repository"
+mvn -q install:install-file -Dfile=support/support-v4-19.0.1.jar -DpomFile=ormlite-support/support-v4-19.0.1.pom -Dpackaging=jar 
     
 echo "Done!"
