@@ -236,7 +236,7 @@
       <groupId>android.support</groupId>
       <artifactId>compatibility-v7-appcompat</artifactId>
       <version>${android.support.version}</version>
-      <type>apklib</type>
+      <type>jar</type>
     </dependency>  
      <dependency>
       <groupId>android.support</groupId>
@@ -250,17 +250,10 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
-    <!-- Exclude Android Support as other version already available -->  
     <dependency>
       <groupId>org.robolectric</groupId>
       <artifactId>robolectric</artifactId>
       <version>${robolectric.version}</version>
-       <exclusions>
-        <exclusion>
-          <groupId>com.android.support</groupId>
-          <artifactId>support-v4</artifactId>        
-        </exclusion>
-       </exclusions>
       <scope>test</scope>
     </dependency>  
     <dependency>
