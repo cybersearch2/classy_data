@@ -1,18 +1,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>au.com.cybersearch2</groupId>
-  <artifactId>install-jars</artifactId>
-  <version>1.0.1</version>
+  <parent>
+    <groupId>au.com.cybersearch2</groupId>
+    <artifactId>classy_tools</artifactId>
+    <version>1.0.1</version>
+  </parent>
+  <artifactId>install</artifactId>
+  <packaging>pom</packaging>
   <name>Install_Jars</name>
-    <build>
-      <plugins>
+  <properties>
+    <!-- ANDROID_HOME environment variable -->
+    <android.sdk.path>${env.ANDROID_HOME}</android.sdk.path>
+    <android.support.path>${android.sdk.path}</android.support.path>
+    <sdk.android.jar.path>${android.sdk.path}/platforms/android-${android.platform.version}/android.jar</sdk.android.jar.path>
+    <sdk.compatibility.v4.jar.path>${android.support.path}/extras/android/support/v7/appcompat/libs/android-support-v4.jar</sdk.compatibility.v4.jar.path>
+    <google.maps.18.path>${android.sdk.path}/add-ons/addon-google_apis-google-18/libs/maps.jar</google.maps.18.path>
+  </properties>
+	<profiles>
+	    <profile>
+	        <id>java</id>
+	        <build>
+	            <plugins>
           <plugin>
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-install-plugin</artifactId>
            <version>2.5.1</version>
            <executions>
               <execution>
-                 <id>install1</id>
+                 <id>persistence-api</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -27,7 +42,7 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>install2</id>
+                 <id>openbeans</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -42,7 +57,7 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>install3</id>
+                 <id>ormlite-core</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -55,7 +70,7 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>install4</id>
+                 <id>ormlite-jdbc</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -67,8 +82,22 @@
                    <pomFile>${basedir}/ormlite-jdbc/pom.xml</pomFile>
                  </configuration>
               </execution>
+           </executions>
+          </plugin>      
+	            </plugins>
+	        </build>
+	    </profile>
+	    <profile>
+	        <id>android</id>
+	        <build>
+	            <plugins>
+          <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-install-plugin</artifactId>
+           <version>2.5.1</version>
+           <executions>
               <execution>
-                 <id>install5</id>
+                 <id>ormlite-android</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -81,21 +110,59 @@
                  </configuration>
               </execution> 
               <execution>
-                 <id>install6</id>
+                 <id>android</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
                  <phase>initialize</phase>
                  <configuration>
                    <packaging>jar</packaging>
-                   <file>${basedir}/support/support-v4-19.0.1.jar</file>
-                   <generatePom>false</generatePom>
-                   <pomFile>${basedir}/support/support-v4-19.0.1.pom</pomFile>
+                   <file>${sdk.android.jar.path}</file>
+                   <generatePom>true</generatePom>
+                   <groupId>android</groupId>
+                   <artifactId>android</artifactId>
+                   <version>${android.sdk.version}</version>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>goggle-maps-18</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>jar</packaging>
+                   <file>${google.maps.18.path}</file>
+                   <generatePom>true</generatePom>
+                   <groupId>com.google.android.maps</groupId>
+                   <artifactId>maps</artifactId>
+                   <version>18_r3</version>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>support-v4</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>jar</packaging>
+                   <file>${sdk.compatibility.v4.jar.path}</file>
+                   <generatePom>true</generatePom>
+                   <groupId>android.support</groupId>
+                   <artifactId>compatibility-v4</artifactId>
+                   <version>${android.support.version}</version>
                  </configuration>
               </execution>
            </executions>
           </plugin>      
-        </plugins>
+	            </plugins>
+	        </build>
+	    </profile>
+	</profiles>
+    <build>
+      <plugins>
+      </plugins>
       <pluginManagement>
       	<plugins>
       		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->

@@ -120,7 +120,12 @@ public class AndroidDatabaseSupportTest
 
     static class TestCursor implements Cursor
     {
-
+        @Override
+        public Uri getNotificationUri ()
+        {
+            return null;
+        }
+        
         @Override
         public int getCount() {
             return 0;
