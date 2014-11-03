@@ -9,3 +9,4 @@
 /.apt_generated
 /target/
 /libs/
+/test-libs/
