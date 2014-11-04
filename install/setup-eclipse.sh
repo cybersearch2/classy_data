@@ -14,15 +14,13 @@ echo "Set up $ECLIPSE_TYPE Eclipse"
 echo "classyjava" 
 cd ../classyjava
 cp eclipse/$ECLIPSE_TYPE/project ./.project
-xcopy /Y eclipse\$ECLIPSE_TYPE\.classpath .
-cd ..
+cp eclipse/$ECLIPSE_TYPE/.classpath .
 echo "classyandroid"
 cd ../classyandroid
 cp eclipse/$ECLIPSE_TYPE/project ./.project
 cp eclipse/$ECLIPSE_TYPE/.classpath .
-cd ..
 echo "many2many-example"
 cd ../many2many-example
 cp eclipse/$ECLIPSE_TYPE/project ./.project
 cp eclipse/$ECLIPSE_TYPE/.classpath .
-cd ..
+cd ../install
