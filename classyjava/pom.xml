@@ -39,7 +39,7 @@
   </developers>
 	<profiles>
 	    <profile>
-	        <id>classic-test</id>
+	        <id>classic-java-test</id>
 	        <build>
 	            <plugins>
                    <plugin>
@@ -79,7 +79,7 @@
 	        </build>
 	    </profile>
 	    <profile>
-	        <id>classic</id>
+	        <id>classic-java</id>
 	        <build>
 	            <plugins>
                    <plugin>
@@ -110,6 +110,44 @@
 		              	dagger-compiler
 		              </excludeArtifactIds>
                     </configuration>
+                   </plugin>
+	            </plugins>
+	        </build>
+	    </profile>
+	    <profile>
+	        <id>classic-android-test</id>
+	        <build>
+	            <plugins>
+                   <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.9</version>
+                    <executions>
+                        <execution>
+                            <id>default-cli</id>
+                            <goals><goal>copy-dependencies</goal></goals>
+                            <configuration><skip>true</skip></configuration>
+                        </execution>
+                    </executions>
+                   </plugin>
+	            </plugins>
+	        </build>
+	    </profile>
+	    <profile>
+	        <id>classic-android</id>
+	        <build>
+	            <plugins>
+                   <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.9</version>
+                    <executions>
+                        <execution>
+                            <id>default-cli</id>
+                            <goals><goal>copy-dependencies</goal></goals>
+                            <configuration><skip>true</skip></configuration>
+                        </execution>
+                    </executions>
                    </plugin>
 	            </plugins>
 	        </build>
