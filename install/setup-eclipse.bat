@@ -10,12 +10,12 @@ xcopy /Y eclipse\%TYPE%\project .\.project
 xcopy /Y eclipse\%TYPE%\.classpath .
 popd
 @echo classyandroid
-pushd ..\classyfy\classyandroid
+pushd ..\classyandroid
 xcopy /Y eclipse\%TYPE%\project .\.project
 xcopy /Y eclipse\%TYPE%\.classpath .
 popd
 @echo many2many-example
-pushd ..\classyfy\many2many-example
+pushd ..\many2many-example
 xcopy /Y eclipse\%TYPE%\project .\.project
 xcopy /Y eclipse\%TYPE%\.classpath .
 popd
