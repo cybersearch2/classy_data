@@ -5,7 +5,7 @@
 # Usage:
 #   setup-eclipse.sh [classic]
 #
-export ECLIPSE_TYPE=eclipse
+export ECLIPSE_TYPE=classic
 if [ "x$1" = "x" ]; then 
 export ECLIPSE_TYPE=maven
 fi
