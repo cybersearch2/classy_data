@@ -153,7 +153,7 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>robolectric</id>
+                 <id>robolectric-annotations</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -166,7 +166,7 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>robolectric</id>
+                 <id>robolectricc-processor</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -179,13 +179,17 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>robolectric</id>
+                 <id>robolectric-parent</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
                  <phase>initialize</phase>
                  <configuration>
-                   <packaging>pom</packaging>
+                   <packaging>pom</packaging>                   <groupId>javax.persistence</groupId>
+				   <groupId>org.robolectric</groupId>
+				   <artifactId>robolectric-parent</artifactId>
+				   <version>2.4-SNAPSHOT</version>
+                   <generatePom>false</generatePom>
                    <file>${basedir}/robolectric/robolectric-parent-2.4-SNAPSHOT.pom</file>
                   </configuration>
               </execution>
