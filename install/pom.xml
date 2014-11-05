@@ -153,6 +153,43 @@
                  </configuration>
               </execution>
               <execution>
+                 <id>robolectric</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>jar</packaging>
+                   <file>${basedir}/robolectric/robolectric-annotations-2.4-SNAPSHOT.jar</file>
+                   <generatePom>false</generatePom>
+                   <pomFile>${basedir}/robolectric/robolectric-annotations-2.4-SNAPSHOT.pom</pomFile>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>robolectric</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>jar</packaging>
+                   <file>${basedir}/robolectric/robolectric-processor-2.4-SNAPSHOT.jar</file>
+                   <generatePom>false</generatePom>
+                   <pomFile>${basedir}/robolectric/robolectric-processor-2.4-SNAPSHOT.pom</pomFile>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>robolectric</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>pom</packaging>
+                   <file>${basedir}/robolectric/robolectric-parent-2.4-SNAPSHOT.pom</file>
+                  </configuration>
+              </execution>
+              <execution>
                  <id>android</id>
                  <goals>
                     <goal>install-file</goal>
