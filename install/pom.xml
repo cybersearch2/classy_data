@@ -140,6 +140,19 @@
                  </configuration>
               </execution> 
               <execution>
+                 <id>robolectric</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>jar</packaging>
+                   <file>${basedir}/robolectric/robolectric-2.4-SNAPSHOT.jar</file>
+                   <generatePom>false</generatePom>
+                   <pomFile>${basedir}/robolectric/robolectric-2.4-SNAPSHOT.pom</pomFile>
+                 </configuration>
+              </execution>
+              <execution>
                  <id>android</id>
                  <goals>
                     <goal>install-file</goal>
