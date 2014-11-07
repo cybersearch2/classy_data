@@ -94,6 +94,7 @@
                       <includeScope>runtime</includeScope>
 		              <includeArtifactIds>
 		                commons-logging,
+                        commons-collections,
                         sqlite-jdbc,
                         openbeans,
                         persistence-api,

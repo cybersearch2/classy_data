@@ -30,18 +30,18 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/classyjava"/>
 	<classpathentry kind="lib" path="/classyjava/libs/commons-beanutils-1.9.2.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/commons-collections-3.2.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/commons-logging-1.1.3.jar"/>
+	<classpathentry kind="lib" path="/classyjava/libs/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/dagger-1.2.2.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/fest-assert-core-2.0M10.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/fest-util-1.2.5.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/fest-assert-core-2.0M10.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/fest-util-1.2.5.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/javax.inject-1.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/kxml2-2.3.0.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/mockito-core-1.9.5.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/objenesis-1.3.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/mockito-core-1.9.5.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/objenesis-1.3.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/ormlite-core-4.49-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/ormlite-jdbc-4.49-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/persistence-api-2.0.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/sqlite-jdbc-3.8.5-pre1.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/sqlite-jdbc-3.8.5-pre1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

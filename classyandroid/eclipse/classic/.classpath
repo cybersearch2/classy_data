@@ -28,26 +28,35 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="libs/compatibility-v4-20.0.0.jar"/>
-	<classpathentry kind="lib" path="libs/compatibility-v7-appcompat-20.0.0.apklib"/>
-	<classpathentry kind="lib" path="libs/compatibility-v7-appcompat-20.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/compatibility-v4-21.0.1.jar"/>
 	<classpathentry kind="lib" path="libs/ormlite-android-4.49-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="libs/robolectric-2.3-jar-with-dependencies.jar"/>
+	<classpathentry kind="lib" path="test-libs/robolectric-2.3.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/commons-beanutils-1.9.2.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/commons-collections-3.2.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/commons-logging-1.1.3.jar"/>
+	<classpathentry kind="lib" path="/classyjava/libs/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/dagger-1.2.2.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/easymock-3.2.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/fest-assert-core-2.0M10.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/fest-util-1.2.5.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/fest-assert-core-2.0M10.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/fest-util-1.2.5.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/javax.inject-1.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/kxml2-2.3.0.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/mockito-core-1.9.5.jar"/>
-	<classpathentry kind="lib" path="/classyjava/libs/objenesis-1.3.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/mockito-core-1.9.5.jar"/>
+	<classpathentry kind="lib" path="/classyjava/test-libs/objenesis-1.3.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/openbeans-1.0.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/ormlite-core-4.49-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="/classyjava/libs/persistence-api-2.0.jar"/>
-	<classpathentry kind="lib" path="test-libs/android-4.4W_r2.jar"/>
+	<classpathentry kind="lib" path="test-libs/android-5.0.0.jar"/>
+	<classpathentry kind="lib" path="test-libs/asm-5.0.1.jar"/>
+	<classpathentry kind="lib" path="test-libs/asm-analysis-5.0.1.jar"/>
+	<classpathentry kind="lib" path="test-libs/asm-commons-5.0.1.jar"/>
+	<classpathentry kind="lib" path="test-libs/asm-tree-5.0.1.jar"/>
+	<classpathentry kind="lib" path="test-libs/asm-util-5.0.1.jar"/>
+	<classpathentry kind="lib" path="test-libs/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="test-libs/vtd-xml-2.11.jar"/>
+	<classpathentry kind="lib" path="test-libs/ant-1.8.0.jar"/>
+	<classpathentry kind="lib" path="test-libs/ant-launcher-1.8.0.jar"/>
+	<classpathentry kind="lib" path="test-libs/maven-ant-tasks-2.1.3.jar"/>
+	<classpathentry kind="lib" path="test-libs/fest-reflect-1.4.1.jar"/>
+	<classpathentry kind="lib" path="test-libs/sqlite4java-0.282.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/classyjava"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/many2many-example"/>
 	<classpathentry kind="output" path="target/classes"/>
