@@ -60,7 +60,6 @@
     <module>classyjava</module>
     <module>classyandroid</module>
     <module>many2many-example</module>
-    <module>install</module>
   </modules>
 	<build>
 		<finalName>${project.artifactId}</finalName>
