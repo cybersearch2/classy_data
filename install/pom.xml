@@ -240,6 +240,24 @@
               </execution>
            </executions>
           </plugin>      
+          <!-- Install RobolectricTestRunner Maven dependencies now rather than wait for first
+               test run. These dependencies are inserted in the TestRunner's classpath, hence
+               the use of maven-dependency-plugin "build-classpath" goal which does the same thing as the TestRunner. 
+               See dependencies listed below and source for org.robolectric.SdkConfig for more information. -->
+                   <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.9</version>
+                    <executions>
+                      <execution>
+                        <id>robolectric-classpath-dependencies</id>
+                        <phase>initialize</phase>
+		                 <goals>
+		                    <goal>build-classpath</goal>
+		                 </goals>
+                      </execution>
+                    </executions>
+                   </plugin>
 	            </plugins>
 	        </build>
 	    </profile>
