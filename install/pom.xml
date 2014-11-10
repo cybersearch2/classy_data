@@ -166,7 +166,7 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>robolectricc-processor</id>
+                 <id>robolectric-processor</id>
                  <goals>
                     <goal>install-file</goal>
                  </goals>
@@ -290,4 +290,43 @@
       	</plugins>
       </pluginManagement>
     </build>
+    <dependencies>
+   <!-- Assume Robolectric SDK Version = 18. Other supported version are 16 and 17.
+        For each version, there is a VERY LARGE "Android all" jar dependency. 
+        RobolectricTestRunner will install this jar in the local repository if required.
+        It is better to let Maven handle all dependencies for consistency.
+        Please uncomment other version dependencies, if required. -->
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>android-all</artifactId>
+          <version>4.3_r2-robolectric-0</version>
+          <scope>test</scope>
+       </dependency>
+       <!-- API 17
+       <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>android-all</artifactId>
+          <version>4.2.2_r1.2-robolectric-0</version>
+          <scope>test</scope>
+       </dependency> -->
+       <!-- API 16
+       <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>android-all</artifactId>
+          <version>4.1.2_r1-robolectric-0</version>
+          <scope>test</scope> -->
+       </dependency>
+       <dependency>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+          <version>20080701</version>
+          <scope>test</scope>
+       </dependency>
+       <dependency>
+          <groupId>org.ccil.cowan.tagsoup</groupId>
+          <artifactId>tagsoup</artifactId>
+          <version>1.2</version>
+          <scope>test</scope>
+       </dependency>
+    </dependencies>
 </project>
