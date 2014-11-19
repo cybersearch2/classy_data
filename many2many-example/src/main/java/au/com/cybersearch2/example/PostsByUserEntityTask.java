@@ -100,7 +100,7 @@ public class PostsByUserEntityTask implements PersistenceWork
     @Override
     public void onRollback(Throwable rollbackException) 
     {
-        throw new IllegalStateException("Query " + ManyToManyMain.POSTS_BY_USER + " failed. Check console for stack trace.");
+        throw new IllegalStateException("Query " + ManyToManyMain.POSTS_BY_USER + " failed. Check console for stack trace.", rollbackException);
     }
 
     /**

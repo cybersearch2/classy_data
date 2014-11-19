@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classybean.BeanException;
 import au.com.cybersearch2.classybean.BeanUtil;
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdminImpl;
 import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
@@ -95,13 +96,14 @@ public class AndroidConnectionSourceFactory
                 throw new PersistenceException("Persistence property \"" + PersistenceUnitInfoImpl.PU_NAME_PROPERTY + "\" not set");
             openHelperCallbacks = new ClassyOpenHelperCallbacks(puName);
         }
+        int databaseVersion = PersistenceAdminImpl.getDatabaseVersion(properties);
         // AndroidSQLiteConnection also contains an SQLiteOpenHelper. 
         // The onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
         SQLiteOpenHelper sqLiteOpenHelper = 
                 new SQLiteOpenHelper(applicationContext.getContext(),
                                      databaseName,
                                      null,
-                                     1){
+                                     databaseVersion){
 
             @Override
             public void onCreate(SQLiteDatabase db) {

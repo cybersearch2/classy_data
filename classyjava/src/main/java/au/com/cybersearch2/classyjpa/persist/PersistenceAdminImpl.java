@@ -27,6 +27,8 @@ import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
 import au.com.cybersearch2.classyjpa.query.DaoQueryFactory;
 import au.com.cybersearch2.classyjpa.query.QueryInfo;
 import au.com.cybersearch2.classyjpa.query.SqlQueryFactory;
+import au.com.cybersearch2.classylog.JavaLogger;
+import au.com.cybersearch2.classylog.Log;
 
 import com.j256.ormlite.db.DatabaseType;
 import com.j256.ormlite.support.ConnectionSource;
@@ -39,6 +41,9 @@ import com.j256.ormlite.support.ConnectionSource;
  */
 public class PersistenceAdminImpl implements PersistenceAdmin
 {
+    private static final String TAG = "PersistenceAdminImpl";
+    private static Log log = JavaLogger.getLogger(TAG);
+
     protected String puName;
     protected PersistenceConfig config;
     protected PersistenceUnitInfo puInfo;
@@ -146,6 +151,30 @@ public class PersistenceAdminImpl implements PersistenceAdmin
         return databaseName;
     }
 
+    /**
+     * Returns database version, which is defined as PU property "database-version". Defaults to 1 if not defined
+     * @return String
+     */
+    public static int getDatabaseVersion(Properties properties)
+    {
+        // Database version defaults to 1
+        int databaseVersion = 1;
+        if (properties != null)
+        {
+        	String textVersion = properties.getProperty(DatabaseAdmin.DATABASE_VERSION);
+	        try
+	        {
+	        	if (textVersion != null)
+	        	databaseVersion = Integer.parseInt(textVersion);
+	        }
+	        catch (NumberFormatException e)
+	        {
+	        	log.error(TAG, "Invalid " + DatabaseAdmin.DATABASE_VERSION + " value: \"" + textVersion);
+	        }
+        }
+    	return databaseVersion;
+    }
+    
     /**
      * Close all database connections
      */

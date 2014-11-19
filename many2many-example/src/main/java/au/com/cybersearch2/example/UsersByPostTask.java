@@ -113,6 +113,6 @@ public class UsersByPostTask implements PersistenceWork
     @Override
     public void onRollback(Throwable rollbackException) 
     {
-        throw new IllegalStateException("Query " + ManyToManyMain.USERS_BY_POST + " failed. Check console for stack trace.");
+        throw new IllegalStateException("Query " + ManyToManyMain.USERS_BY_POST + " failed. Check console for stack trace.", rollbackException);
    }
 }

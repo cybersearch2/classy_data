@@ -138,7 +138,7 @@ public class ManyToManyMain
             @Override
             public void onRollback(Throwable rollbackException)
             {
-                throw new IllegalStateException("Database set up failed. Check console for stack trace.");
+                throw new IllegalStateException("Database set up failed. Check console for stack trace.", rollbackException);
             }
         };
         // Execute work and wait synchronously for completion
