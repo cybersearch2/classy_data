@@ -23,16 +23,15 @@ import javax.persistence.Query;
 //import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 //import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 
-
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
+import au.com.cybersearch2.example.PersistenceTask;
 
 /**
  * ComplexTask
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-public class ComplexTask implements PersistenceWork
+public class ComplexTask implements PersistenceTask
 {
     protected String context;
     protected StringBuilder sb;
@@ -56,7 +55,7 @@ public class ComplexTask implements PersistenceWork
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void doInBackground(EntityManagerLite entityManager) 
+    public void doTask(EntityManagerLite entityManager) 
     {
     	sb.setLength(0);
 		// Query for all of the data objects in the database
@@ -92,7 +91,7 @@ public class ComplexTask implements PersistenceWork
 		int createNum;
 		do 
 		{
-			createNum = new Random().nextInt(2) + 1;
+			createNum = new Random().nextInt(3) + 1;
 		} while (createNum == list.size());
 		for (int i = 0; i < createNum; i++) 
 		{
@@ -107,25 +106,15 @@ public class ComplexTask implements PersistenceWork
 			sb.append("------------------------------------------\n");
 			sb.append("Created ComplexData entry #").append(i + 1).append(":\n");
 			sb.append(complex).append("\n");
+			// Introduce a delay of more than 1 millisecond to get new "millis" value
+			try 
+			{
+				Thread.sleep(5);
+			} 
+			catch (InterruptedException e) 
+			{
+				break;
+			}
 		}
     }
-    
-    /**
-     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#onPostExecute(boolean)
-     */
-    @Override
-    public void onPostExecute(boolean success) 
-    {
-        if (!success)
-            throw new IllegalStateException(HelloTwoDbsMain.PU_NAME2 + " task failed. Check console for error details.");
-    }
-    
-    /**
-     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#onRollback(java.lang.Throwable)
-     */
-    @Override
-    public void onRollback(Throwable rollbackException) 
-    {
-        throw new IllegalStateException(HelloTwoDbsMain.PU_NAME2 + " task failed. Check console for stack trace.", rollbackException);
-   }
 }

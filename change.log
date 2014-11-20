@@ -1,0 +1,15 @@
+Classy Tools v1.0.2
+
+1. Change "Property key for database version" in classyjava interface au.com.cybersearch2.classydb.DatabaseAdmin to make it consistent with other property keys.
+
+    Before:
+    public final static String DATABASE_VERSION = "database_version";
+    
+    After:
+    public final static String DATABASE_VERSION = "database-version";
+    
+2. Add static method to return database version read from Properties using DATABASE_VERSION key. Updated classyjava class au.com.cybersearch2.classyjpa.persist.PersistenceAdminImpl.
+
+    Defaults to 1 if property is not defined.    
+    
+3. Change classyandroid class au.com.cybersearch2.classydb.AndroidConnectionSourceFactory to pass DATABASE_VERSION property to SqlLiteOpenHelper constructor.

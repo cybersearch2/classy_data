@@ -15,8 +15,10 @@ public class SimpleData
     @Id @GeneratedValue
 	int id;
 
+    @Column
+    String name;
+    
 	@Column
-	private
 	long millis;
 	
 	@Column
@@ -27,25 +29,28 @@ public class SimpleData
 		// needed by ormlite
 	}
 
-	public SimpleData(long millis) 
+	public SimpleData(String name, long millis) 
 	{
-		this.setMillis(millis);
+		this.name = name;
+		this.millis = millis;
 		this.even = ((this.getMillis() % 2) == 0);
 	}
 
-	public long getMillis() {
+	public long getMillis() 
+	{
 		return millis;
 	}
 
-	public void setMillis(long millis) {
-		this.millis = millis;
+	public String getName()
+	{
+		return name;
 	}
-
+	
 	@Override
 	public String toString() 
 	{
-		StringBuilder sb = new StringBuilder();
-		sb.append("id=").append(id);
+		StringBuilder sb = new StringBuilder(name);
+		sb.append(": id=").append(id);
 		sb.append(", ").append("millis=").append(getMillis());
 		sb.append(", ").append("even=").append(even);
 		return sb.toString();

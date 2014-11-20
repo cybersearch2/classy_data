@@ -1,4 +1,4 @@
-package au.com.cybersearch2.example;
+package au.com.cybersearch2.example.v2;
 /**
     Copyright (C) 2014  www.cybersearch2.com.au
 
@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import au.com.cybersearch2.classytask.Executable;
+import au.com.cybersearch2.example.HelloTwoDbsMain_v1;
 
 
 /**
@@ -27,13 +28,40 @@ import au.com.cybersearch2.classytask.Executable;
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-public class HelloTwoDbsTest
+public class HelloTwoDbsUpgradeTest
 {
     private static HelloTwoDbsMain helloTwoDbsMain;
 
     @Before
     public void setUp() throws Exception 
     {
+        // Run version 1 of example which will leave 2 database tables populated with version 1 objects.
+	    HelloTwoDbsMain_v1 helloTwoDbsMain_v1 = new HelloTwoDbsMain_v1();
+        try
+        {
+        	helloTwoDbsMain_v1.setUp();
+        	au.com.cybersearch2.example.SimpleTask simpleTask = new au.com.cybersearch2.example.SimpleTask("main");
+            helloTwoDbsMain_v1.performPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
+			// Our string builder for building the content-view
+			StringBuilder sb = new StringBuilder();
+			au.com.cybersearch2.example.ComplexTask complexTask = new au.com.cybersearch2.example.ComplexTask("main");
+            helloTwoDbsMain_v1.performPersistenceWork(HelloTwoDbsMain.PU_NAME2, complexTask);
+            helloTwoDbsMain_v1.logMessage(HelloTwoDbsMain.TAG, "Test completed successfully at " + System.currentTimeMillis());
+            helloTwoDbsMain_v1.displayMessage(sb
+					.append(HelloTwoDbsMain.SEPARATOR_LINE)
+					.append(simpleTask.getMessage())
+					.append(HelloTwoDbsMain.SEPARATOR_LINE)
+					.append(complexTask.getMessage())
+					.toString());
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+        	helloTwoDbsMain_v1.shutdown();
+        }
         if (helloTwoDbsMain == null)
             helloTwoDbsMain = new HelloTwoDbsMain();
         helloTwoDbsMain.setUp();
@@ -44,7 +72,7 @@ public class HelloTwoDbsTest
     {
     	helloTwoDbsMain.shutdown();
     }
-    
+ 
     @Test 
     public void test_hello_two_dbs_serial_jpa() throws Exception
     {

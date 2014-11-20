@@ -12,11 +12,11 @@
        <property name="database-name" value="helloTwoDb2.db"/>
        <property name="database-version" value="2"/>
    </persistence-unit>
-   <persistence-unit name="simple-v1">
+   <persistence-unit name="simple_v1">
        <class>au.com.cybersearch2.example.SimpleData</class>
         <property name="database-name" value="helloTwoDb1.db"/>
    </persistence-unit>
-   <persistence-unit name="complex-v1">
+   <persistence-unit name="complex_v1">
        <class>au.com.cybersearch2.example.ComplexData</class>
        <property name="database-name" value="helloTwoDb2.db"/>
    </persistence-unit>

@@ -16,13 +16,11 @@
 package au.com.cybersearch2.example.v2;
 
 import java.util.List;
-import java.util.Random;
 
 import javax.persistence.Query;
 
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
-import au.com.cybersearch2.example.SimpleData;
 
 /**
  * Simple_v1Task
@@ -61,7 +59,7 @@ public class Simple_v1Task implements PersistenceWork
     {
     	sb.setLength(0);
 		// Query for all of the data objects in the database
-        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_SIMPLE_DATA_v1);
+        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_SIMPLE_DATA);
         list = (List<SimpleData>) query.getResultList();
 
 		sb.append("Got ").append(list.size()).append(" SimpleData entries in ").append("\n");
@@ -71,6 +69,8 @@ public class Simple_v1Task implements PersistenceWork
 		int objC = 0;
 		for (SimpleData simple : list) 
 		{
+			simple.setQuote(QuoteSource.getQuote());
+			entityManager.merge(simple);
 			sb.append("[").append(objC).append("] = ").append(simple).append("\n");
 			objC++;
 		}

@@ -17,7 +17,6 @@ public class ComplexData
 	int id;
 
 	@Column
-	private
 	long secs;
 
 	@Column
@@ -30,16 +29,13 @@ public class ComplexData
 
 	public ComplexData(long millis) 
 	{
-		this.setSecs(millis / 1000);
+		this.secs = millis / 1000;
 		this.odd = ((this.getSecs() % 2) == 1);
 	}
 
-	public long getSecs() {
+	public long getSecs() 
+	{
 		return secs;
-	}
-
-	public void setSecs(long secs) {
-		this.secs = secs;
 	}
 
 	@Override

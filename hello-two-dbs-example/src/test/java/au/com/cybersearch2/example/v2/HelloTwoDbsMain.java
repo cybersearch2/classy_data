@@ -2,7 +2,6 @@ package au.com.cybersearch2.example.v2;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -27,30 +26,26 @@ import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.Executable;
+import au.com.cybersearch2.example.PersistenceTask;
 import au.com.cybersearch2.example.QueryForAllGenerator;
 
 /**
- * ORIGINAL COMMENTS:
+ * Version 2 of HelloTwoDbsMain introduces a new "quote" field to both SimpleData and ComplexData entities.
  * CLASSYTOOLS COMMENTS:
  */
 public class HelloTwoDbsMain 
 {
-	interface PersistenceTask
-	{
-		void doTask(EntityManagerLite entityManager);
-	}
-	
     static public final String TAG = "HelloTwoDbsMain";
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
     static public final String PU_NAME1_v1 = "simple_v1";
     static public final String PU_NAME2_v1 = "complex_v1";
+    static public final String SIMPLE_DATA_TABLENAME = "Simple";
+    static public final String COMPLEX_DATA_TABLENAME = "Complex";
     /** Named query to find all SimpleData objects */
     static public final String ALL_SIMPLE_DATA = "all_simple_data";
-    static public final String ALL_SIMPLE_DATA_v1 = "all_simple_data_v1";
     /** Named query to find all ComplexData objects */
     static public final String ALL_COMPLEX_DATA = "all_complex_data";
-    static public final String ALL_COMPLEX_DATA_v1 = "all_complex_data_v1";
     static public final String DATABASE_INFO_NAME = "User_Info";
     static public final int DATABASE_VERSION = 2;
    
@@ -100,23 +95,46 @@ public class HelloTwoDbsMain
         QueryForAllGenerator allComplexDataObjects = 
                 new QueryForAllGenerator(persistenceAdmin2);
         persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA, allComplexDataObjects);
-        Persistence persistence1_v1 = persistenceFactory.getPersistenceUnit(PU_NAME1_v1);
-        // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin1_v1 = persistence1_v1.getPersistenceAdmin();
-        // Create named queries to exploit UserPost join table.
-        QueryForAllGenerator allSimpleData_v1Objects = 
-                new QueryForAllGenerator(persistenceAdmin1_v1);
-        persistenceAdmin1_v1.addNamedQuery(au.com.cybersearch2.example.SimpleData.class, ALL_SIMPLE_DATA_v1, allSimpleData_v1Objects);
-        Persistence persistence2_v1 = persistenceFactory.getPersistenceUnit(PU_NAME2_v1);
-        // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin2_v1 = persistence2_v1.getPersistenceAdmin();
-        QueryForAllGenerator allComplexData_v1Objects = 
-                new QueryForAllGenerator(persistenceAdmin2_v1);
-        persistenceAdmin2.addNamedQuery(au.com.cybersearch2.example.ComplexData.class, ALL_COMPLEX_DATA_v1, allComplexData_v1Objects);
     }
 
     /**
-     * Populate entity tables. Call this before doing any queries. 
+     * Test 2 Databases accessed by application version 2
+     * @param args Not used
+     */
+	public static void main(String[] args)
+	{
+        HelloTwoDbsMain helloTwoDbsMain = new HelloTwoDbsMain();
+        try
+        {
+            helloTwoDbsMain.setUp();
+            SimpleTask simpleTask = new SimpleTask("main");
+            helloTwoDbsMain.performPersistenceWork(PU_NAME1, simpleTask);
+			// Our string builder for building the content-view
+			StringBuilder sb = new StringBuilder();
+            ComplexTask complexTask = new ComplexTask("main");
+            helloTwoDbsMain.performPersistenceWork(PU_NAME2, complexTask);
+            helloTwoDbsMain.logMessage(TAG, "Test completed successfully at " + System.currentTimeMillis());
+            helloTwoDbsMain.displayMessage(sb
+					.append(SEPARATOR_LINE)
+					.append(simpleTask.getMessage())
+					.append(SEPARATOR_LINE)
+					.append(complexTask.getMessage())
+					.toString());
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+        	helloTwoDbsMain.shutdown();
+        }
+        System.exit(0);
+	}
+	
+    /**
+     * Initialize entity tables ensuring version is correct and contains initial data. 
+     * Call this before doing any queries. 
      * Note the calling thread is suspended while the work is performed on a background thread. 
      * @throws InterruptedException
      */
@@ -124,18 +142,30 @@ public class HelloTwoDbsMain
     {
     	if (!databaseInitialized)
     	{
-    		int versionDb1 = getDatabaseVersion(PU_NAME1);
-    		int versionDb2 = getDatabaseVersion(PU_NAME2);
+    		// Get database version and populate it with initial data if newly created
+    		int versionDb1 = getDatabaseVersion(PU_NAME1_v1);
+    		if (versionDb1 == 0)
+    		{
+    			createDatabaseVersionTable(PU_NAME1);
+    			populateDatabase1();
+    			versionDb1 = DATABASE_VERSION;
+    		}
+    		int versionDb2 = getDatabaseVersion(PU_NAME2_v1);
+    		if (versionDb2 == 0)
+    		{
+    			createDatabaseVersionTable(PU_NAME2);
+    			populateDatabase2();
+    			versionDb2 = DATABASE_VERSION;
+    		}
             logMessage(TAG, PU_NAME1 + " version = " + versionDb1);
             logMessage(TAG, PU_NAME2 + " version = " + versionDb2);
-    		if (connectionType != ConnectionType.memory)
-    		{
-    			if (versionDb1 == 1)
-    				upgradeDatabase();
-    		}
+			if (versionDb1 == 1)
+			{
+				upgradeDatabase();
+		        logMessage(TAG, "Upgraded database version from 1 to " + DATABASE_VERSION);
+			}
     		databaseInitialized = true;
     	}
-    	populateDatabases();
     }
 
     public void shutdown()
@@ -149,12 +179,19 @@ public class HelloTwoDbsMain
         }
     }
 
-    void performPersistenceWork(final String puName, final PersistenceTask persistenceTask) throws InterruptedException
+    /**
+     * Launch persistence work to run in background thread
+     * @param puName Persistence Unit name
+     * @param persistenceTask PersistenceTask object
+     * @return Executable object to signal completion of task
+     * @throws InterruptedException
+     */
+    Executable launchPersistenceWork(final String puName, final PersistenceTask persistenceTask) throws InterruptedException
     {
         // There will be an enclosing transaction to ensure data consistency.
         // Any failure will result in an IllegalStateExeception being thrown from
         // the calling thread.
-        PersistenceWork setUpWork = new PersistenceWork(){
+        PersistenceWork todo = new PersistenceWork(){
 
             @Override
             public void doInBackground(EntityManagerLite entityManager)
@@ -178,7 +215,20 @@ public class HelloTwoDbsMain
         };
         // Execute work and wait synchronously for completion
         PersistenceContainer container = new PersistenceContainer(puName);
-        waitForTask(container.executeTask(setUpWork));
+        return container.executeTask(todo);
+    }
+
+    /**
+     * Launch persistence work to run in background thread and wait for completion
+     * @param puName Persistence Unit name
+     * @param persistenceTask PersistenceTask object
+     * @throws InterruptedException
+     */
+    void performPersistenceWork(final String puName, final PersistenceTask persistenceTask) throws InterruptedException
+    {
+    	Executable exe = launchPersistenceWork(puName, persistenceTask);
+        waitForTask(exe);
+        logMessage(puName, "Task final status = " + exe.getStatus().toString());
     }
     
     /**
@@ -192,49 +242,11 @@ public class HelloTwoDbsMain
         {
             exe.wait();
         }
-        logMessage(TAG, "Task final status = " + exe.getStatus().toString());
     }
 
-    /**
-     * Test ManyToMany association
-     * @param args Not used
-     */
-	public static void main(String[] args)
-	{
-        HelloTwoDbsMain helloTwoDbsMain = new HelloTwoDbsMain();
-        try
-        {
-            helloTwoDbsMain.setUp();
-            PersistenceContainer container1 = new PersistenceContainer(PU_NAME1);
-            SimpleTask simpleTask = new SimpleTask("main");
-            helloTwoDbsMain.waitForTask(container1.executeTask(simpleTask));
-			// Our string builder for building the content-view
-			StringBuilder sb = new StringBuilder();
-            PersistenceContainer container2 = new PersistenceContainer(PU_NAME2);
-            ComplexTask complexTask = new ComplexTask("main");
-            helloTwoDbsMain.waitForTask(container2.executeTask(complexTask));
-            helloTwoDbsMain.logMessage(TAG, "Test completed successfully page at " + System.currentTimeMillis());
-            helloTwoDbsMain.displayMessage(sb
-					.append(SEPARATOR_LINE)
-					.append(simpleTask.getMessage())
-					.append(SEPARATOR_LINE)
-					.append(complexTask.getMessage())
-					.toString());
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-        	helloTwoDbsMain.shutdown();
-        }
-	}
-	
 	/**
-	 * Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object.
+	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
 	 * Override to run with different database and/or platform. 
-	 * @see au.com.cybersearch2.example.AndroidManyToMany in classyandroid module for Android example.
 	 */
 	protected void createObjectGraph()
 	{
@@ -243,6 +255,11 @@ public class HelloTwoDbsMain
         new DI(helloTwoDbsModule).validate();
 	}
 	
+	/**
+	 * Log message
+	 * @param tag
+	 * @param message
+	 */
 	public void logMessage(String tag, String message)
 	{
 		Log log = logMap.get(tag);
@@ -252,70 +269,87 @@ public class HelloTwoDbsMain
 		}
 	}
 	
+	/**
+	 * Display message to user
+	 * @param message
+	 */
 	public void displayMessage(String message)
 	{
 		System.out.println(message);
 	}
 
+	/**
+	 * Upgrade database from version 1 to version 2.
+	 * @throws InterruptedException
+	 */
 	public void upgradeDatabase() throws InterruptedException
 	{
-        PersistenceContainer container1 = new PersistenceContainer(PU_NAME1_v1);
+		// Add quote column to both entity tables
+		alterTable(PU_NAME1_v1);
+		alterTable(PU_NAME2_v1);
+		// Insert a quote in every row
+        PersistenceContainer container1 = new PersistenceContainer(PU_NAME1);
         final Simple_v1Task simpleTask = new Simple_v1Task();
         waitForTask(container1.executeTask(simpleTask));
-		// Our string builder for building the content-view
-		StringBuilder sb = new StringBuilder();
-        PersistenceContainer container2 = new PersistenceContainer(PU_NAME2_v1);
+        PersistenceContainer container2 = new PersistenceContainer(PU_NAME2);
         final Complex_v1Task complexTask = new Complex_v1Task();
         waitForTask(container2.executeTask(complexTask));
+		// Our string builder for building the content-view
+		StringBuilder sb = new StringBuilder();
         displayMessage(sb
 				.append(SEPARATOR_LINE)
 				.append(simpleTask.getMessage())
 				.append(SEPARATOR_LINE)
 				.append(complexTask.getMessage())
 				.toString());
-		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(PU_NAME1_v1).getPersistenceAdmin();
+        // Update version value in databases
+		updateDatabaseVersion(PU_NAME1);
+ 		updateDatabaseVersion(PU_NAME2);
+	}
+
+	/**
+	 * Add quote column to entity table
+	 * @param puName Persistence Unit name
+	 */
+	public void alterTable(String puName)
+	{
+		// Get Simple table name based on puName
+		String tableName = null;
+		if (puName.equals(PU_NAME1_v1))
+			tableName = HelloTwoDbsMain.SIMPLE_DATA_TABLENAME;
+		else
+			tableName = HelloTwoDbsMain.COMPLEX_DATA_TABLENAME;
+		PersistenceAdmin connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
 		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
+		DatabaseConnection connection = null;
 		try 
 		{
-			TableUtils.dropTable(connectionSource, au.com.cybersearch2.example.SimpleData.class, false);
-			TableUtils.createTable(connectionSource, SimpleData.class);
-			TableUtils.dropTable(connectionSource, au.com.cybersearch2.example.ComplexData.class, false);
-			TableUtils.createTable(connectionSource, ComplexData.class);
+			connection = connectionSource.getReadOnlyConnection();
+	        String alterTableStatement = "ALTER TABLE `" + tableName + "` ADD COLUMN `quote` VARCHAR";
+			connection.executeStatement(alterTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
 		} 
 		catch (SQLException e) 
 		{
 			throw new PersistenceException(e);
 		} 
-		performPersistenceWork(PU_NAME1, new PersistenceTask(){
-
-			@Override
-			public void doTask(EntityManagerLite entityManager) 
-			{
-				List<au.com.cybersearch2.example.SimpleData> list = simpleTask.getList();
-				for (au.com.cybersearch2.example.SimpleData simple_v1: list)
+		finally 
+		{
+			if (connection != null)
+				try 
 				{
-					SimpleData simple = new SimpleData(simple_v1.getMillis(), QuoteSource.getQuote());
-					entityManager.persist(simple);
-				}
-                //logMessage(PU_NAME1, "Created new entries in onCreate: " + millis);
-			}});
- 		performPersistenceWork(PU_NAME2, new PersistenceTask(){
-
-			@Override
-			public void doTask(EntityManagerLite entityManager) 
-			{
-				List<au.com.cybersearch2.example.ComplexData> list = complexTask.getList();
-				for (au.com.cybersearch2.example.ComplexData complex_v1: list)
+					connectionSource.releaseConnection(connection);
+				} 
+				catch (SQLException e) 
 				{
-					ComplexData complex = new ComplexData(complex_v1.getSecs(), QuoteSource.getQuote());
-					entityManager.persist(complex);
+					e.printStackTrace();
 				}
-				//logMessage(PU_NAME2, "Created new ComplexData entries in onCreate: " + millis);
-			}});
- 		updateDatabaseVersion(PU_NAME1);
- 		updateDatabaseVersion(PU_NAME2);
+		}
 	}
 	
+	/**
+	 * Clear database tables if they exist
+	 * @throws InterruptedException
+	 */
 	public void clearDatabaseTables() throws InterruptedException
 	{
         // Persistence task clears Simple table the helloTwoDb1.db database using JPA. 
@@ -360,7 +394,11 @@ public class HelloTwoDbsMain
 			}});
 	}
 	
-	public void populateDatabases() throws InterruptedException
+	/**
+	 * Populate database 1 with initial sample data
+	 * @throws InterruptedException
+	 */
+	public void populateDatabase1() throws InterruptedException
 	{
         // Persistence task adds 1 SimpleData entity object to the helloTwoDb1.db database using JPA. 
 		performPersistenceWork(PU_NAME1, new PersistenceTask(){
@@ -370,12 +408,20 @@ public class HelloTwoDbsMain
 			{
 				long millis = System.currentTimeMillis();
 				// create some entries in the onCreate
-				SimpleData simple1 = new SimpleData(millis, QuoteSource.getQuote());
+				SimpleData simple1 = new SimpleData("Sarah", millis, QuoteSource.getQuote());
                 entityManager.persist(simple1);
-                SimpleData simple2 = new SimpleData(millis + 1, QuoteSource.getQuote());
+                SimpleData simple2 = new SimpleData("George", millis + 1, QuoteSource.getQuote());
                 entityManager.persist(simple2);
-                logMessage(PU_NAME1, "Created new entries in onCreate: " + millis);
+                logMessage(PU_NAME1, "Created 2 new SimpleData entries: " + millis);
 			}});
+	}
+	
+	/**
+	 * Populate database 2 with initial sample data
+	 * @throws InterruptedException
+	 */
+	public void populateDatabase2() throws InterruptedException
+	{
     	// Persistence task adds 1 ComplexData entity object to the helloTwoDb2.db database using JPA.
 		performPersistenceWork(PU_NAME2, new PersistenceTask(){
 
@@ -388,13 +434,18 @@ public class HelloTwoDbsMain
 				entityManager.persist(complex1);
 				ComplexData complex2 = new ComplexData(millis + 1, QuoteSource.getQuote());
 				entityManager.persist(complex2);
-				logMessage(PU_NAME2, "Created new ComplexData entries in onCreate: " + millis);
+				logMessage(PU_NAME2, "Created 2 new ComplexData entries: " + millis);
 			}});
 	}
 
-	public int getDatabaseVersion(String puName)
+	/**
+	 * Returns database version. Shows how to get a ConnectionSource to perform OrmLite operations without JPA.
+	 * @param puName Persistence Unit name
+	 * @return int
+	 */
+	public int getDatabaseVersion(String puName) throws InterruptedException
 	{
-		int databaseVersion = DATABASE_VERSION ;
+		int databaseVersion = 0;
 		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
 		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
 		boolean tableExists = false;
@@ -404,10 +455,42 @@ public class HelloTwoDbsMain
 			connection = connectionSource.getReadOnlyConnection();
 			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
 			if (tableExists)
-			{
 				databaseVersion = (int)connection.queryForLong("select version from " + DATABASE_INFO_NAME);
+		} 
+		catch (SQLException e) 
+		{
+			throw new PersistenceException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				connectionSource.releaseConnection(connection);
+			} 
+			catch (SQLException e) 
+			{
+				e.printStackTrace();
 			}
-			else
+		}
+		return databaseVersion;
+	}
+
+	/**
+	 * Create table to hold database version
+	 * @param puName Persistence Unit name
+	 * @throws InterruptedException
+	 */
+	public void createDatabaseVersionTable(String puName) throws InterruptedException
+	{
+		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
+		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
+		boolean tableExists = false;
+		DatabaseConnection connection = null;
+		try 
+		{
+			connection = connectionSource.getReadOnlyConnection();
+			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
+			if (!tableExists)
 			{
 				String createTableStatement = "CREATE TABLE `" + DATABASE_INFO_NAME + "` (`version` INTEGER )";
 				connection.executeStatement(createTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
@@ -430,12 +513,14 @@ public class HelloTwoDbsMain
 				e.printStackTrace();
 			}
 		}
-		return databaseVersion;
 	}
-	
-	public int updateDatabaseVersion(String puName)
+
+	/**
+	 * Update database version to current
+	 * @param puName Persistence Unit name
+	 */
+	public void updateDatabaseVersion(String puName)
 	{
-		int databaseVersion = DATABASE_VERSION ;
 		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
 		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
 		boolean tableExists = false;
@@ -472,9 +557,13 @@ public class HelloTwoDbsMain
 				e.printStackTrace();
 			}
 		}
-		return databaseVersion;
 	}
 	
+	/**
+	 * Public accessor for logMessage()
+	 * @param tag
+	 * @param message
+	 */
 	public static void logInfo(String tag, String message) 
 	{
 		singleton.logMessage(tag, message);

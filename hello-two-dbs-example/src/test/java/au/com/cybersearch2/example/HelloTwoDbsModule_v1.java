@@ -33,8 +33,8 @@ import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.WorkerRunnable;
 
 /**
- * HelloTwoDbsModule
- * Dependency injection data object. @see HelloTwoDbsMain.
+ * HelloTwoDbsModule_v1
+ * Dependency injection data object. @see HelloTwoDbsMain_v1.
  * @author Andrew Bowley
  * 23 Sep 2014
  */
@@ -42,14 +42,14 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
-        HelloTwoDbsMain.class, 
+        HelloTwoDbsMain_v1.class, 
         PersistenceContainer.class,
         EntityTransactionImpl.class
         })
-public class HelloTwoDbsModule implements ApplicationModule
+public class HelloTwoDbsModule_v1 implements ApplicationModule
 {
-	ConnectionType CONNECTION_TYPE = ConnectionType.memory;
-	//	ConnectionType CONNECTION_TYPE = ConnectionType.file;
+    // Implement a file database to test version upgrade
+	ConnectionType CONNECTION_TYPE = ConnectionType.file;
 	
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
     {

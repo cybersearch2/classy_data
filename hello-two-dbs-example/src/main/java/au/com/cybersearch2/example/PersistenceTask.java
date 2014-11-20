@@ -13,33 +13,17 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
-package au.com.cybersearch2.example.v2;
+package au.com.cybersearch2.example;
 
-import java.util.Random;
+import au.com.cybersearch2.classyjpa.EntityManagerLite;
 
 /**
- * QuoteSource
+ * PersistenceTask executes in PersistenceWork backgroundTask
+ * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork
  * @author Andrew Bowley
- * 19 Nov 2014
+ * 20 Nov 2014
  */
-public class QuoteSource 
+public interface PersistenceTask 
 {
-
-	static String[] QUOTES =
-	{
-		"To be or not to be",
-		"I come to bury Caesar",
-		"Beware the ides of March",
-		"A rose by any other name",
-		"Once more into the breech",
-		"Romeo, Romeo where for art thou",
-		"Write once, run everywhere",
-		"A standard is the starting point for doing things differently"
-	};
-	
-	static String getQuote()
-	{
-		Random rand = new Random();
-		return QUOTES[rand.nextInt(QUOTES.length)];
-	}
+	void doTask(EntityManagerLite entityManager);
 }

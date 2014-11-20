@@ -44,7 +44,7 @@ public class QueryForAllGenerator implements DaoQueryFactory
     class ForAllQuery<T> extends DaoQuery<T>
     {
         /**
-         * Create ManyToManyQuery object
+         * Create ForAllQuery object
          * @param dao OrmLite data access object of generic type matching Entity class to be retrieved
          * @throws SQLException
          */

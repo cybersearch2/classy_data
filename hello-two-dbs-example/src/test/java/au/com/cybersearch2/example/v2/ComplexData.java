@@ -37,6 +37,11 @@ public class ComplexData
 		this.quote = quote;
 	}
 
+	public void setQuote(String value) 
+	{
+		quote = value;
+	}
+	
 	@Override
 	public String toString() 
 	{
@@ -47,4 +52,5 @@ public class ComplexData
 		sb.append(": \"").append(quote).append("\"");
 		return sb.toString();
 	}
+
 }

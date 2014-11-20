@@ -23,16 +23,23 @@ import javax.persistence.Query;
 //import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 //import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 
+
+
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 
 /**
  * UsersByPostTask
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-public class SimpleTask implements PersistenceWork
+public class SimpleTask implements PersistenceTask
 {
+	public static String NAMES[] = 
+	{
+		"Barack",
+		"Abraham",
+		"Bill"
+	};
     protected String context;
     protected StringBuilder sb;
     
@@ -55,7 +62,7 @@ public class SimpleTask implements PersistenceWork
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void doInBackground(EntityManagerLite entityManager) 
+    public void doTask(EntityManagerLite entityManager) 
     {
     	sb.setLength(0);
 		// Query for all of the data objects in the database
@@ -91,13 +98,13 @@ public class SimpleTask implements PersistenceWork
 		int createNum;
 		do 
 		{
-			createNum = new Random().nextInt(2) + 1;
+			createNum = new Random().nextInt(3) + 1;
 		} while (createNum == list.size());
 		for (int i = 0; i < createNum; i++) 
 		{
 			// Create a new simple object
 			long millis = System.currentTimeMillis();
-			SimpleData simple = new SimpleData(millis);
+			SimpleData simple = new SimpleData(NAMES[i], millis);
 			// store it in the database
 			/// simpleDao.create(simple);
 			entityManager.persist(simple);
@@ -106,25 +113,15 @@ public class SimpleTask implements PersistenceWork
 			sb.append("------------------------------------------\n");
 			sb.append("Created SimpleData entry #").append(i + 1).append(":\n");
 			sb.append(simple).append("\n");
+			// Introduce a delay of more than 1 millisecond to get new "millis" value
+			try 
+			{
+				Thread.sleep(5);
+			} 
+			catch (InterruptedException e) 
+			{
+				break;
+			}
 		}
     }
-    
-    /**
-     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#onPostExecute(boolean)
-     */
-    @Override
-    public void onPostExecute(boolean success) 
-    {
-        if (!success)
-            throw new IllegalStateException(HelloTwoDbsMain.PU_NAME1 + " task failed. Check console for error details.");
-    }
-    
-    /**
-     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#onRollback(java.lang.Throwable)
-     */
-    @Override
-    public void onRollback(Throwable rollbackException) 
-    {
-        throw new IllegalStateException(HelloTwoDbsMain.PU_NAME1 + " task failed. Check console for stack trace.", rollbackException);
-   }
 }

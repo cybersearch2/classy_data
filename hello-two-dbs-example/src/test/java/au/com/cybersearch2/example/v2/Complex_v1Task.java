@@ -16,16 +16,14 @@
 package au.com.cybersearch2.example.v2;
 
 import java.util.List;
-import java.util.Random;
 
 import javax.persistence.Query;
 
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
-import au.com.cybersearch2.example.ComplexData;
 
 /**
- * Simple_v1Task
+ * Complex_v1Task
  * @author Andrew Bowley
  * 23 Sep 2014
  */
@@ -61,7 +59,7 @@ public class Complex_v1Task implements PersistenceWork
     {
     	sb.setLength(0);
 		// Query for all of the data objects in the database
-        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_COMPLEX_DATA_v1);
+        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_COMPLEX_DATA);
         list = (List<ComplexData>) query.getResultList();
 
 		sb.append("Got ").append(list.size()).append(" ComplexData entries in ").append("\n");
@@ -71,6 +69,8 @@ public class Complex_v1Task implements PersistenceWork
 		int objC = 0;
 		for (ComplexData complex : list) 
 		{
+			complex.setQuote(QuoteSource.getQuote());
+			entityManager.merge(complex);
 			sb.append("[").append(objC).append("] = ").append(complex).append("\n");
 			objC++;
 		}
