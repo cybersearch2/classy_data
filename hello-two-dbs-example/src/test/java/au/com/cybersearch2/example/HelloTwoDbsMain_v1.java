@@ -48,7 +48,7 @@ public class HelloTwoDbsMain_v1 extends au.com.cybersearch2.example.HelloTwoDbsM
     @Override
     public void setUp() throws InterruptedException
     {
-    	if (!databaseInitialized)
+    	if (!applicationInitialized)
     	{
     		dropDatabaseTables();
     	}

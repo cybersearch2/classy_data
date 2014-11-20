@@ -55,7 +55,7 @@ public class HelloTwoDbsMain
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
-	protected static boolean databaseInitialized;
+	protected static boolean applicationInitialized;
 
     /** Dependency injection data object */
     private HelloTwoDbsModule helloTwoDbsModule;
@@ -81,26 +81,6 @@ public class HelloTwoDbsMain
     public HelloTwoDbsMain() 
     {
     	singleton = this;
-        // Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object
-        createObjectGraph();
-        // Inject persistenceFactory and create persistence units.
-        DI.inject(this); 
-        // Note that the table for each entity class will be created in the following step (assuming database is in memory).
-        // To populate these tables, call setUp().
-        Persistence persistence1 = persistenceFactory.getPersistenceUnit(PU_NAME1);
-        // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin1 = persistence1.getPersistenceAdmin();
-        // Create named queries to find all objects of an entity class.
-        // Note QueryForAllGenerator class is reuseable as it allows any Many to Many association to be queried.
-        QueryForAllGenerator allSimpleDataObjects = 
-                new QueryForAllGenerator(persistenceAdmin1);
-        persistenceAdmin1.addNamedQuery(SimpleData.class, ALL_SIMPLE_DATA, allSimpleDataObjects);
-        Persistence persistence2 = persistenceFactory.getPersistenceUnit(PU_NAME2);
-        // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin2 = persistence2.getPersistenceAdmin();
-        QueryForAllGenerator allComplexDataObjects = 
-                new QueryForAllGenerator(persistenceAdmin2);
-        persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA, allComplexDataObjects);
     }
 
     /**
@@ -146,8 +126,9 @@ public class HelloTwoDbsMain
      */
     public void setUp() throws InterruptedException
     {
-    	if (!databaseInitialized)
+    	if (!applicationInitialized)
     	{
+    		initializeApplication();
     		int versionDb1 = getDatabaseVersion(PU_NAME1);
     		int versionDb2 = getDatabaseVersion(PU_NAME2);
             logMessage(TAG, PU_NAME1 + " version = " + versionDb1);
@@ -156,7 +137,7 @@ public class HelloTwoDbsMain
     		{
     			clearDatabaseTables();
     		}
-    		databaseInitialized = true;
+    		applicationInitialized = true;
     	}
     	populateDatabases();
     }
@@ -172,6 +153,30 @@ public class HelloTwoDbsMain
         }
     }
 
+    protected void initializeApplication()
+    {
+        // Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object
+        createObjectGraph();
+        // Inject persistenceFactory and create persistence units.
+        DI.inject(this); 
+        // Note that the table for each entity class will be created in the following step (assuming database is in memory).
+        // To populate these tables, call setUp().
+        Persistence persistence1 = persistenceFactory.getPersistenceUnit(PU_NAME1);
+        // Get Interface for JPA Support, required to create named queries
+        PersistenceAdmin persistenceAdmin1 = persistence1.getPersistenceAdmin();
+        // Create named queries to find all objects of an entity class.
+        // Note QueryForAllGenerator class is reuseable as it allows any Many to Many association to be queried.
+        QueryForAllGenerator allSimpleDataObjects = 
+                new QueryForAllGenerator(persistenceAdmin1);
+        persistenceAdmin1.addNamedQuery(SimpleData.class, ALL_SIMPLE_DATA, allSimpleDataObjects);
+        Persistence persistence2 = persistenceFactory.getPersistenceUnit(PU_NAME2);
+        // Get Interface for JPA Support, required to create named queries
+        PersistenceAdmin persistenceAdmin2 = persistence2.getPersistenceAdmin();
+        QueryForAllGenerator allComplexDataObjects = 
+                new QueryForAllGenerator(persistenceAdmin2);
+        persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA, allComplexDataObjects);
+    }
+    
     /**
      * Launch persistence work to run in background thread
      * @param puName Persistence Unit name

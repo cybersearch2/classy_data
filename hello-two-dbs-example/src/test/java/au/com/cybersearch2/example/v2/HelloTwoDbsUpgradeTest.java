@@ -58,10 +58,6 @@ public class HelloTwoDbsUpgradeTest
         {
             e.printStackTrace();
         }
-        finally
-        {
-        	helloTwoDbsMain_v1.shutdown();
-        }
         if (helloTwoDbsMain == null)
             helloTwoDbsMain = new HelloTwoDbsMain();
         helloTwoDbsMain.setUp();
@@ -91,25 +87,6 @@ public class HelloTwoDbsUpgradeTest
 				.toString());
     }
 
-    @Test 
-    public void test_hello_two_dbs_parallel_jpa() throws Exception
-    {
-        SimpleTask simpleTask = new SimpleTask("main");
-        ComplexTask complexTask = new ComplexTask("main");
-        Executable exe1 = helloTwoDbsMain.launchPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
-        Executable exe2 = helloTwoDbsMain.launchPersistenceWork(HelloTwoDbsMain.PU_NAME2, complexTask);
-        helloTwoDbsMain.waitForTask(exe1);
-        helloTwoDbsMain.waitForTask(exe2);
-        helloTwoDbsMain.logMessage(HelloTwoDbsMain.TAG, "Test completed successfully page at " + System.currentTimeMillis());
-		// Our string builder for building the content-view
-		StringBuilder sb = new StringBuilder();
-        helloTwoDbsMain.displayMessage(sb
-				.append(HelloTwoDbsMain.SEPARATOR_LINE)
-				.append(simpleTask.getMessage())
-				.append(HelloTwoDbsMain.SEPARATOR_LINE)
-				.append(complexTask.getMessage())
-				.toString());
-    }
 
 }
 
