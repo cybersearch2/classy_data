@@ -114,6 +114,10 @@ public class AndroidConnectionSourceFactory
             public void onUpgrade(SQLiteDatabase db, int oldVersion,
                     int newVersion) {
                 androidSQLiteMap.get(databaseName).onUpgrade(db, oldVersion, newVersion);
+            }
+            @Override
+            public void onOpen(SQLiteDatabase db) {
+                androidSQLiteMap.get(databaseName).setDatabase(db);
             }};
             openHelperConnectionSource = new OpenHelperConnectionSource(sqLiteOpenHelper, openHelperCallbacks);
             androidSQLiteMap.put(databaseName, openHelperConnectionSource);

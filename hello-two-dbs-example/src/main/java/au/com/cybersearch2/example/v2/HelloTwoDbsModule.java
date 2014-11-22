@@ -44,7 +44,8 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
         NativeScriptDatabaseWork.class,
         HelloTwoDbsMain.class, 
         PersistenceContainer.class,
-        EntityTransactionImpl.class
+        EntityTransactionImpl.class,
+        DatabaseUpgrader.class
         })
 public class HelloTwoDbsModule implements ApplicationModule
 {

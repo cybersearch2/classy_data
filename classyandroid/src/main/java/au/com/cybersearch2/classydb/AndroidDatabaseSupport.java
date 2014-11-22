@@ -175,7 +175,20 @@ public class AndroidDatabaseSupport implements DatabaseSupport
              result = queryInfo.getRowMapper().mapRow(new AndroidResultRow(cursor));
         return result;
     }
-   
+
+	@Override
+	public int getVersion(ConnectionSource connectionSource) 
+	{
+		return ((OpenHelperConnectionSource)connectionSource).getDatabase().getVersion();
+	}
+
+	@Override
+	public void setVersion(int version, ConnectionSource connectionSource) 
+	{
+		((OpenHelperConnectionSource)connectionSource).getDatabase().setVersion(version);
+	}
+ 
+
     /**
      * Returns Object implementing WritableDatabase interface for performing a database query
      * @param connectionSource
@@ -183,14 +196,14 @@ public class AndroidDatabaseSupport implements DatabaseSupport
      */
     protected SQLiteQueryExecutor getSQLiteDatabase(ConnectionSource connectionSource)
     {
-        final SQLiteOpenHelper sqiteOpenHelper = getSQLiteOpenHelper(connectionSource);
+        final SQLiteOpenHelper sqliteOpenHelper = getSQLiteOpenHelper(connectionSource);
         return  new SQLiteQueryExecutor(){
 
             @Override
             public Cursor query(String table, String[] columns,
                     String selection, String[] selectionArgs, String groupBy,
                     String having, String orderBy, String limit) {
-                return sqiteOpenHelper.getWritableDatabase()
+                return sqliteOpenHelper.getWritableDatabase()
                         .query(false, table, columns, selection, selectionArgs, groupBy,
                         having, orderBy, limit);
             }};
@@ -223,5 +236,5 @@ public class AndroidDatabaseSupport implements DatabaseSupport
         }
         return limitValue;
     }
- 
+
 }

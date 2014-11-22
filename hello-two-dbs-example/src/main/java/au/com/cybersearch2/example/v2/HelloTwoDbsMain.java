@@ -8,12 +8,12 @@ import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
 
 import java.util.logging.Level;
 
 import au.com.cybersearch2.classylog.*;
+import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
@@ -38,8 +38,8 @@ public class HelloTwoDbsMain
     static public final String TAG = "HelloTwoDbsMain";
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
-    static public final String PU_NAME1_v1 = "simple_v1";
-    static public final String PU_NAME2_v1 = "complex_v1";
+    //static public final String PU_NAME1_v1 = "simple_v1";
+    //static public final String PU_NAME2_v1 = "complex_v1";
     static public final String SIMPLE_DATA_TABLENAME = "Simple";
     static public final String COMPLEX_DATA_TABLENAME = "Complex";
     /** Named query to find all SimpleData objects */
@@ -51,7 +51,7 @@ public class HelloTwoDbsMain
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
-	protected static boolean databaseInitialized;
+	protected static boolean applicationInitialized;
 
     /** Dependency injection data object */
     private HelloTwoDbsModule helloTwoDbsModule;
@@ -77,24 +77,6 @@ public class HelloTwoDbsMain
     public HelloTwoDbsMain() 
     {
     	singleton = this;
-        // Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object
-        createObjectGraph();
-        // Inject persistenceFactory and create persistence units.
-        DI.inject(this); 
-        // Note that the table for each entity class will be created in the following step (assuming database is in memory).
-        // To populate these tables, call setUp().
-        Persistence persistence1 = persistenceFactory.getPersistenceUnit(PU_NAME1);
-        // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin1 = persistence1.getPersistenceAdmin();
-        QueryForAllGenerator allSimpleDataObjects = 
-                new QueryForAllGenerator(persistenceAdmin1);
-        persistenceAdmin1.addNamedQuery(SimpleData.class, ALL_SIMPLE_DATA, allSimpleDataObjects);
-        Persistence persistence2 = persistenceFactory.getPersistenceUnit(PU_NAME2);
-        // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin2 = persistence2.getPersistenceAdmin();
-        QueryForAllGenerator allComplexDataObjects = 
-                new QueryForAllGenerator(persistenceAdmin2);
-        persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA, allComplexDataObjects);
     }
 
     /**
@@ -140,20 +122,22 @@ public class HelloTwoDbsMain
      */
     public void setUp() throws InterruptedException
     {
-    	if (!databaseInitialized)
+    	if (!applicationInitialized)
     	{
+    		initializeApplication();
+    		initializeDatabase();
     		// Get database version and populate it with initial data if newly created
-    		int versionDb1 = getDatabaseVersion(PU_NAME1_v1);
+    		int versionDb1 = getDatabaseVersion(PU_NAME1);
     		if (versionDb1 == 0)
     		{
-    			createDatabaseVersionTable(PU_NAME1);
+    			updateDatabaseVersion(PU_NAME1);
     			populateDatabase1();
     			versionDb1 = DATABASE_VERSION;
     		}
-    		int versionDb2 = getDatabaseVersion(PU_NAME2_v1);
+    		int versionDb2 = getDatabaseVersion(PU_NAME2);
     		if (versionDb2 == 0)
     		{
-    			createDatabaseVersionTable(PU_NAME2);
+    			updateDatabaseVersion(PU_NAME2);
     			populateDatabase2();
     			versionDb2 = DATABASE_VERSION;
     		}
@@ -162,9 +146,12 @@ public class HelloTwoDbsMain
 			if (versionDb1 == 1)
 			{
 				upgradeDatabase();
+		        // Update version value in databases
+				updateDatabaseVersion(PU_NAME1);
+		 		updateDatabaseVersion(PU_NAME2);
 		        logMessage(TAG, "Upgraded database version from 1 to " + DATABASE_VERSION);
 			}
-    		databaseInitialized = true;
+			applicationInitialized = true;
     	}
     }
 
@@ -179,6 +166,32 @@ public class HelloTwoDbsMain
         }
     }
 
+    protected void initializeApplication()
+    {
+        // Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object
+        createObjectGraph();
+        // Inject persistenceFactory and create persistence units.
+        DI.inject(this); 
+    }
+    
+    protected void initializeDatabase()
+    {
+        // Note that the table for each entity class will be created in the following step (assuming database is in memory).
+        // To populate these tables, call setUp().
+        Persistence persistence1 = persistenceFactory.getPersistenceUnit(PU_NAME1);
+        // Get Interface for JPA Support, required to create named queries
+        PersistenceAdmin persistenceAdmin1 = persistence1.getPersistenceAdmin();
+        QueryForAllGenerator allSimpleDataObjects = 
+                new QueryForAllGenerator(persistenceAdmin1);
+        persistenceAdmin1.addNamedQuery(SimpleData.class, ALL_SIMPLE_DATA, allSimpleDataObjects);
+        Persistence persistence2 = persistenceFactory.getPersistenceUnit(PU_NAME2);
+        // Get Interface for JPA Support, required to create named queries
+        PersistenceAdmin persistenceAdmin2 = persistence2.getPersistenceAdmin();
+        QueryForAllGenerator allComplexDataObjects = 
+                new QueryForAllGenerator(persistenceAdmin2);
+        persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA, allComplexDataObjects);
+    }
+    
     /**
      * Launch persistence work to run in background thread
      * @param puName Persistence Unit name
@@ -224,7 +237,7 @@ public class HelloTwoDbsMain
      * @param persistenceTask PersistenceTask object
      * @throws InterruptedException
      */
-    void performPersistenceWork(final String puName, final PersistenceTask persistenceTask) throws InterruptedException
+    public void performPersistenceWork(final String puName, final PersistenceTask persistenceTask) throws InterruptedException
     {
     	Executable exe = launchPersistenceWork(puName, persistenceTask);
         waitForTask(exe);
@@ -284,68 +297,10 @@ public class HelloTwoDbsMain
 	 */
 	public void upgradeDatabase() throws InterruptedException
 	{
-		// Add quote column to both entity tables
-		alterTable(PU_NAME1_v1);
-		alterTable(PU_NAME2_v1);
-		// Insert a quote in every row
-        PersistenceContainer container1 = new PersistenceContainer(PU_NAME1);
-        final Simple_v1Task simpleTask = new Simple_v1Task();
-        waitForTask(container1.executeTask(simpleTask));
-        PersistenceContainer container2 = new PersistenceContainer(PU_NAME2);
-        final Complex_v1Task complexTask = new Complex_v1Task();
-        waitForTask(container2.executeTask(complexTask));
-		// Our string builder for building the content-view
-		StringBuilder sb = new StringBuilder();
-        displayMessage(sb
-				.append(SEPARATOR_LINE)
-				.append(simpleTask.getMessage())
-				.append(SEPARATOR_LINE)
-				.append(complexTask.getMessage())
-				.toString());
-        // Update version value in databases
-		updateDatabaseVersion(PU_NAME1);
- 		updateDatabaseVersion(PU_NAME2);
+		DatabaseUpgrader upgrader = new DatabaseUpgrader();
+        displayMessage(upgrader.doUpgrade(1, DATABASE_VERSION));
 	}
 
-	/**
-	 * Add quote column to entity table
-	 * @param puName Persistence Unit name
-	 */
-	public void alterTable(String puName)
-	{
-		// Get Simple table name based on puName
-		String tableName = null;
-		if (puName.equals(PU_NAME1_v1))
-			tableName = HelloTwoDbsMain.SIMPLE_DATA_TABLENAME;
-		else
-			tableName = HelloTwoDbsMain.COMPLEX_DATA_TABLENAME;
-		PersistenceAdmin connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
-		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
-		DatabaseConnection connection = null;
-		try 
-		{
-			connection = connectionSource.getReadOnlyConnection();
-	        String alterTableStatement = "ALTER TABLE `" + tableName + "` ADD COLUMN `quote` VARCHAR";
-			connection.executeStatement(alterTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-		} 
-		catch (SQLException e) 
-		{
-			throw new PersistenceException(e);
-		} 
-		finally 
-		{
-			if (connection != null)
-				try 
-				{
-					connectionSource.releaseConnection(connection);
-				} 
-				catch (SQLException e) 
-				{
-					e.printStackTrace();
-				}
-		}
-	}
-	
 	/**
 	 * Clear database tables if they exist
 	 * @throws InterruptedException
@@ -401,7 +356,12 @@ public class HelloTwoDbsMain
 	public void populateDatabase1() throws InterruptedException
 	{
         // Persistence task adds 1 SimpleData entity object to the helloTwoDb1.db database using JPA. 
-		performPersistenceWork(PU_NAME1, new PersistenceTask(){
+		performPersistenceWork(PU_NAME1, getPopulateTask1());
+	}
+
+	protected PersistenceTask getPopulateTask1()
+	{
+		return new PersistenceTask(){
 
 			@Override
 			public void doTask(EntityManagerLite entityManager) 
@@ -413,7 +373,7 @@ public class HelloTwoDbsMain
                 SimpleData simple2 = new SimpleData("George", millis + 1, QuoteSource.getQuote());
                 entityManager.persist(simple2);
                 logMessage(PU_NAME1, "Created 2 new SimpleData entries: " + millis);
-			}});
+			}};
 	}
 	
 	/**
@@ -423,7 +383,12 @@ public class HelloTwoDbsMain
 	public void populateDatabase2() throws InterruptedException
 	{
     	// Persistence task adds 1 ComplexData entity object to the helloTwoDb2.db database using JPA.
-		performPersistenceWork(PU_NAME2, new PersistenceTask(){
+		performPersistenceWork(PU_NAME2, getPopulateTask2());
+	}
+
+	protected PersistenceTask getPopulateTask2()
+	{
+		return new PersistenceTask(){
 
 			@Override
 			public void doTask(EntityManagerLite entityManager) 
@@ -435,9 +400,9 @@ public class HelloTwoDbsMain
 				ComplexData complex2 = new ComplexData(millis + 1, QuoteSource.getQuote());
 				entityManager.persist(complex2);
 				logMessage(PU_NAME2, "Created 2 new ComplexData entries: " + millis);
-			}});
+			}};
 	}
-
+	
 	/**
 	 * Returns database version. Shows how to get a ConnectionSource to perform OrmLite operations without JPA.
 	 * @param puName Persistence Unit name
@@ -445,75 +410,12 @@ public class HelloTwoDbsMain
 	 */
 	public int getDatabaseVersion(String puName) throws InterruptedException
 	{
-		int databaseVersion = 0;
 		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
 		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
-		boolean tableExists = false;
-		DatabaseConnection connection = null;
-		try 
-		{
-			connection = connectionSource.getReadOnlyConnection();
-			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
-			if (tableExists)
-				databaseVersion = (int)connection.queryForLong("select version from " + DATABASE_INFO_NAME);
-		} 
-		catch (SQLException e) 
-		{
-			throw new PersistenceException(e);
-		} 
-		finally 
-		{
-			try 
-			{
-				connectionSource.releaseConnection(connection);
-			} 
-			catch (SQLException e) 
-			{
-				e.printStackTrace();
-			}
-		}
-		return databaseVersion;
+		DatabaseSupport databaseSupport = persistenceFactory.getDatabaseSupport();
+		return databaseSupport.getVersion(connectionSource);
 	}
 
-	/**
-	 * Create table to hold database version
-	 * @param puName Persistence Unit name
-	 * @throws InterruptedException
-	 */
-	public void createDatabaseVersionTable(String puName) throws InterruptedException
-	{
-		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
-		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
-		boolean tableExists = false;
-		DatabaseConnection connection = null;
-		try 
-		{
-			connection = connectionSource.getReadOnlyConnection();
-			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
-			if (!tableExists)
-			{
-				String createTableStatement = "CREATE TABLE `" + DATABASE_INFO_NAME + "` (`version` INTEGER )";
-				connection.executeStatement(createTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-				String initTableStatement = "INSERT INTO `" + DATABASE_INFO_NAME + "` (`version`) values (" + DATABASE_VERSION  + ")";
-				connection.executeStatement(initTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-			}
-		} 
-		catch (SQLException e) 
-		{
-			throw new PersistenceException(e);
-		} 
-		finally 
-		{
-			try 
-			{
-				connectionSource.releaseConnection(connection);
-			} 
-			catch (SQLException e) 
-			{
-				e.printStackTrace();
-			}
-		}
-	}
 
 	/**
 	 * Update database version to current
@@ -523,40 +425,8 @@ public class HelloTwoDbsMain
 	{
 		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
 		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
-		boolean tableExists = false;
-		DatabaseConnection connection = null;
-		try 
-		{
-			connection = connectionSource.getReadOnlyConnection();
-			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
-			if (tableExists)
-			{
-				String initTableStatement = "UPDATE `" + DATABASE_INFO_NAME + "` set `version` = " + DATABASE_VERSION ;
-				connection.executeStatement(initTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-			}
-			else
-			{
-				String createTableStatement = "CREATE TABLE `" + DATABASE_INFO_NAME + "` (`version` INTEGER )";
-				connection.executeStatement(createTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-				String initTableStatement = "INSERT INTO `" + DATABASE_INFO_NAME + "` (`version`) values (" + DATABASE_VERSION  + ")";
-				connection.executeStatement(initTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-			}
-		} 
-		catch (SQLException e) 
-		{
-			throw new PersistenceException(e);
-		} 
-		finally 
-		{
-			try 
-			{
-				connectionSource.releaseConnection(connection);
-			} 
-			catch (SQLException e) 
-			{
-				e.printStackTrace();
-			}
-		}
+		DatabaseSupport databaseSupport = persistenceFactory.getDatabaseSupport();
+		databaseSupport.setVersion(DATABASE_VERSION, connectionSource);
 	}
 	
 	/**

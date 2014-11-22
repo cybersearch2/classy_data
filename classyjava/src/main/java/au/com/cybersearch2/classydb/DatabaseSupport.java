@@ -80,4 +80,19 @@ public interface DatabaseSupport
      * @return Object
      */
     Object getSingleResult(ConnectionSource connectionSource, QueryInfo queryInfo);
+    
+    /**
+     * Gets the database version.
+     * @param  connectionSource Open ConnectionSource object of database. Can be null for Android SQLite. 
+     * @return the database version
+     */
+    int getVersion(ConnectionSource connectionSource);
+
+    /**
+     * Sets the database version.
+     * @param  connectionSource Open ConnectionSource object of database. Can be null for Android SQLite.
+     * @param version the new database version
+     */
+    void setVersion(int version, ConnectionSource connectionSource);
+
 }

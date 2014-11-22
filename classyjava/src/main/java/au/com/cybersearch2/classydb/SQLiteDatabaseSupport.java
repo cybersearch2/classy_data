@@ -68,16 +68,23 @@ import au.com.cybersearch2.classylog.*;
  */
 public class SQLiteDatabaseSupport implements DatabaseSupport
 {
+	/** Log name */
     private static final String TAG = "DatabaseSupport";
     static Log log = JavaLogger.getLogger(TAG);
+    /** Table to hold database version */
+    public static final String DATABASE_INFO_NAME = "User_Info";
+    /** SQLite memory path */
     private static final String IN_MEMORY_PATH = "jdbc:sqlite::memory:";
+    /** SQLite location for file database */
     private static final String FILE_LOCATION = "resources/db";
     /** Limit clause validation */
     private static final Pattern LIMIT_PATTERN =
             Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
-
+    /** Map connectionSource to database name */
     protected Map<String, ConnectionSource> connectionSourceMap;
+    /** Connection type: memory, file or pooled */
     protected ConnectionType connectionType;
+    /** ORMLite databaseType */
     protected final DatabaseType databaseType;
  
     /**
@@ -103,6 +110,86 @@ public class SQLiteDatabaseSupport implements DatabaseSupport
                 throw new PersistenceException("Failed to create database location: " + FILE_LOCATION);
         }
     }
+    
+    /**
+     * Gets the database version.
+     * @param  connectionSource Open ConnectionSource object of database. 
+     * @return the database version
+     */
+	@Override
+	public int getVersion(ConnectionSource connectionSource) 
+	{
+		int databaseVersion = 0;
+		boolean tableExists = false;
+		DatabaseConnection connection = null;
+		try 
+		{
+			connection = connectionSource.getReadOnlyConnection();
+			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
+			if (tableExists)
+				databaseVersion = ((Long)connection.queryForLong("select version from " + DATABASE_INFO_NAME)).intValue();
+		} 
+		catch (SQLException e) 
+		{
+			throw new PersistenceException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				connectionSource.releaseConnection(connection);
+			} 
+			catch (SQLException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+		return databaseVersion;
+	}
+
+    /**
+     * Sets the database version.
+     * @param  connectionSource Open ConnectionSource object of database. Can be null for Android SQLite.
+     * @param version the new database version
+     */
+	@Override
+	public void setVersion(int version, ConnectionSource connectionSource) 
+	{
+		boolean tableExists = false;
+		DatabaseConnection connection = null;
+		try 
+		{
+			connection = connectionSource.getReadOnlyConnection();
+			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
+			if (tableExists)
+			{
+				String initTableStatement = "UPDATE `" + DATABASE_INFO_NAME + "` set `version` = " + version ;
+				connection.executeStatement(initTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+			}
+			else
+			{
+				String createTableStatement = "CREATE TABLE `" + DATABASE_INFO_NAME + "` (`version` INTEGER )";
+				connection.executeStatement(createTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+				String initTableStatement = "INSERT INTO `" + DATABASE_INFO_NAME + "` (`version`) values (" + version  + ")";
+				connection.executeStatement(initTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+			}
+		} 
+		catch (SQLException e) 
+		{
+			throw new PersistenceException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				connectionSource.releaseConnection(connection);
+			} 
+			catch (SQLException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+	}
     
     /** 
      * Returns ConnectionSource object
@@ -391,5 +478,6 @@ public class SQLiteDatabaseSupport implements DatabaseSupport
                 log.error(TAG, "Error closing database connection for database \"" + databaseName + "\"", e);
             }
     }
+
 
 }

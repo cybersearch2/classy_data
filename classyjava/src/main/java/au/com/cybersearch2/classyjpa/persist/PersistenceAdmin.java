@@ -19,8 +19,11 @@ import java.util.List;
 import java.util.Properties;
 
 import com.j256.ormlite.db.DatabaseType;
+import com.j256.ormlite.support.ConnectionSource;
 
+import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
+import au.com.cybersearch2.classyjpa.entity.EntityManagerImpl;
 import au.com.cybersearch2.classyjpa.query.DaoQueryFactory;
 import au.com.cybersearch2.classyjpa.query.QueryInfo;
 import au.com.cybersearch2.classyjpa.query.SqlQueryFactory;
@@ -93,4 +96,11 @@ public interface PersistenceAdmin extends ConnectionSourceFactory
      * @return java.util.Properties
      */
     Properties getProperties();
+
+    /**
+     * Create a EntityManager bound to an existing connectionSource. Use only for special case of database creation or update.
+     * @param connectionSource The existing ConnectionSource object 
+     * @return Eentity manager instance
+     */
+    EntityManagerLite createEntityManager(ConnectionSource connectionSource);
 }

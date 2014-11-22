@@ -55,7 +55,9 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
     protected OpenHelperCallbacks openHelperCallbacks;
     /** The open helper object internal to super class and otherwise inaccessible */
     protected SQLiteOpenHelper sqLiteOpenHelper;
-    
+    /** The SQLiteDatabase db in the onOpen() callback */
+    protected SQLiteDatabase database;
+
     /**
      * Create OpenHelperConnectionSource object
      * @param sqLiteOpenHelper The open helper object internal to super class and otherwise inaccessible
@@ -103,6 +105,27 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
                 openHelperCallbacks.onUpgrade(db, OpenHelperConnectionSource.this, oldVersion, newVersion);
             }});
     }
+
+    /**
+     * Returns the SQLiteDatabase db in the onOpen callback
+     * @return SQLiteDatabase
+     * @throws IllegalStateException if connection is closed
+     */
+    public SQLiteDatabase getDatabase()
+    {
+    	if (!isOpen || (database== null))
+    		throw new IllegalStateException("getDatabase() called when connection is not open");
+    	return database;
+    }
+
+    /**
+     * Set database - to be called by OpenHelperCallbacks implementation when onOpen() is called.
+     * @param database SQLiteDatabase
+     */
+	protected void setDatabase(SQLiteDatabase database) 
+	{
+		this.database = database;
+	}
 
     /**
      * Execute a task in the context database create or update. 

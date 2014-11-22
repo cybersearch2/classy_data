@@ -23,7 +23,9 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport;
+import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
+import au.com.cybersearch2.classyjpa.entity.EntityManagerImpl;
 import au.com.cybersearch2.classyjpa.query.DaoQueryFactory;
 import au.com.cybersearch2.classyjpa.query.QueryInfo;
 import au.com.cybersearch2.classyjpa.query.SqlQueryFactory;
@@ -112,6 +114,19 @@ public class PersistenceAdminImpl implements PersistenceAdmin
     public EntityManagerLiteFactory getEntityManagerFactory() 
     {
         return provider.createContainerEntityManagerFactory(puInfo, null);
+    }
+
+    /**
+     * Create a EntityManager bound to an existing connectionSource. Use only for special case of database creation or update.
+     * @param connectionSource The existing ConnectionSource object 
+     * @return Eentity manager instance
+     */
+    @Override
+    public EntityManagerLite createEntityManager(ConnectionSource connectionSource) 
+    {
+         return new EntityManagerImpl(
+                connectionSource, 
+                config);
     }
 
     /**

@@ -84,7 +84,7 @@ public class Simple_v1Task implements PersistenceWork
     public void onPostExecute(boolean success) 
     {
         if (!success)
-            throw new IllegalStateException(HelloTwoDbsMain.PU_NAME1_v1 + " task failed. Check console for error details.");
+            throw new IllegalStateException(HelloTwoDbsMain.PU_NAME1 + " task failed. Check console for error details.");
     }
     
     /**
@@ -93,6 +93,6 @@ public class Simple_v1Task implements PersistenceWork
     @Override
     public void onRollback(Throwable rollbackException) 
     {
-        throw new IllegalStateException(HelloTwoDbsMain.PU_NAME1_v1 + " task failed. Check console for stack trace.", rollbackException);
+        throw new IllegalStateException(HelloTwoDbsMain.PU_NAME1 + " task failed. Check console for stack trace.", rollbackException);
    }
 }

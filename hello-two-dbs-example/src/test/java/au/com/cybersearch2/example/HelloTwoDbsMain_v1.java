@@ -23,6 +23,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
 
+import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
@@ -50,7 +51,17 @@ public class HelloTwoDbsMain_v1 extends au.com.cybersearch2.example.HelloTwoDbsM
     {
     	if (!applicationInitialized)
     	{
+    		initializeApplication();
     		dropDatabaseTables();
+    		int versionDb1 = getDatabaseVersion(PU_NAME1);
+    		int versionDb2 = getDatabaseVersion(PU_NAME2);
+            logMessage(TAG, PU_NAME1 + " version = " + versionDb1);
+            logMessage(TAG, PU_NAME2 + " version = " + versionDb2);
+    		if (connectionType != ConnectionType.memory)
+    		{
+    			clearDatabaseTables();
+    		}
+    		applicationInitialized = true;
     	}
     	super.setUp();
     }
