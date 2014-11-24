@@ -6,10 +6,12 @@
        <class>au.com.cybersearch2.example.SimpleData</class>
         <property name="database-name" value="helloTwoDb1.db"/>
         <property name="database-version" value="1"/>
+        <property name="upgrade-filename-format" value="upgrade-simple-v{0}-v{1}.sql"/>
    </persistence-unit>
    <persistence-unit name="complex">
        <class>au.com.cybersearch2.example.ComplexData</class>
        <property name="database-name" value="helloTwoDb2.db"/>
        <property name="database-version" value="1"/>
+       <property name="upgrade-filename-format" value="upgrade-complex-v{0}-v{1}.sql"/>
    </persistence-unit>
 </persistence>

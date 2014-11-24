@@ -15,10 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import javax.inject.Inject;
+import javax.persistence.PersistenceException;
+
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
+import au.com.cybersearch2.classybean.BeanException;
+import au.com.cybersearch2.classybean.BeanUtil;
+import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdminImpl;
+import au.com.cybersearch2.classyjpa.persist.PersistenceConfig;
+import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
@@ -38,12 +51,15 @@ public class DatabaseAdminImpl implements DatabaseAdmin
 {
     private static final String TAG = "DatabaseAdminImpl";
     private static Log log = JavaLogger.getLogger(TAG);
-    
+    /** Default filename template for upgrade */
+    protected String DEFAULT_FILENAME_TEMPLATE = "{2}-upgrade-v{0}-v{1}.sql";
     protected String puName;
     /** Persistence control and configuration implementation */
     protected PersistenceAdmin persistenceAdmin;
-
+    /** Tasks are run serially */
     protected Executable task;
+    /** Resource environment provides system-specific file open method. */
+    @Inject ResourceEnvironment resourceEnvironment;
     
     /**
      * 
@@ -53,6 +69,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         this.puName = puName;
         this.persistenceAdmin = persistenceAdmin;
         task = new WorkTracker();
+        DI.inject(this);
     }
 
     /**
@@ -63,22 +80,23 @@ public class DatabaseAdminImpl implements DatabaseAdmin
      * @return ConnectionSource used for implementation to allow post-creation operations.
      */
     @Override
-    public ConnectionSource onCreate() 
+    public void onCreate(ConnectionSource connectionSource) 
     {
         // Block on any currently executing task 
         waitForTask();
-        ConnectionSource connectionSource = persistenceAdmin.getConnectionSource();
         Properties properties = persistenceAdmin.getProperties();
         // Get SQL script file names from persistence.xml properties
         // A filename may be null if operation not supported
         String schemaFilename = properties.getProperty(DatabaseAdmin.DROP_SCHEMA_FILENAME);
         String dropSchemaFilename = properties.getProperty(DatabaseAdmin.SCHEMA_FILENAME);
         String dataFilename = properties.getProperty(DatabaseAdmin.DATA_FILENAME);
-        // Database work is executed as background task
-        DatabaseWork processFilesCallable = 
+        if (!((schemaFilename == null) && (dropSchemaFilename == null) && (dataFilename == null)))
+        {
+        	// Database work is executed as background task
+        	DatabaseWork processFilesCallable = 
                 new NativeScriptDatabaseWork(connectionSource, schemaFilename, dropSchemaFilename, dataFilename);    
-        task = executeTask(processFilesCallable);
-        return connectionSource;
+        	task = executeTask(processFilesCallable);
+        }
     }
 
     /**
@@ -103,10 +121,48 @@ public class DatabaseAdminImpl implements DatabaseAdmin
      * @return ConnectionSource used for implementation to allow post-creation operations.
      */
     @Override
-    public ConnectionSource onUpgrade(int oldVersion, int newVersion)
+    public void onUpgrade(ConnectionSource connectionSource, int oldVersion, int newVersion)
     {
+        // Block on any currently executing task 
+        waitForTask();
+        Properties properties = persistenceAdmin.getProperties();
+        // Get SQL script upgrade file name format from persistence.xml properties
+        boolean upgradeSupported = false;
+        String upgradeFilenameFormat = properties.getProperty(DatabaseAdmin.UPGRADE_FILENAME_FORMAT);
+        String filename = null;
+        if (upgradeFilenameFormat == null)
+        {
+         	MessageFormat messageFormat = new MessageFormat(DEFAULT_FILENAME_TEMPLATE, resourceEnvironment.getLocale());
+        	filename = messageFormat.format(new String[] { Integer.toString(oldVersion), Integer.toString(newVersion), puName }).toString();
+        }
+        else
+        {
+        	MessageFormat messageFormat = new MessageFormat(upgradeFilenameFormat, resourceEnvironment.getLocale());
+      	    filename = messageFormat.format(new String[] { Integer.toString(oldVersion), Integer.toString(newVersion) }).toString();
+        }
+        InputStream instream = null;
+        try
+        {
+            instream = resourceEnvironment.openResource(filename);
+            upgradeSupported = true;
+        } 
+        catch (IOException e) 
+        {
+        	log.error(TAG, "Error opening \"" + filename + "\" for database upgrade", e);
+		}
+        finally
+        {
+            close(instream, filename);
+        }
+        if (!upgradeSupported)
+        	throw new PersistenceException("\"" + puName + "\" database upgrade from v" + oldVersion + " to v" + newVersion + " is not possible");
+        if (log.isLoggable(TAG, Level.INFO))
+            log.info(TAG, "Upgrade file \"" + filename + "\" exists: " + upgradeSupported);
+    	// Database work is executed as background task
+    	DatabaseWork processFilesCallable = 
+            new NativeScriptDatabaseWork(connectionSource, filename);    
+    	task = executeTask(processFilesCallable);
         // No special arrangements for upgrade by default. Override this class for custom upgrade
-        return onCreate();
     }
 
     /**
@@ -154,6 +210,65 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         return workStatus;
     }
 
+    public void initializeDatabase(PersistenceConfig persistenceConfig, DatabaseSupport databaseSupport)
+    {
+        // Ensure database version is up to date.
+    	Properties properties = persistenceConfig.getPuInfo().getProperties();
+    	int currentDatabaseVersion = PersistenceAdminImpl.getDatabaseVersion(properties);
+        // Get a connection to open the database and possibly trigger a create or upgrade event (eg. AndroidSQLite)
+        ConnectionSource connectionSource = persistenceAdmin.getConnectionSource();
+        int reportedDatabaseVersion = databaseSupport.getVersion(connectionSource);
+        if (reportedDatabaseVersion != currentDatabaseVersion)
+        {   // No assistance provided by helper to trigger create/upgrade event
+            // Allow custom creat/upgrade handler
+        	OpenHelperCallbacks openHelperCallbacks = getOpenHelperCallbacks(properties);
+        	if (reportedDatabaseVersion == 0)
+        	{
+        		if (openHelperCallbacks == null)
+        		{
+        			onCreate(connectionSource);
+                	waitForTask();
+        		}
+        		else
+        			openHelperCallbacks.onCreate(connectionSource);
+        		// Get database version again in case onCreate() set it
+        		reportedDatabaseVersion = databaseSupport.getVersion(connectionSource);
+        		if (reportedDatabaseVersion == 0)
+        		    databaseSupport.setVersion(1, connectionSource);
+        	}
+        	else
+        	{
+        		if (openHelperCallbacks == null)
+        		{
+        			onUpgrade(connectionSource, reportedDatabaseVersion, currentDatabaseVersion);
+                	waitForTask();
+        		}
+        		else
+        			openHelperCallbacks.onUpgrade(connectionSource, reportedDatabaseVersion, currentDatabaseVersion);
+        	}
+        	persistenceConfig.checkEntityTablesExist(connectionSource);
+        }
+    }
+
+    protected OpenHelperCallbacks getOpenHelperCallbacks(Properties properties)
+    {
+        OpenHelperCallbacks openHelperCallbacks = null;
+        // Property "open-helper-callbacks-classname"
+        String openHelperCallbacksClassname = properties.getProperty(PersistenceUnitInfoImpl.CUSTOM_OHC_PROPERTY);
+        if (openHelperCallbacksClassname != null)
+        {   // Custom
+            try
+            {
+                openHelperCallbacks = (OpenHelperCallbacks) BeanUtil.newClassInstance(openHelperCallbacksClassname);
+            }
+            catch(BeanException e)
+            {
+                throw new PersistenceException(e.getMessage(), e.getCause());
+            }
+        }
+        return openHelperCallbacks;
+    }
+    
     /**
      * Wait specified number of seconds for task to complte
      *@param task Executable tracking Database work
@@ -198,4 +313,17 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         return databaseWorkerTask.executeTask(processFilesCallable);
     }
     
+    private void close(InputStream instream, String filename) 
+    {
+        if (instream != null)
+            try
+            {
+                instream.close();
+            }
+            catch (IOException e)
+            {
+                log.warn(TAG, "Error closing file " + filename, e);
+            }
+    }
+
 }

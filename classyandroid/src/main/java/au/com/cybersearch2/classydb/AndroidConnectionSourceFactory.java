@@ -94,7 +94,7 @@ public class AndroidConnectionSourceFactory
             String puName = properties.getProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY);
             if (puName == null)
                 throw new PersistenceException("Persistence property \"" + PersistenceUnitInfoImpl.PU_NAME_PROPERTY + "\" not set");
-            openHelperCallbacks = new ClassyOpenHelperCallbacks(puName);
+            openHelperCallbacks = new OpenHelperCallbacksImpl(puName);
         }
         int databaseVersion = PersistenceAdminImpl.getDatabaseVersion(properties);
         // AndroidSQLiteConnection also contains an SQLiteOpenHelper. 

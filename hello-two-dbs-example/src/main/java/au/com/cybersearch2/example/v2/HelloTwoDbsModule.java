@@ -21,6 +21,7 @@ import dagger.Module;
 import dagger.Provides;
 import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
@@ -45,7 +46,9 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
         HelloTwoDbsMain.class, 
         PersistenceContainer.class,
         EntityTransactionImpl.class,
-        DatabaseUpgrader.class
+        DatabaseAdminImpl.class,
+        SimpleOpenHelperCallbacks.class,
+        ComplexOpenHelperCallbacks.class
         })
 public class HelloTwoDbsModule implements ApplicationModule
 {
@@ -66,8 +69,4 @@ public class HelloTwoDbsModule implements ApplicationModule
         return new PersistenceFactory(new SQLiteDatabaseSupport(CONNECTION_TYPE));
     }
 
-    @Provides @Singleton ConnectionType provideConnectionType()
-    {
-    	return CONNECTION_TYPE;
-    }
 }

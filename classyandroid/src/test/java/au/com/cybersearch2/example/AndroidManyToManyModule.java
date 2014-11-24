@@ -26,7 +26,8 @@ import dagger.Provides;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-import au.com.cybersearch2.classydb.ClassyOpenHelperCallbacks;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.OpenHelperCallbacksImpl;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
@@ -49,7 +50,8 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
         AndroidManyToMany.class, 
         PersistenceContainer.class,
         EntityTransactionImpl.class,
-        ClassyOpenHelperCallbacks.class
+        DatabaseAdminImpl.class,
+        OpenHelperCallbacksImpl.class
         })
 public class AndroidManyToManyModule implements ApplicationModule
 {

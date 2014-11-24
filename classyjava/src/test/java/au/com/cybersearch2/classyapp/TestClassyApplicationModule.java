@@ -17,6 +17,7 @@ package au.com.cybersearch2.classyapp;
 
 import javax.inject.Singleton;
 
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
@@ -39,7 +40,8 @@ import dagger.Provides;
                     NativeScriptDatabaseWork.class,
                     PersistenceFactory.class,
                     PersistenceContainer.class,
-                    EntityTransactionImpl.class
+                    EntityTransactionImpl.class,
+                    DatabaseAdminImpl.class
 })
 public class TestClassyApplicationModule implements ApplicationModule
 {

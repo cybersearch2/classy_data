@@ -29,6 +29,7 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 import au.com.cybersearch2.classyjpa.persist.ConnectionSourceFactory;
+import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 
 /**
  * HelloTwoDbsMain_v1 Version 1 uses ConnectionType.memory and drops all tables
@@ -53,6 +54,7 @@ public class HelloTwoDbsMain_v1 extends au.com.cybersearch2.example.HelloTwoDbsM
     	{
     		initializeApplication();
     		dropDatabaseTables();
+    		initializeDatabase();
     		int versionDb1 = getDatabaseVersion(PU_NAME1);
     		int versionDb2 = getDatabaseVersion(PU_NAME2);
             logMessage(TAG, PU_NAME1 + " version = " + versionDb1);

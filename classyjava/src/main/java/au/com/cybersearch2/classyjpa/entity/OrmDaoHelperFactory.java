@@ -58,7 +58,13 @@ public class OrmDaoHelperFactory<T,ID>
             throw new IllegalArgumentException("Error creating DAO for class " + entityClass.getName(), e);
         }
     }
- 
+
+    public boolean checkTableExists(ConnectionSource connectionSource) 
+    {
+        PersistenceDao<T, ID> entityDao = getDao(connectionSource);
+        return checkTableExists(connectionSource, entityDao);
+    }
+    
     protected boolean checkTableExists(ConnectionSource connectionSource, PersistenceDao<T, ID> entityDao) 
     {
         try

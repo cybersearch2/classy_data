@@ -84,7 +84,7 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 
             @Override
             public void run() {
-                openHelperCallbacks.onCreate(db, OpenHelperConnectionSource.this);
+                openHelperCallbacks.onCreate(OpenHelperConnectionSource.this);
             }});
     }
 
@@ -102,7 +102,7 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 
             @Override
             public void run() {
-                openHelperCallbacks.onUpgrade(db, OpenHelperConnectionSource.this, oldVersion, newVersion);
+                openHelperCallbacks.onUpgrade(OpenHelperConnectionSource.this, oldVersion, newVersion);
             }});
     }
 

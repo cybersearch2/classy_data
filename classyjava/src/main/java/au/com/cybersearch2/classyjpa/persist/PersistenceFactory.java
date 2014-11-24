@@ -26,6 +26,8 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.j256.ormlite.support.ConnectionSource;
+
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseAdminImpl;
@@ -124,7 +126,7 @@ public class PersistenceFactory
         Map<String, PersistenceUnitInfo> puMap = null;
         try
         {
-            puMap  = getPersistenceUnitInfo();
+            puMap  = getPersistenceUnitInfo(resourceEnvironment);
         }
         catch (IOException e)
         {
@@ -144,18 +146,30 @@ public class PersistenceFactory
             // Create objects for JPA and native support which are accessed using PersistenceFactory
             PersistenceAdminImpl persistenceAdmin = new PersistenceAdminImpl(name, databaseSupport, persistenceConfig);
             persistenceImplMap.put(name, persistenceAdmin);
-            databaseAdminImplMap.put(name, new DatabaseAdminImpl(name, persistenceAdmin));
+            DatabaseAdminImpl databaseAdmin = new DatabaseAdminImpl(name, persistenceAdmin);
+            databaseAdminImplMap.put(name, databaseAdmin);
         }
         databaseSupport.initialize();
     }
 
+    public void initializeAllDatabases()
+    {
+        //Initialize PU implementations
+        for (Map.Entry<String, DatabaseAdminImpl> entry: databaseAdminImplMap.entrySet())
+        {
+        	DatabaseAdminImpl databaseAdmin = entry.getValue();
+        	PersistenceAdminImpl persistenceAdmin = persistenceImplMap.get(entry.getKey());
+        	databaseAdmin.initializeDatabase(persistenceAdmin.getConfig(), databaseSupport);
+        }
+    }
+    
     /**
      * Returns object to which persistence.xml is unmarshalled
      * @return Map&lt;String, PersistenceUnitInfo&gt; - maps each peristence unit data to it's name
      * @throws IOException for error reading persistence.xml
      * @throws XmlPullParserException for error parsing persistence.xml
      */
-    protected Map<String, PersistenceUnitInfo> getPersistenceUnitInfo() throws IOException, XmlPullParserException
+    protected Map<String, PersistenceUnitInfo> getPersistenceUnitInfo(ResourceEnvironment resourceEnvironment) throws IOException, XmlPullParserException
     {
         InputStream inputStream = null;
         PersistenceXmlParser parser = null;

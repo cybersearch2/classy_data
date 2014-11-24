@@ -23,7 +23,6 @@ import com.j256.ormlite.support.ConnectionSource;
 
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
-import au.com.cybersearch2.classyjpa.entity.EntityManagerImpl;
 import au.com.cybersearch2.classyjpa.query.DaoQueryFactory;
 import au.com.cybersearch2.classyjpa.query.QueryInfo;
 import au.com.cybersearch2.classyjpa.query.SqlQueryFactory;
@@ -90,7 +89,7 @@ public interface PersistenceAdmin extends ConnectionSourceFactory
      * @return com.j256.ormlite.db.DatabaseType
      */
     DatabaseType getDatabaseType();
-    
+
     /**
      * Returns PU properties
      * @return java.util.Properties

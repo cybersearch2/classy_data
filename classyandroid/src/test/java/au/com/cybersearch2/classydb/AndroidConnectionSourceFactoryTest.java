@@ -50,7 +50,7 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidConnectionSourceFactoryTest
 {
-    @Module(injects = ClassyOpenHelperCallbacks.class)
+    @Module(injects = OpenHelperCallbacksImpl.class)
     static class AndroidConnectionSourceFactoryTestModule implements ApplicationModule
     {
         DatabaseAdmin databaseAdmin;

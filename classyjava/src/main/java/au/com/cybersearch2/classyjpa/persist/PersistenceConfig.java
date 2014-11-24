@@ -51,6 +51,7 @@ import au.com.cybersearch2.classylog.Log;
 
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.db.DatabaseType;
+import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTableConfig;
 
 /**
@@ -188,5 +189,13 @@ public class PersistenceConfig
                 DaoManager.addCachedDatabaseConfigs(configs);
         }
     }
-    
+
+    public void checkEntityTablesExist(ConnectionSource connectionSource)
+    {
+    	for (Map.Entry<String,OrmDaoHelperFactory<?,?>> entry: helperFactoryMap.entrySet())
+    	{
+    		if (!entry.getValue().checkTableExists(connectionSource))
+                log.warn(TAG, "Created Entity table for class: " + entry.getKey());
+    	}
+    }
 }

@@ -219,4 +219,13 @@ public class PersistenceAdminImpl implements PersistenceAdmin
         return puInfo.getProperties();
     }
 
+    protected PersistenceConfig getConfig()
+    {
+    	return config;
+    }
+    
+    protected DatabaseSupport getDatabaseSupport()
+    {
+    	return databaseSupport;
+    }
 }

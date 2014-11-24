@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import android.database.sqlite.SQLiteDatabase;
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
@@ -37,8 +36,7 @@ public class TestOpenHelperCallbacks implements OpenHelperCallbacks
      * @see au.com.cybersearch2.classydb.OpenHelperCallbacks#onCreate(android.database.sqlite.SQLiteDatabase, com.j256.ormlite.support.ConnectionSource)
      */
     @Override
-    public void onCreate(SQLiteDatabase database,
-            ConnectionSource connectionSource) 
+    public void onCreate(ConnectionSource connectionSource) 
     {
         TestOpenHelperCallbacks.connectionSource = connectionSource;
     }
@@ -47,7 +45,7 @@ public class TestOpenHelperCallbacks implements OpenHelperCallbacks
      * @see au.com.cybersearch2.classydb.OpenHelperCallbacks#onUpgrade(android.database.sqlite.SQLiteDatabase, com.j256.ormlite.support.ConnectionSource, int, int)
      */
     @Override
-    public void onUpgrade(SQLiteDatabase database,
+    public void onUpgrade(
             ConnectionSource connectionSource, int oldVersion, int newVersion) 
     {
         TestOpenHelperCallbacks.connectionSource = connectionSource;

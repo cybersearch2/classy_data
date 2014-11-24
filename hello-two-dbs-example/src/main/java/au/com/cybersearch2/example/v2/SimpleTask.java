@@ -24,7 +24,7 @@ import javax.persistence.Query;
 //import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.example.PersistenceTask;
+import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 
 /**
  * UsersByPostTask

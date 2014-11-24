@@ -17,7 +17,6 @@ package au.com.cybersearch2.classyapp;
 
 import com.j256.ormlite.support.ConnectionSource;
 
-import android.database.sqlite.SQLiteDatabase;
 import au.com.cybersearch2.classydb.OpenHelperCallbacks;
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -45,8 +44,7 @@ public class TestOpenHelperCallbacks implements OpenHelperCallbacks
      * @see au.com.cybersearch2.classydb.OpenHelperCallbacks#onCreate(android.database.sqlite.SQLiteDatabase, com.j256.ormlite.support.ConnectionSource)
      */
     @Override
-    public void onCreate(SQLiteDatabase database,
-            ConnectionSource connectionSource) 
+    public void onCreate(ConnectionSource connectionSource) 
     {
         openConnectionSource = connectionSource;
     }
@@ -55,7 +53,7 @@ public class TestOpenHelperCallbacks implements OpenHelperCallbacks
      * @see au.com.cybersearch2.classydb.OpenHelperCallbacks#onUpgrade(android.database.sqlite.SQLiteDatabase, com.j256.ormlite.support.ConnectionSource, int, int)
      */
     @Override
-    public void onUpgrade(SQLiteDatabase database,
+    public void onUpgrade(
             ConnectionSource connectionSource, int oldVersion, int newVersion) 
     {
         updateConnectionSource = connectionSource;

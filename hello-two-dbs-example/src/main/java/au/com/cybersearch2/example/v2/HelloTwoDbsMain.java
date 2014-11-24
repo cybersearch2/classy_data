@@ -26,8 +26,8 @@ import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.Executable;
-import au.com.cybersearch2.example.PersistenceTask;
 import au.com.cybersearch2.example.QueryForAllGenerator;
+import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 
 /**
  * Version 2 of HelloTwoDbsMain introduces a new "quote" field to both SimpleData and ComplexData entities.
@@ -38,16 +38,10 @@ public class HelloTwoDbsMain
     static public final String TAG = "HelloTwoDbsMain";
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
-    //static public final String PU_NAME1_v1 = "simple_v1";
-    //static public final String PU_NAME2_v1 = "complex_v1";
-    static public final String SIMPLE_DATA_TABLENAME = "Simple";
-    static public final String COMPLEX_DATA_TABLENAME = "Complex";
     /** Named query to find all SimpleData objects */
     static public final String ALL_SIMPLE_DATA = "all_simple_data";
     /** Named query to find all ComplexData objects */
     static public final String ALL_COMPLEX_DATA = "all_complex_data";
-    static public final String DATABASE_INFO_NAME = "User_Info";
-    static public final int DATABASE_VERSION = 2;
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
@@ -59,8 +53,6 @@ public class HelloTwoDbsMain
     
     /** Factory object to create "simple" and "complex" Persistence Unit implementations */
     @Inject PersistenceFactory persistenceFactory;
-    /** ConnectionType - if not memory, then database may be populated on startup */
-    @Inject ConnectionType connectionType;
     
     static
     {
@@ -126,42 +118,21 @@ public class HelloTwoDbsMain
     	{
     		initializeApplication();
     		initializeDatabase();
-    		// Get database version and populate it with initial data if newly created
-    		int versionDb1 = getDatabaseVersion(PU_NAME1);
-    		if (versionDb1 == 0)
-    		{
-    			updateDatabaseVersion(PU_NAME1);
-    			populateDatabase1();
-    			versionDb1 = DATABASE_VERSION;
-    		}
-    		int versionDb2 = getDatabaseVersion(PU_NAME2);
-    		if (versionDb2 == 0)
-    		{
-    			updateDatabaseVersion(PU_NAME2);
-    			populateDatabase2();
-    			versionDb2 = DATABASE_VERSION;
-    		}
-            logMessage(TAG, PU_NAME1 + " version = " + versionDb1);
-            logMessage(TAG, PU_NAME2 + " version = " + versionDb2);
-			if (versionDb1 == 1)
-			{
-				upgradeDatabase();
-		        // Update version value in databases
-				updateDatabaseVersion(PU_NAME1);
-		 		updateDatabaseVersion(PU_NAME2);
-		        logMessage(TAG, "Upgraded database version from 1 to " + DATABASE_VERSION);
-			}
 			applicationInitialized = true;
     	}
     }
 
     public void shutdown()
     {
+    	if(persistenceFactory == null)
+    		return;
         String[] puNames = { PU_NAME1, PU_NAME2 }; 
         {
         	for (String puName: puNames)
         	{
-        		persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin().close();
+        		Persistence pu = persistenceFactory.getPersistenceUnit(puName);
+        		if (pu != null)
+        			pu.getPersistenceAdmin().close();
         	}
         }
     }
@@ -176,7 +147,8 @@ public class HelloTwoDbsMain
     
     protected void initializeDatabase()
     {
-        // Note that the table for each entity class will be created in the following step (assuming database is in memory).
+    	// Initialize all databases. This handles create and update events automatically.
+    	persistenceFactory.initializeAllDatabases();
         // To populate these tables, call setUp().
         Persistence persistence1 = persistenceFactory.getPersistenceUnit(PU_NAME1);
         // Get Interface for JPA Support, required to create named queries
@@ -291,144 +263,6 @@ public class HelloTwoDbsMain
 		System.out.println(message);
 	}
 
-	/**
-	 * Upgrade database from version 1 to version 2.
-	 * @throws InterruptedException
-	 */
-	public void upgradeDatabase() throws InterruptedException
-	{
-		DatabaseUpgrader upgrader = new DatabaseUpgrader();
-        displayMessage(upgrader.doUpgrade(1, DATABASE_VERSION));
-	}
-
-	/**
-	 * Clear database tables if they exist
-	 * @throws InterruptedException
-	 */
-	public void clearDatabaseTables() throws InterruptedException
-	{
-        // Persistence task clears Simple table the helloTwoDb1.db database using JPA. 
-		performPersistenceWork(PU_NAME1, new PersistenceTask(){
-
-			@Override
-			public void doTask(EntityManagerLite entityManager) 
-			{
-		    	EntityManagerDelegate delegate = (EntityManagerDelegate) entityManager.getDelegate();
-		    	@SuppressWarnings("unchecked")
-				PersistenceDao<SimpleData, Integer> simpleDao = (PersistenceDao<SimpleData, Integer>) delegate.getDaoForClass(SimpleData.class);
-		    	try 
-		    	{
-		    		if (simpleDao.isTableExists())
-		    			TableUtils.clearTable(simpleDao.getConnectionSource(), SimpleData.class);
-				} 
-		    	catch (SQLException e) 
-		    	{
-					throw new PersistenceException(e);
-				}
-                logMessage(PU_NAME1, "Cleared table \"Simple\"");
-			}});
-    	// Persistence task drops then creates Complex table in the helloTwoDb2.db database using JPA.
-		performPersistenceWork(PU_NAME2, new PersistenceTask(){
-
-			@Override
-			public void doTask(EntityManagerLite entityManager) 
-			{
-		    	EntityManagerDelegate delegate = (EntityManagerDelegate) entityManager.getDelegate();
-		    	@SuppressWarnings("unchecked")
-		    	PersistenceDao<ComplexData, Integer> complexDao = (PersistenceDao<ComplexData, Integer>) delegate.getDaoForClass(ComplexData.class);
-		    	try 
-		    	{
-		    		if (complexDao.isTableExists())
-		    			TableUtils.clearTable(complexDao.getConnectionSource(), ComplexData.class);
-				} 
-		    	catch (SQLException e) 
-		    	{
-					throw new PersistenceException(e);
-				}
-				logMessage(PU_NAME2, "Cleared table \"Complex\"");
-			}});
-	}
-	
-	/**
-	 * Populate database 1 with initial sample data
-	 * @throws InterruptedException
-	 */
-	public void populateDatabase1() throws InterruptedException
-	{
-        // Persistence task adds 1 SimpleData entity object to the helloTwoDb1.db database using JPA. 
-		performPersistenceWork(PU_NAME1, getPopulateTask1());
-	}
-
-	protected PersistenceTask getPopulateTask1()
-	{
-		return new PersistenceTask(){
-
-			@Override
-			public void doTask(EntityManagerLite entityManager) 
-			{
-				long millis = System.currentTimeMillis();
-				// create some entries in the onCreate
-				SimpleData simple1 = new SimpleData("Sarah", millis, QuoteSource.getQuote());
-                entityManager.persist(simple1);
-                SimpleData simple2 = new SimpleData("George", millis + 1, QuoteSource.getQuote());
-                entityManager.persist(simple2);
-                logMessage(PU_NAME1, "Created 2 new SimpleData entries: " + millis);
-			}};
-	}
-	
-	/**
-	 * Populate database 2 with initial sample data
-	 * @throws InterruptedException
-	 */
-	public void populateDatabase2() throws InterruptedException
-	{
-    	// Persistence task adds 1 ComplexData entity object to the helloTwoDb2.db database using JPA.
-		performPersistenceWork(PU_NAME2, getPopulateTask2());
-	}
-
-	protected PersistenceTask getPopulateTask2()
-	{
-		return new PersistenceTask(){
-
-			@Override
-			public void doTask(EntityManagerLite entityManager) 
-			{
-				long millis = System.currentTimeMillis();
-				// create some entries in the onCreate
-				ComplexData complex1 = new ComplexData(millis, QuoteSource.getQuote());
-				entityManager.persist(complex1);
-				ComplexData complex2 = new ComplexData(millis + 1, QuoteSource.getQuote());
-				entityManager.persist(complex2);
-				logMessage(PU_NAME2, "Created 2 new ComplexData entries: " + millis);
-			}};
-	}
-	
-	/**
-	 * Returns database version. Shows how to get a ConnectionSource to perform OrmLite operations without JPA.
-	 * @param puName Persistence Unit name
-	 * @return int
-	 */
-	public int getDatabaseVersion(String puName) throws InterruptedException
-	{
-		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
-		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
-		DatabaseSupport databaseSupport = persistenceFactory.getDatabaseSupport();
-		return databaseSupport.getVersion(connectionSource);
-	}
-
-
-	/**
-	 * Update database version to current
-	 * @param puName Persistence Unit name
-	 */
-	public void updateDatabaseVersion(String puName)
-	{
-		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
-		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
-		DatabaseSupport databaseSupport = persistenceFactory.getDatabaseSupport();
-		databaseSupport.setVersion(DATABASE_VERSION, connectionSource);
-	}
-	
 	/**
 	 * Public accessor for logMessage()
 	 * @param tag

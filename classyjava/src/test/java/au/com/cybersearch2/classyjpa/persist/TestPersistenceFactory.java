@@ -54,14 +54,14 @@ public class TestPersistenceFactory
     {
         DatabaseAdmin databaseAdmin = persistence.getDatabaseAdmin();
         PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+    	ConnectionSource connectionSource = persistenceAdmin.getConnectionSource();
         if (persistenceAdmin.getDatabaseType().getClass().equals(SqliteDatabaseType.class))
         {
-            connectionSource = databaseAdmin.onCreate();
+            databaseAdmin.onCreate(connectionSource);
             assertThat(databaseAdmin.waitForTask(0)).isEqualTo(WorkStatus.FINISHED);
         }
         else
         {   // Android controls database creation, so just request a connection to trigger it.
-            connectionSource = persistenceAdmin.getConnectionSource();
             DatabaseConnection dbConn = connectionSource.getReadWriteConnection();
             assertThat(dbConn.isTableExists("models")).isTrue();
         }
@@ -71,7 +71,6 @@ public class TestPersistenceFactory
     public void onShutdown()
     {
         persistence.getPersistenceAdmin().close();
-        assertThat(connectionSource.isOpen()).isFalse();
     }
     
     public Persistence getPersistenceEnvironment()

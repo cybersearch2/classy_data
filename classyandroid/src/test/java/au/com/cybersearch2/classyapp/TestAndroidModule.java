@@ -18,7 +18,8 @@ package au.com.cybersearch2.classyapp;
 import javax.inject.Singleton;
 
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-import au.com.cybersearch2.classydb.ClassyOpenHelperCallbacks;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.OpenHelperCallbacksImpl;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
@@ -41,7 +42,8 @@ import dagger.Provides;
         NativeScriptDatabaseWork.class,
         PersistenceContainer.class,
         EntityTransactionImpl.class,
-        ClassyOpenHelperCallbacks.class
+        OpenHelperCallbacksImpl.class,
+        DatabaseAdminImpl.class
         })
 public class TestAndroidModule implements ApplicationModule
 {

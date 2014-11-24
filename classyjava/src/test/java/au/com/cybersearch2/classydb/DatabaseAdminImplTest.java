@@ -49,7 +49,9 @@ public class DatabaseAdminImplTest
 {
     @Module(injects = { 
             EntityTransactionImpl.class,
-            NativeScriptDatabaseWork.class })
+            NativeScriptDatabaseWork.class,
+            DatabaseAdminImpl.class,
+            TestDatabaseAdminImpl.class})
     class DatabaseAdminImplTestModule implements ApplicationModule
     {
         @Provides ResourceEnvironment provideResourceEnvironment()
@@ -69,6 +71,7 @@ public class DatabaseAdminImplTest
     public static final String CREATE_SQL_FILENAME = "create.sql";
     public static final String DROP_SQL_FILENAME = "drop.sql";
     public static final String DATA_FILENAME = "data.sql";
+    public static final String UPGRADE_DATA_FILENAME = "classyfy-upgrade-v1-v2.sql";
     PersistenceAdmin persistenceAdmin;
     ConnectionSource connectionSource;
     Properties properties;
@@ -91,8 +94,7 @@ public class DatabaseAdminImplTest
         properties.setProperty(DatabaseAdmin.SCHEMA_FILENAME, CREATE_SQL_FILENAME);
         properties.setProperty(DatabaseAdmin.DATA_FILENAME, DATA_FILENAME);
         TestDatabaseAdminImpl databaseAdminImpl = new TestDatabaseAdminImpl(TestClassyApplication.PU_NAME, persistenceAdmin);
-        ConnectionSource result = databaseAdminImpl.onCreate();
-        assertThat(result).isEqualsToByComparingFields(connectionSource);
+        databaseAdminImpl.onCreate(connectionSource);
         NativeScriptDatabaseWork processFilesCallable = (NativeScriptDatabaseWork) databaseAdminImpl.processFilesCallable;
         assertThat(processFilesCallable.filenames.length).isEqualTo(3);
         assertThat(processFilesCallable.filenames[0]).isEqualTo(DROP_SQL_FILENAME);
@@ -101,19 +103,16 @@ public class DatabaseAdminImplTest
     }
 
     @Test
-    public void test_onUpdate()
+    public void test_onUpgrade()
     {
         properties.setProperty(DatabaseAdmin.DROP_SCHEMA_FILENAME, DROP_SQL_FILENAME);
         properties.setProperty(DatabaseAdmin.SCHEMA_FILENAME, CREATE_SQL_FILENAME);
         properties.setProperty(DatabaseAdmin.DATA_FILENAME, DATA_FILENAME);
         TestDatabaseAdminImpl databaseAdminImpl = new TestDatabaseAdminImpl(TestClassyApplication.PU_NAME, persistenceAdmin);
-        ConnectionSource result = databaseAdminImpl.onUpgrade(1,2);
-        assertThat(result).isEqualsToByComparingFields(connectionSource);
+        databaseAdminImpl.onUpgrade(connectionSource, 1,2);
         NativeScriptDatabaseWork processFilesCallable = (NativeScriptDatabaseWork) databaseAdminImpl.processFilesCallable;
-        assertThat(processFilesCallable.filenames.length).isEqualTo(3);
-        assertThat(processFilesCallable.filenames[0]).isEqualTo(DROP_SQL_FILENAME);
-        assertThat(processFilesCallable.filenames[1]).isEqualTo(CREATE_SQL_FILENAME);
-        assertThat(processFilesCallable.filenames[2]).isEqualTo(DATA_FILENAME);
+        assertThat(processFilesCallable.filenames.length).isEqualTo(1);
+        assertThat(processFilesCallable.filenames[0]).isEqualTo(UPGRADE_DATA_FILENAME);
     }
     
     @Test

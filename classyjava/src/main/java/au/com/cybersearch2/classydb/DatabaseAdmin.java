@@ -34,8 +34,10 @@ public interface DatabaseAdmin
     public final static String DROP_SCHEMA_FILENAME = "drop-schema-filename";
     /** Property key for populate database */
     public final static String DATA_FILENAME = "data-filename";
+    /** Property key for update database. Use Java MessageFormat with %1 = old version and %2 = new version - see java.text.MessageFormat */
+    public final static String UPGRADE_FILENAME_FORMAT = "upgrade-filename-format";
     /** Property key for database version */
-    public final static String DATABASE_VERSION = "database_version";
+    public final static String DATABASE_VERSION = "database-version";
     /** Property key for database name */
     public final static String DATABASE_NAME = "database-name";
 
@@ -44,9 +46,9 @@ public interface DatabaseAdmin
      * Called when the database is created for the first time. This is where the
      * creation of tables and the initial population of the tables should happen.
      *
-     * @return ConnectionSource used for implementation to allow post-creation operations.
+     * @param connectionSource Open Connection Source
      */
-    ConnectionSource onCreate();
+    void onCreate(ConnectionSource connectionSource);
     
     /**
      * See android.database.sqlite.SQLiteOpenHelper
@@ -65,11 +67,12 @@ public interface DatabaseAdmin
      * will automatically be rolled back.
      * </p>
      *
+     * @param connectionSource Open Connection Source
      * @param oldVersion The old database version.
      * @param newVersion The new database version.
      * @return ConnectionSource used for implementation to allow post-creation operations.
      */
-    ConnectionSource onUpgrade(int oldVersion, int newVersion);
+    void onUpgrade(ConnectionSource connectionSource, int oldVersion, int newVersion);
     
     /**
      * Wait for currently executing persistence unit task to complete

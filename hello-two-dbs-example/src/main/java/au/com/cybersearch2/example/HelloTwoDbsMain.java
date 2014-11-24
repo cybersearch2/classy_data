@@ -20,6 +20,7 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
+import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.ConnectionSourceFactory;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
@@ -129,6 +130,7 @@ public class HelloTwoDbsMain
     	if (!applicationInitialized)
     	{
     		initializeApplication();
+    		initializeDatabase();
     		int versionDb1 = getDatabaseVersion(PU_NAME1);
     		int versionDb2 = getDatabaseVersion(PU_NAME2);
             logMessage(TAG, PU_NAME1 + " version = " + versionDb1);
@@ -159,8 +161,13 @@ public class HelloTwoDbsMain
         createObjectGraph();
         // Inject persistenceFactory and create persistence units.
         DI.inject(this); 
+    }
+    
+    protected void initializeDatabase()
+    {
         // Note that the table for each entity class will be created in the following step (assuming database is in memory).
         // To populate these tables, call setUp().
+    	persistenceFactory.initializeAllDatabases();
         Persistence persistence1 = persistenceFactory.getPersistenceUnit(PU_NAME1);
         // Get Interface for JPA Support, required to create named queries
         PersistenceAdmin persistenceAdmin1 = persistence1.getPersistenceAdmin();

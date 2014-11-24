@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 import javax.inject.Inject;
+import javax.persistence.PersistenceException;
 
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.SqlParser.StatementCallback;
@@ -79,6 +80,10 @@ public class NativeScriptDatabaseWork extends DatabaseWork
                 success = true;
                 if (log.isLoggable(TAG, Level.FINE))
                     log.debug(TAG, "Executed " + sqlParser.getCount() + " statements from " + filename);
+            }
+            catch(SQLException e)
+            {
+            	throw new PersistenceException("Error executing native script " + filename, e);
             }
             finally
             {

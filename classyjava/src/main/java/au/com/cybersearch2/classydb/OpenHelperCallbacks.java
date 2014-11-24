@@ -15,8 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
@@ -36,12 +34,10 @@ public interface OpenHelperCallbacks
      * returned by getConnectionSource(). If you use your own, a recursive call or other unexpected results may result.
      * </p>
      * 
-     * @param database
-     *            Database being created.
      * @param connectionSource
      *            To use get connections to the database to be created.
      */
-    void onCreate(SQLiteDatabase database, ConnectionSource connectionSource);
+    void onCreate(ConnectionSource connectionSource);
 
     /**
      * What to do when your database needs to be updated. This could mean careful migration of old data to new data.
@@ -52,8 +48,6 @@ public interface OpenHelperCallbacks
      * returned by getConnectionSource(). If you use your own, a recursive call or other unexpected results may result.
      * </p>
      * 
-     * @param database
-     *            Database being upgraded.
      * @param connectionSource
      *            To use get connections to the database to be updated.
      * @param oldVersion
@@ -61,7 +55,7 @@ public interface OpenHelperCallbacks
      * @param newVersion
      *            The version that we are upgrading the database to.
      */
-    void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion,
+    void onUpgrade(ConnectionSource connectionSource, int oldVersion,
             int newVersion);
 
 }
