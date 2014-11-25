@@ -75,16 +75,11 @@ public class JpaIntegrationTest
     @Before
     public void setup() throws Exception
     {
-        if (testPersistenceFactory == null)
-        {
-            DI dependencyInjection = new DI(new JpaIntegrationTestModule());
-            dependencyInjection.validate();
-            DI.inject(this);
-            Persistence persistence = persistenceFactory.getPersistenceUnit(TestClassyApplication.PU_NAME);
-            testPersistenceFactory = new TestPersistenceFactory(persistence);
-         }
+       	createObjectGraph();
+        //persistenceFactory.initializeAllDatabases();
+        Persistence persistence = persistenceFactory.getPersistenceUnit(TestClassyApplication.PU_NAME);
+        testPersistenceFactory = new TestPersistenceFactory(persistence);
         transcript = new Transcript();
-        testPersistenceFactory.setUpDatabase();
         testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
     }
 
@@ -93,7 +88,19 @@ public class JpaIntegrationTest
     {
         testPersistenceFactory.onShutdown();
     }
-    
+ 
+	/**
+	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
+	 * Override to run with different database and/or platform. 
+	 */
+	protected void createObjectGraph()
+	{
+        DI dependencyInjection = new DI(new JpaIntegrationTestModule());
+        dependencyInjection.validate();
+        DI.inject(this);
+	}
+
+/*
     @Test
     public void test_PersistenceEnvironment()
     {
@@ -112,7 +119,7 @@ public class JpaIntegrationTest
         em.close();
         
     }
-
+*/
     @Test 
     public void test_find_node() throws InterruptedException
     {

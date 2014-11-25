@@ -25,7 +25,7 @@
     <android.sdk.version>5.0.0</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
     <android.support.version>21.0.1</android.support.version>
-    <robolectric.version>2.3</robolectric.version>
+    <robolectric.version>2.4</robolectric.version>
     <ormlite.version>4.49-SNAPSHOT</ormlite.version>
     <dagger.version>1.2.2</dagger.version>
  </properties>

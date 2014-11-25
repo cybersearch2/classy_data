@@ -26,6 +26,7 @@ import javax.persistence.PersistenceException;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.SqlParser.StatementCallback;
 import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.transaction.TransactionCallable;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
 
@@ -37,7 +38,7 @@ import com.j256.ormlite.support.DatabaseConnection;
  * @author Andrew Bowley
  * 31/07/2014
  */
-public class NativeScriptDatabaseWork extends DatabaseWork
+public class NativeScriptDatabaseWork implements TransactionCallable
 {
     private static final String TAG = "NativeScriptDatabaseWork";
     private static Log log = JavaLogger.getLogger(TAG);
@@ -51,14 +52,26 @@ public class NativeScriptDatabaseWork extends DatabaseWork
      */
     public NativeScriptDatabaseWork(ConnectionSource connectionSource, final String... filenames)
     {
-        super(connectionSource);
         this.filenames = filenames;
         DI.inject(this); // Inject ResourceEnvironment
     }
 
-    @Override
-    public Boolean doInBackground(final DatabaseConnection databaseConnection) throws Exception 
-    {   // Execute SQL statement in SqlParser callback
+    private void close(InputStream instream, String filename) 
+    {
+        if (instream != null)
+            try
+            {
+                instream.close();
+            }
+            catch (IOException e)
+            {
+                log.warn(TAG, "Error closing file " + filename, e);
+            }
+    }
+
+	@Override
+	public Boolean call(final DatabaseConnection databaseConnection) throws Exception 
+	{   // Execute SQL statement in SqlParser callback
         StatementCallback callback = new StatementCallback(){
             
             @Override
@@ -91,19 +104,6 @@ public class NativeScriptDatabaseWork extends DatabaseWork
             }
         }
         return success;
-    }
-
-    private void close(InputStream instream, String filename) 
-    {
-        if (instream != null)
-            try
-            {
-                instream.close();
-            }
-            catch (IOException e)
-            {
-                log.warn(TAG, "Error closing file " + filename, e);
-            }
-    }
+	}
 
 }

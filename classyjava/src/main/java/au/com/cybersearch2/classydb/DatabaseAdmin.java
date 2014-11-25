@@ -16,6 +16,7 @@
 package au.com.cybersearch2.classydb;
 
 import au.com.cybersearch2.classytask.WorkStatus;
+import au.com.cybersearch2.classytask.WorkTracker;
 
 import com.j256.ormlite.support.ConnectionSource;
 
@@ -78,12 +79,12 @@ public interface DatabaseAdmin
      * Wait for currently executing persistence unit task to complete
      * @return WorkStatus Status value will be FINISHED or FAILED
      */
-    WorkStatus waitForTask();
+    WorkStatus waitForTask(WorkTracker workTracker);
     
     /**
      * Wait up to specified number of seconds for currently executing persistence unit task to complete
      * @param timeoutSecs int
      * @return WorkStatus Status value will be FINISHED or FAILED
      */
-    WorkStatus waitForTask(int timeoutSecs);
+    WorkStatus waitForTask(WorkTracker workTracker, int timeoutSecs);
 }

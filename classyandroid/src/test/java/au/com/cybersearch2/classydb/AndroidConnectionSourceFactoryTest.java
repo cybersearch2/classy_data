@@ -19,23 +19,18 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
-import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.persistence.PersistenceException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 import dagger.Module;
 import dagger.Provides;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import au.com.cybersearch2.classyapp.ContextModule;
-import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
@@ -47,7 +42,6 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
  * @author Andrew Bowley
  * 10/07/2014
  */
-@RunWith(RobolectricTestRunner.class)
 public class AndroidConnectionSourceFactoryTest
 {
     @Module(injects = OpenHelperCallbacksImpl.class)
@@ -72,6 +66,8 @@ public class AndroidConnectionSourceFactoryTest
     }
     
     protected AndroidConnectionSourceFactory androidConnectionSourceFactory;
+    protected AndroidDatabaseSupport androidDatabaseSupport;
+    protected SQLiteOpenHelper sqLiteOpenHelper;
     static AndroidConnectionSourceFactoryTestModule androidConnectionSourceFactoryTestModule;
     static final String PU_NAME = "classyfy";
     static final String DATABASE_NAME = "classyfy.db";
@@ -83,77 +79,57 @@ public class AndroidConnectionSourceFactoryTest
     {
         if (context == null)
         {
-            context = TestRoboApplication.getTestInstance();
+            //context = TestRoboApplication.getTestInstance();
+        	context = mock(Context.class);
             androidConnectionSourceFactoryTestModule = new AndroidConnectionSourceFactoryTestModule();
             new DI(androidConnectionSourceFactoryTestModule, new ContextModule(context));
         }
         properties = new Properties();
         properties.setProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY, PU_NAME);
-        androidConnectionSourceFactory = new AndroidConnectionSourceFactory();
+        properties.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
+        androidDatabaseSupport = mock(AndroidDatabaseSupport.class);
+        sqLiteOpenHelper = mock(SQLiteOpenHelper.class);
+        when(androidDatabaseSupport.createSQLiteOpenHelper(DATABASE_NAME, 2, context)).thenReturn(sqLiteOpenHelper);
+        androidConnectionSourceFactory = new AndroidConnectionSourceFactory(androidDatabaseSupport);
     }
     
     @Test
     public void test_constructor()
     {
-        assertThat(androidConnectionSourceFactory.androidSQLiteMap).isNotNull();
         assertThat(androidConnectionSourceFactory.applicationContext).isNotNull();
     }
 
     @Test
-    public void test_getAndroidSQLiteConnection()
+    public void test_createAndroidSQLiteConnection()
     {
-        Properties testProperties = new Properties();
-        testProperties.putAll(properties);
-        testProperties.setProperty(PersistenceUnitInfoImpl.CUSTOM_OHC_PROPERTY, "au.com.cybersearch2.classyapp.TestOpenHelperCallbacks");
         OpenHelperConnectionSource result = 
-             androidConnectionSourceFactory.getAndroidSQLiteConnection(DATABASE_NAME, testProperties);
+             androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, properties);
         assertThat(result).isNotNull();
-        assertThat(androidConnectionSourceFactory.androidSQLiteMap.get(DATABASE_NAME)).isEqualTo(result);
         assertThat(result.openHelperCallbacks).isNotNull();
-        SQLiteOpenHelper sqLiteOpenHelper = result.getSQLiteOpenHelper();
-        assertThat(sqLiteOpenHelper).isNotNull();
-        // Database parameter not used by databaseAdmin, so can be set to null. 
-        // Mocking not allowed as class is final.
-        SQLiteDatabase db = null;
-        sqLiteOpenHelper.onCreate(db);
-        assertThat(au.com.cybersearch2.classyapp.TestOpenHelperCallbacks.getOpenConnectionSource()).isEqualTo(result);
-        sqLiteOpenHelper.onUpgrade(db, 1, 2);
-        assertThat(au.com.cybersearch2.classyapp.TestOpenHelperCallbacks.getUpdateConnectionSource()).isEqualTo(result);
-        OpenHelperConnectionSource result2 = 
-                androidConnectionSourceFactory.getAndroidSQLiteConnection(DATABASE_NAME, properties);
-        assertThat(result2).isEqualTo(result);
+        assertThat(result.openHelperCallbacks instanceof OpenHelperCallbacksImpl).isTrue();
+        assertThat(result.getSQLiteOpenHelper()).isEqualTo(sqLiteOpenHelper);
     }
     
     @Test
     public void test_getAndroidSQLiteConnection_custom()
     {
-        properties.setProperty("open-helper-callbacks-classname", TestOpenHelperCallbacks.class.getName());
+    	Properties testProperties = new Properties();
+    	testProperties.putAll(properties);
+    	testProperties.setProperty(PersistenceUnitInfoImpl.CUSTOM_OHC_PROPERTY, TestOpenHelperCallbacks.class.getName());
         OpenHelperConnectionSource result = 
-             androidConnectionSourceFactory.getAndroidSQLiteConnection(DATABASE_NAME, properties);
+             androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, testProperties);
         assertThat(result).isNotNull();
-        assertThat(androidConnectionSourceFactory.androidSQLiteMap.get(DATABASE_NAME)).isEqualTo(result);
         assertThat(result.openHelperCallbacks).isNotNull();
-        SQLiteOpenHelper sqLiteOpenHelper = result.getSQLiteOpenHelper();
-        assertThat(sqLiteOpenHelper).isNotNull();
-        // Database parameter not used by databaseAdmin, so can be set to null. 
-        // Mocking not allowed as class is final.
-        SQLiteDatabase db = null;
-        sqLiteOpenHelper.onCreate(db);
-        assertThat(TestOpenHelperCallbacks.connectionSource).isEqualTo(result);
-        TestOpenHelperCallbacks.connectionSource = null;
-        sqLiteOpenHelper.onUpgrade(db, 1, 2);
-        assertThat(TestOpenHelperCallbacks.connectionSource).isEqualTo(result);
-        assertThat(TestOpenHelperCallbacks.oldVersion).isEqualTo(1);
-        assertThat(TestOpenHelperCallbacks.newVersion).isEqualTo(2);
+        assertThat(result.getSQLiteOpenHelper()).isEqualTo(sqLiteOpenHelper);
     }
-    
+        
     @Test
     public void test_getAndroidSQLiteConnection_custom_instantiation_exception()
     {
         properties.setProperty("open-helper-callbacks-classname", "x" + TestOpenHelperCallbacks.class.getName());
         try
         {
-            androidConnectionSourceFactory.getAndroidSQLiteConnection(DATABASE_NAME, properties);
+            androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, properties);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         }
         catch (PersistenceException e)
@@ -161,18 +137,4 @@ public class AndroidConnectionSourceFactoryTest
             assertThat(e.getMessage()).contains("x" + TestOpenHelperCallbacks.class.getName());
         }
     }
-    
-   @Test
-    public void test_close() throws SQLException
-    {
-        OpenHelperConnectionSource conn1 = mock(OpenHelperConnectionSource.class);
-        OpenHelperConnectionSource conn2 = mock(OpenHelperConnectionSource.class);
-        androidConnectionSourceFactory.androidSQLiteMap.put(DATABASE_NAME + "1", conn1);
-        androidConnectionSourceFactory.androidSQLiteMap.put(DATABASE_NAME + "2", conn2);
-        androidConnectionSourceFactory.close();
-        verify(conn2).close();
-        verify(conn1).close();
-        assertThat(androidConnectionSourceFactory.androidSQLiteMap.size()).isEqualTo(0);
-    }
-    
 }

@@ -31,6 +31,8 @@ package au.com.cybersearch2.classydb;
 
 import java.sql.SQLException;
 
+import javax.persistence.PersistenceException;
+
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.android.AndroidConnectionSource;
 import com.j256.ormlite.android.AndroidDatabaseConnection;
@@ -107,11 +109,62 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
     }
 
     /**
+     * Returns database version
+     * @see au.com.cybersearch2.classydb.DatabaseSupport#getVersion(com.j256.ormlite.support.ConnectionSource)
+     */
+	public int getVersion() 
+	{
+		return 1;
+		/*
+		if ((database != null) && database.isOpen())
+			return database.getVersion();
+		DatabaseConnection connection = null;
+		int version = 0;
+		try 
+		{
+			connection = getReadWriteConnection();
+			version = database.getVersion();
+		} 
+		catch (SQLException e) 
+		{
+			throw new PersistenceException(e);
+		} 
+		finally 
+		{
+			releaseConnection(connection);
+		}
+		return version;
+		*/
+	}
+	
+	/**
+	 * Sets database version
+	 * @see au.com.cybersearch2.classydb.DatabaseSupport#setVersion(int, com.j256.ormlite.support.ConnectionSource)
+	 */
+	public void setVersion(int version) 
+	{
+		DatabaseConnection connection = null;
+		try 
+		{
+			connection = getReadOnlyConnection();
+			getDatabase().setVersion(version);
+		} 
+		catch (SQLException e) 
+		{
+			throw new PersistenceException(e);
+		} 
+		finally 
+		{
+			releaseConnection(connection);
+		}
+	}
+
+    /**
      * Returns the SQLiteDatabase db in the onOpen callback
      * @return SQLiteDatabase
      * @throws IllegalStateException if connection is closed
      */
-    public SQLiteDatabase getDatabase()
+    protected SQLiteDatabase getDatabase()
     {
     	if (!isOpen || (database== null))
     		throw new IllegalStateException("getDatabase() called when connection is not open");

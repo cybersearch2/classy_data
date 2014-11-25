@@ -52,7 +52,6 @@ public class HelloTwoDbsMain
     static public final String ALL_SIMPLE_DATA = "all_simple_data";
     /** Named query to find all ComplexData objects */
     static public final String ALL_COMPLEX_DATA = "all_complex_data";
-    static public final String DATABASE_INFO_NAME = "User_Info";
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
@@ -131,10 +130,6 @@ public class HelloTwoDbsMain
     	{
     		initializeApplication();
     		initializeDatabase();
-    		int versionDb1 = getDatabaseVersion(PU_NAME1);
-    		int versionDb2 = getDatabaseVersion(PU_NAME2);
-            logMessage(TAG, PU_NAME1 + " version = " + versionDb1);
-            logMessage(TAG, PU_NAME2 + " version = " + versionDb2);
     		if (connectionType != ConnectionType.memory)
     		{
     			clearDatabaseTables();
@@ -365,52 +360,6 @@ public class HelloTwoDbsMain
 				entityManager.persist(complex2);
 				logMessage(PU_NAME2, "Created new ComplexData entries in onCreate: " + millis);
 			}});
-	}
-
-	/**
-	 * Returns database version. Shows how to get a ConnectionSource to perform OrmLite operations without JPA.
-	 * @param puName Persistence Unit name
-	 * @return int
-	 */
-	public int getDatabaseVersion(String puName)
-	{
-		int databaseVersion = 1;
-		ConnectionSourceFactory connectionSourceFactory = persistenceFactory.getPersistenceUnit(puName).getPersistenceAdmin();
-		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
-		boolean tableExists = false;
-		DatabaseConnection connection = null;
-		try 
-		{
-			connection = connectionSource.getReadOnlyConnection();
-			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
-			if (tableExists)
-			{
-				databaseVersion = (int)connection.queryForLong("select version from " + DATABASE_INFO_NAME);
-			}
-			else
-			{
-				String createTableStatement = "CREATE TABLE `" + DATABASE_INFO_NAME + "` (`version` INTEGER )";
-				connection.executeStatement(createTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-				String initTableStatement = "INSERT INTO `" + DATABASE_INFO_NAME + "` (`version`) values (1)";
-				connection.executeStatement(initTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
-			}
-		} 
-		catch (SQLException e) 
-		{
-			throw new PersistenceException(e);
-		} 
-		finally 
-		{
-			try 
-			{
-				connectionSource.releaseConnection(connection);
-			} 
-			catch (SQLException e) 
-			{
-				e.printStackTrace();
-			}
-		}
-		return databaseVersion;
 	}
 
 	/**

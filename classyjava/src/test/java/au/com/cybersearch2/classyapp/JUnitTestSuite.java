@@ -21,7 +21,6 @@ import org.junit.runners.Suite;
 import au.com.cybersearch2.classybean.BeanMapTest;
 import au.com.cybersearch2.classybean.BeanUtilTest;
 import au.com.cybersearch2.classydb.DatabaseAdminImplTest;
-import au.com.cybersearch2.classydb.DatabaseWorkerTaskTest;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWorkTest;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupportTest;
 import au.com.cybersearch2.classydb.SQLiteSupportTest;
@@ -67,7 +66,6 @@ import au.com.cybersearch2.classynode.NodeTest;
     TransactionStateTest.class,
     DatabaseAdminImplTest.class,
     NativeScriptDatabaseWorkTest.class,
-    DatabaseWorkerTaskTest.class,
     PersistenceDaoTest.class,
     PersistenceContainerTest.class,
     SQLiteDatabaseSupportTest.class,

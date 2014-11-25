@@ -15,25 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa;
 
-import javax.inject.Inject;
-
 import org.junit.After;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import android.content.Context;
 import au.com.cybersearch2.classyapp.ContextModule;
 import au.com.cybersearch2.classyapp.TestAndroidModule;
-import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
-import au.com.cybersearch2.classyutil.Transcript;
 import dagger.Module;
 
 /**
@@ -49,23 +40,16 @@ public class AndroidJpaIntegrationTest extends JpaIntegrationTest
     {
     }
     
-    @Inject PersistenceFactory persistenceFactory;
-
-    @Override @Before
-    public void setup() throws Exception
-    {
-        if (testPersistenceFactory == null)
-        {
-            Context context = TestRoboApplication.getTestInstance();
-            new DI(new AndroidJpaIntegrationTestModule(), new ContextModule(context));
-            DI.inject(this);
-            Persistence persistence = persistenceFactory.getPersistenceUnit(TestClassyApplication.PU_NAME);
-            testPersistenceFactory = new TestPersistenceFactory(persistence);
-            testPersistenceFactory.setUpDatabase();
-        }
-        transcript = new Transcript();
-        testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
-    }
+	/**
+	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
+	 * Override to run with different database and/or platform. 
+	 */
+	protected void createObjectGraph()
+	{
+	    Context context = TestRoboApplication.getTestInstance();
+	    new DI(new AndroidJpaIntegrationTestModule(), new ContextModule(context));
+	    DI.inject(this);
+	}
 
     @Override @After
     public void shutdown()

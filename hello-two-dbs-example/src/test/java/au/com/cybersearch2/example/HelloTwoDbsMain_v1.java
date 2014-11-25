@@ -39,6 +39,8 @@ import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
  */
 public class HelloTwoDbsMain_v1 extends au.com.cybersearch2.example.HelloTwoDbsMain
 {
+	public static String DATABASE_INFO_NAME = "User_info";
+	
     /** Dependency injection data object */
     private HelloTwoDbsModule_v1 helloTwoDbsModule;
 
@@ -55,10 +57,6 @@ public class HelloTwoDbsMain_v1 extends au.com.cybersearch2.example.HelloTwoDbsM
     		initializeApplication();
     		dropDatabaseTables();
     		initializeDatabase();
-    		int versionDb1 = getDatabaseVersion(PU_NAME1);
-    		int versionDb2 = getDatabaseVersion(PU_NAME2);
-            logMessage(TAG, PU_NAME1 + " version = " + versionDb1);
-            logMessage(TAG, PU_NAME2 + " version = " + versionDb2);
     		if (connectionType != ConnectionType.memory)
     		{
     			clearDatabaseTables();

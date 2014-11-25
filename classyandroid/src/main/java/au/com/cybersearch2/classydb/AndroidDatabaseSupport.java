@@ -16,10 +16,15 @@
 package au.com.cybersearch2.classydb;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import au.com.cybersearch2.classyjpa.query.QueryInfo;
 import au.com.cybersearch2.classylog.JavaLogger;
@@ -58,8 +63,12 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     private static final String TAG = "DatabaseSupport";
     static Log log = JavaLogger.getLogger(TAG);
 
+    /** SqliteAndroidDatabaseType */
     protected DatabaseType databaseType;
+    /** Connection factory which creates SqlOpenHelper */
     protected AndroidConnectionSourceFactory androidConnectionSourceFactory;
+    /** Maps Persistence Unit name to a single connection associated with it */
+    protected Map<String, OpenHelperConnectionSource> androidSQLiteMap;
 
     /**
      * Construct an AndroidDatabaseSupport instance. 
@@ -67,9 +76,10 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     public AndroidDatabaseSupport()
     {
         databaseType = new SqliteAndroidDatabaseType();
+        androidSQLiteMap = new HashMap<String, OpenHelperConnectionSource>();
         // Connection management is delegated to AndroidConnectionSourceFactory
         // which also manages SQLiteOpenHelper objects
-        androidConnectionSourceFactory = new AndroidConnectionSourceFactory();
+        androidConnectionSourceFactory = new AndroidConnectionSourceFactory(this);
     }
 
     /**
@@ -90,7 +100,16 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     @Override
     public synchronized ConnectionSource getConnectionSource(final String databaseName, Properties properties)
     {
-        return androidConnectionSourceFactory.getAndroidSQLiteConnection(databaseName, properties);
+        if ((databaseName == null) || (databaseName.length() == 0))
+            throw new IllegalArgumentException("Parameter \"databaseName\" is null or empty");
+        if (properties == null)
+            throw new IllegalArgumentException("Parameter \"properties\" is null");
+        OpenHelperConnectionSource openHelperConnectionSource = androidSQLiteMap.get(databaseName);
+        if (openHelperConnectionSource != null)
+            return openHelperConnectionSource;
+        openHelperConnectionSource = androidConnectionSourceFactory.createAndroidSQLiteConnection(databaseName, properties);
+        androidSQLiteMap.put(databaseName, openHelperConnectionSource);
+        return openHelperConnectionSource;
     }
     
     /**
@@ -100,7 +119,9 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     @Override
     public synchronized void close()
     {
-        androidConnectionSourceFactory.close();
+        for (Entry<String, OpenHelperConnectionSource> entry: androidSQLiteMap.entrySet())
+            entry.getValue().close();
+        androidSQLiteMap.clear();
     }
 
     /**
@@ -176,16 +197,24 @@ public class AndroidDatabaseSupport implements DatabaseSupport
         return result;
     }
 
+    /**
+     * Returns database version
+     * @see au.com.cybersearch2.classydb.DatabaseSupport#getVersion(com.j256.ormlite.support.ConnectionSource)
+     */
 	@Override
 	public int getVersion(ConnectionSource connectionSource) 
 	{
-		return ((OpenHelperConnectionSource)connectionSource).getDatabase().getVersion();
+		return	((OpenHelperConnectionSource)connectionSource).getVersion();
 	}
 
+	/**
+	 * Sets database version
+	 * @see au.com.cybersearch2.classydb.DatabaseSupport#setVersion(int, com.j256.ormlite.support.ConnectionSource)
+	 */
 	@Override
 	public void setVersion(int version, ConnectionSource connectionSource) 
 	{
-		((OpenHelperConnectionSource)connectionSource).getDatabase().setVersion(version);
+		((OpenHelperConnectionSource)connectionSource).setVersion(version);
 	}
  
 
@@ -237,4 +266,36 @@ public class AndroidDatabaseSupport implements DatabaseSupport
         return limitValue;
     }
 
+    /**
+     * Returns SQLiteOpenHelper which is mapped to an OpenHelperConnectionSource by database name 
+     * @param databaseName The name of the database file
+     * @param databaseVersion The version of the database schema
+     * @param context Android Context
+     * @return SQLiteOpenHelper
+     */
+    protected SQLiteOpenHelper createSQLiteOpenHelper(final String databaseName, int databaseVersion, Context context)
+    {
+        // AndroidSQLiteConnection also contains an SQLiteOpenHelper. 
+        // The onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
+        return 
+                new SQLiteOpenHelper(context,
+                                     databaseName,
+                                     null,
+                                     databaseVersion){
+
+            @Override
+            public void onCreate(SQLiteDatabase db) {
+                androidSQLiteMap.get(databaseName).onCreate(db);
+            }
+
+            @Override
+            public void onUpgrade(SQLiteDatabase db, int oldVersion,
+                    int newVersion) {
+                androidSQLiteMap.get(databaseName).onUpgrade(db, oldVersion, newVersion);
+            }
+            @Override
+            public void onOpen(SQLiteDatabase db) {
+                androidSQLiteMap.get(databaseName).setDatabase(db);
+            }};
+    }
 }

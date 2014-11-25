@@ -15,21 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.persist;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
 import java.sql.SQLException;
 
 import au.com.cybersearch2.classyapp.TestClassyApplication;
-import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classynode.EntityByNodeIdGenerator;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordFolder;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
-import au.com.cybersearch2.classytask.WorkStatus;
-
-import com.j256.ormlite.db.SqliteDatabaseType;
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.support.DatabaseConnection;
 
 /**
  * AndroidEnv
@@ -52,20 +45,8 @@ public class TestPersistenceFactory
     
     public ConnectionSource setUpDatabase() throws SQLException 
     {
-        DatabaseAdmin databaseAdmin = persistence.getDatabaseAdmin();
         PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
-    	ConnectionSource connectionSource = persistenceAdmin.getConnectionSource();
-        if (persistenceAdmin.getDatabaseType().getClass().equals(SqliteDatabaseType.class))
-        {
-            databaseAdmin.onCreate(connectionSource);
-            assertThat(databaseAdmin.waitForTask(0)).isEqualTo(WorkStatus.FINISHED);
-        }
-        else
-        {   // Android controls database creation, so just request a connection to trigger it.
-            DatabaseConnection dbConn = connectionSource.getReadWriteConnection();
-            assertThat(dbConn.isTableExists("models")).isTrue();
-        }
-        return connectionSource;
+        return persistenceAdmin.getConnectionSource();
     }
 
     public void onShutdown()

@@ -15,14 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Map.Entry;
 
 import javax.persistence.PersistenceException;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classybean.BeanException;
@@ -43,17 +39,17 @@ public class AndroidConnectionSourceFactory
 {
     private static final String TAG = "AndroidConnectionSourceFactory";
     static Log log = JavaLogger.getLogger(TAG);
-    /** Maps Persistence Unit name to a single connection associated with it */
-    protected Map<String, OpenHelperConnectionSource> androidSQLiteMap;
+    /** The owner of this factory **/
+    AndroidDatabaseSupport androidDatabaseSupport;
     /** Android Application Context */
     protected ApplicationContext applicationContext;
 
     /**
      * Construct an AndroidConnectionSourceFactory instance
      */
-    public AndroidConnectionSourceFactory()
+    public AndroidConnectionSourceFactory(AndroidDatabaseSupport androidDatabaseSupport)
     {
-        androidSQLiteMap = new HashMap<String, OpenHelperConnectionSource>();
+    	this.androidDatabaseSupport = androidDatabaseSupport;
         applicationContext = new ApplicationContext();
     }
 
@@ -62,15 +58,8 @@ public class AndroidConnectionSourceFactory
      * @param databaseName
      * @param properties Properties defined in persistence unit
      */
-    public OpenHelperConnectionSource getAndroidSQLiteConnection(final String databaseName, Properties properties)
+    protected OpenHelperConnectionSource createAndroidSQLiteConnection(final String databaseName, Properties properties)
     {
-        if ((databaseName == null) || (databaseName.length() == 0))
-            throw new IllegalArgumentException("Parameter \"databaseName\" is null or empty");
-        if (properties == null)
-            throw new IllegalArgumentException("Parameter \"properties\" is null");
-        OpenHelperConnectionSource openHelperConnectionSource = androidSQLiteMap.get(databaseName);
-        if (openHelperConnectionSource != null)
-            return openHelperConnectionSource;
         // AndroidSQLiteConnection contains an OpenHelperCallbacks implementation, which can either be 
         // custom or default
         OpenHelperCallbacks openHelperCallbacks = null;
@@ -100,37 +89,12 @@ public class AndroidConnectionSourceFactory
         // AndroidSQLiteConnection also contains an SQLiteOpenHelper. 
         // The onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
         SQLiteOpenHelper sqLiteOpenHelper = 
-                new SQLiteOpenHelper(applicationContext.getContext(),
-                                     databaseName,
-                                     null,
-                                     databaseVersion){
-
-            @Override
-            public void onCreate(SQLiteDatabase db) {
-                androidSQLiteMap.get(databaseName).onCreate(db);
-            }
-
-            @Override
-            public void onUpgrade(SQLiteDatabase db, int oldVersion,
-                    int newVersion) {
-                androidSQLiteMap.get(databaseName).onUpgrade(db, oldVersion, newVersion);
-            }
-            @Override
-            public void onOpen(SQLiteDatabase db) {
-                androidSQLiteMap.get(databaseName).setDatabase(db);
-            }};
-            openHelperConnectionSource = new OpenHelperConnectionSource(sqLiteOpenHelper, openHelperCallbacks);
-            androidSQLiteMap.put(databaseName, openHelperConnectionSource);
+        		androidDatabaseSupport.createSQLiteOpenHelper(
+        				databaseName,
+        				databaseVersion,
+        				applicationContext.getContext());
+            OpenHelperConnectionSource openHelperConnectionSource = new OpenHelperConnectionSource(sqLiteOpenHelper, openHelperCallbacks);
             return openHelperConnectionSource;
     }
 
-    /**
-     * Close all ConnectionSource objects and clear the connection map.
-     */
-    public void close()
-    {
-        for (Entry<String, OpenHelperConnectionSource> entry: androidSQLiteMap.entrySet())
-            entry.getValue().close();
-        androidSQLiteMap.clear();
-    }
 }

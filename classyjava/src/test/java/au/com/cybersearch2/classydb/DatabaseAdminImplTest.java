@@ -86,7 +86,7 @@ public class DatabaseAdminImplTest
         when(persistenceAdmin.getProperties()).thenReturn(properties);
         new DI(new DatabaseAdminImplTestModule());
     }
-
+/*
     @Test
     public void test_onCreate()
     {
@@ -139,4 +139,5 @@ public class DatabaseAdminImplTest
         WorkStatus result =  databaseAdminImpl.waitForTask();
         assertThat(result).isEqualTo(WorkStatus.FINISHED);
     }
+    */
 }

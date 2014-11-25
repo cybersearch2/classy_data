@@ -15,73 +15,52 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
+import javax.inject.Inject;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 
+import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
+import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.transaction.UserTransactionSupport;
 
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
- * ClassyOpenHelperCallbacks
- * Implementation of onCreate() and onUpdate() SQLiteOpenHelper abstract methods
+ * InProcessPersistenceContainer
  * @author Andrew Bowley
- * 24/06/2014
+ * 25 Nov 2014
  */
-public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer implements OpenHelperCallbacks
+public class InProcessPersistenceContainer 
 {
+    protected PersistenceAdmin persistenceAdmin;
+    protected DatabaseAdmin databaseAdmin;
+    protected String puName;
     
-    /**
-     * Create ClassyOpenHelperCallbacks object
-     * @param puName Persistence Unit name
-     */
-    public OpenHelperCallbacksImpl(String puName)
-    {
-    	super(puName);
-    }
+    @Inject PersistenceFactory persistenceFactory;
 
-    /**
-     * What to do when your database needs to be created. Usually this entails creating the tables and loading any
-     * initial data.
-     * 
-     * <p>
-     * <b>NOTE:</b> You should use the connectionSource argument that is passed into this method call or the one
-     * returned by getConnectionSource(). If you use your own, a recursive call or other unexpected results may result.
-     * </p>
-     * 
-     * @param connectionSource
-     *            To use get connections to the database to be created.
-     */
-    @Override
+	public InProcessPersistenceContainer(String puName)
+	{
+    	this.puName = puName;
+        DI.inject(this);
+        Persistence persistence = persistenceFactory.getPersistenceUnit(puName);
+        persistenceAdmin = persistence.getPersistenceAdmin();
+        databaseAdmin = persistence.getDatabaseAdmin();
+	}
+	
     public void onCreate(ConnectionSource connectionSource) 
     {
-        super.onCreate(connectionSource);
+        databaseAdmin.onCreate(connectionSource);
     }
 
-    /**
-     * What to do when your database needs to be updated. This could mean careful migration of old data to new data.
-     * Maybe adding or deleting database columns, etc..
-     * 
-     * <p>
-     * <b>NOTE:</b> You should use the connectionSource argument that is passed into this method call or the one
-     * returned by getConnectionSource(). If you use your own, a recursive call or other unexpected results may result.
-     * </p>
-     * 
-     * @param connectionSource
-     *            To use get connections to the database to be updated.
-     * @param oldVersion
-     *            The version of the current database so we can know what to do to the database.
-     * @param newVersion
-     *            The version that we are upgrading the database to.
-     */
-    @Override
     public void onUpgrade(
             ConnectionSource connectionSource, int oldVersion,
             int newVersion) 
     {
-    	super.onUpgrade(connectionSource, oldVersion, newVersion);
+    	databaseAdmin.onUpgrade(connectionSource, oldVersion, newVersion);
     }
 
     /**
@@ -172,4 +151,5 @@ public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer imple
         }
         return setRollbackOnly;
     }
+
 }

@@ -15,9 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
+import com.j256.ormlite.support.ConnectionSource;
+
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classytask.Executable;
-import au.com.cybersearch2.classytask.WorkTracker;
+import au.com.cybersearch2.classyjpa.transaction.TransactionCallable;
 
 /**
  * TestDatabaseAdminImpl
@@ -26,7 +27,7 @@ import au.com.cybersearch2.classytask.WorkTracker;
  */
 public class TestDatabaseAdminImpl extends DatabaseAdminImpl
 {
-    DatabaseWork processFilesCallable;
+	TransactionCallable processFilesCallable;
     
     /**
      * @param puName
@@ -40,10 +41,8 @@ public class TestDatabaseAdminImpl extends DatabaseAdminImpl
     }
 
     @Override
-    protected Executable executeTask(DatabaseWork processFilesCallable)
+    protected void executeTask(ConnectionSource connectionSource, TransactionCallable processFilesCallable)
     {
         this.processFilesCallable = processFilesCallable;
-        WorkTracker exe = new WorkTracker();
-        return exe;
     }
 }
