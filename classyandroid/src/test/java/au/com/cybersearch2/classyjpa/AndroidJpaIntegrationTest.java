@@ -44,6 +44,7 @@ public class AndroidJpaIntegrationTest extends JpaIntegrationTest
 	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
 	 * Override to run with different database and/or platform. 
 	 */
+    @Override
 	protected void createObjectGraph()
 	{
 	    Context context = TestRoboApplication.getTestInstance();

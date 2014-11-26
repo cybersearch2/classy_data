@@ -71,7 +71,7 @@ public class SimpleTask implements PersistenceTask
     	/// EntityManagerDelegate delegate = (EntityManagerDelegate) entityManager.getDelegate();
     	/// PersistenceDao<SimpleData, Integer> simpleDao = (PersistenceDao<SimpleData, Integer>) delegate.getDaoForClass(SimpleData.class);
 		/// List<SimpleData> list = simpleDao.queryForAll();
-        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_SIMPLE_DATA);
+        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_SIMPLE_DATA2);
         List<SimpleData> list = (List<SimpleData>) query.getResultList();
 
 		sb.append("Got ").append(list.size()).append(" SimpleData entries in ").append(context).append("\n");

@@ -69,14 +69,15 @@ public class JpaIntegrationTest
     private static final String TOP_TITLE = "Cybersearch2 Records";
     protected PersistenceContainer testContainer;
     protected Transcript transcript;
-    protected static TestPersistenceFactory testPersistenceFactory; 
+    protected TestPersistenceFactory testPersistenceFactory; 
+    
     @Inject PersistenceFactory persistenceFactory;
     
     @Before
     public void setup() throws Exception
     {
-       	createObjectGraph();
-        //persistenceFactory.initializeAllDatabases();
+	    createObjectGraph();
+        persistenceFactory.initializeAllDatabases();
         Persistence persistence = persistenceFactory.getPersistenceUnit(TestClassyApplication.PU_NAME);
         testPersistenceFactory = new TestPersistenceFactory(persistence);
         transcript = new Transcript();
@@ -100,7 +101,6 @@ public class JpaIntegrationTest
         DI.inject(this);
 	}
 
-/*
     @Test
     public void test_PersistenceEnvironment()
     {
@@ -119,7 +119,7 @@ public class JpaIntegrationTest
         em.close();
         
     }
-*/
+
     @Test 
     public void test_find_node() throws InterruptedException
     {

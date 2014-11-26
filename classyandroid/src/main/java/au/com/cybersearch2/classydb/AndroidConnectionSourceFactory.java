@@ -19,7 +19,6 @@ import java.util.Properties;
 
 import javax.persistence.PersistenceException;
 
-import android.database.sqlite.SQLiteOpenHelper;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classybean.BeanException;
 import au.com.cybersearch2.classybean.BeanUtil;
@@ -88,13 +87,15 @@ public class AndroidConnectionSourceFactory
         int databaseVersion = PersistenceAdminImpl.getDatabaseVersion(properties);
         // AndroidSQLiteConnection also contains an SQLiteOpenHelper. 
         // The onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
-        SQLiteOpenHelper sqLiteOpenHelper = 
-        		androidDatabaseSupport.createSQLiteOpenHelper(
+        OpenEventHandler openEventHandler = 
+        		new OpenEventHandler(
+        				openHelperCallbacks,
+        				applicationContext.getContext(), 
         				databaseName,
-        				databaseVersion,
-        				applicationContext.getContext());
-            OpenHelperConnectionSource openHelperConnectionSource = new OpenHelperConnectionSource(sqLiteOpenHelper, openHelperCallbacks);
-            return openHelperConnectionSource;
+        				databaseVersion);
+        OpenHelperConnectionSource openHelperConnectionSource = 
+        		new OpenHelperConnectionSource(androidDatabaseSupport.getSQLiteDatabase(openEventHandler), openEventHandler);
+        return openHelperConnectionSource;
     }
 
 }

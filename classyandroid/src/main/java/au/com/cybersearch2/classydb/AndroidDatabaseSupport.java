@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import android.content.Context;
+import javax.persistence.PersistenceException;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -161,7 +162,7 @@ public class AndroidDatabaseSupport implements DatabaseSupport
             int maxResults) 
     {   
         String limitValue = adjustLimit(queryInfo, startPosition, maxResults);
-        SQLiteQueryExecutor db = getSQLiteDatabase(connectionSource);
+        SQLiteQueryExecutor db = getSQLiteQueryExecutor(connectionSource);
         Cursor cursor = db.query(queryInfo.getTable(), queryInfo.getColumns(), queryInfo.getSelection(),
                 queryInfo.getSelectionArgs(), queryInfo.getGroupBy(), queryInfo.getHaving(),
                 queryInfo.getOrderBy(), limitValue);
@@ -187,7 +188,7 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     public Object getSingleResult(ConnectionSource connectionSource, QueryInfo queryInfo) 
     {
         String limitValue = adjustLimit(queryInfo, 0, 1);
-        SQLiteQueryExecutor db = getSQLiteDatabase(connectionSource);
+        SQLiteQueryExecutor db = getSQLiteQueryExecutor(connectionSource);
         Object result = null;
         Cursor cursor = db.query(queryInfo.getTable(), queryInfo.getColumns(), queryInfo.getSelection(),
                 queryInfo.getSelectionArgs(), queryInfo.getGroupBy(), queryInfo.getHaving(),
@@ -223,16 +224,16 @@ public class AndroidDatabaseSupport implements DatabaseSupport
      * @param connectionSource
      * @return SQLiteQueryExecutor
      */
-    protected SQLiteQueryExecutor getSQLiteDatabase(ConnectionSource connectionSource)
+    protected SQLiteQueryExecutor getSQLiteQueryExecutor(ConnectionSource connectionSource)
     {
-        final SQLiteOpenHelper sqliteOpenHelper = getSQLiteOpenHelper(connectionSource);
+        final SQLiteDatabase sqLiteDatabase = getSQLiteOpenHelper(connectionSource).getWritableDatabase();
         return  new SQLiteQueryExecutor(){
 
             @Override
             public Cursor query(String table, String[] columns,
                     String selection, String[] selectionArgs, String groupBy,
                     String having, String orderBy, String limit) {
-                return sqliteOpenHelper.getWritableDatabase()
+                return sqLiteDatabase
                         .query(false, table, columns, selection, selectionArgs, groupBy,
                         having, orderBy, limit);
             }};
@@ -267,35 +268,22 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     }
 
     /**
-     * Returns SQLiteOpenHelper which is mapped to an OpenHelperConnectionSource by database name 
-     * @param databaseName The name of the database file
-     * @param databaseVersion The version of the database schema
-     * @param context Android Context
-     * @return SQLiteOpenHelper
+     * Returns writeable SQLiteDatabase object
+     * @param sqLiteOpenHelper SQLiteOpenHelper
+     * @throws PersistenceException
+     * @return SQLiteDatabase
      */
-    protected SQLiteOpenHelper createSQLiteOpenHelper(final String databaseName, int databaseVersion, Context context)
+    protected SQLiteDatabase getSQLiteDatabase(SQLiteOpenHelper sqLiteOpenHelper)
     {
-        // AndroidSQLiteConnection also contains an SQLiteOpenHelper. 
-        // The onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
-        return 
-                new SQLiteOpenHelper(context,
-                                     databaseName,
-                                     null,
-                                     databaseVersion){
-
-            @Override
-            public void onCreate(SQLiteDatabase db) {
-                androidSQLiteMap.get(databaseName).onCreate(db);
-            }
-
-            @Override
-            public void onUpgrade(SQLiteDatabase db, int oldVersion,
-                    int newVersion) {
-                androidSQLiteMap.get(databaseName).onUpgrade(db, oldVersion, newVersion);
-            }
-            @Override
-            public void onOpen(SQLiteDatabase db) {
-                androidSQLiteMap.get(databaseName).setDatabase(db);
-            }};
+		SQLiteDatabase db = null;
+		try 
+		{
+		    db = sqLiteOpenHelper.getWritableDatabase();
+		} 
+		catch (android.database.SQLException e) 
+		{
+			throw new PersistenceException("Error getting a writable database from helper", e);
+		}
+		return db;
     }
 }

@@ -39,9 +39,9 @@ public class HelloTwoDbsMain
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
     /** Named query to find all SimpleData objects */
-    static public final String ALL_SIMPLE_DATA = "all_simple_data";
+    static public final String ALL_SIMPLE_DATA2 = "all_simple_data2";
     /** Named query to find all ComplexData objects */
-    static public final String ALL_COMPLEX_DATA = "all_complex_data";
+    static public final String ALL_COMPLEX_DATA2 = "all_complex_data2";
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
@@ -155,13 +155,13 @@ public class HelloTwoDbsMain
         PersistenceAdmin persistenceAdmin1 = persistence1.getPersistenceAdmin();
         QueryForAllGenerator allSimpleDataObjects = 
                 new QueryForAllGenerator(persistenceAdmin1);
-        persistenceAdmin1.addNamedQuery(SimpleData.class, ALL_SIMPLE_DATA, allSimpleDataObjects);
+        persistenceAdmin1.addNamedQuery(SimpleData.class, ALL_SIMPLE_DATA2, allSimpleDataObjects);
         Persistence persistence2 = persistenceFactory.getPersistenceUnit(PU_NAME2);
         // Get Interface for JPA Support, required to create named queries
         PersistenceAdmin persistenceAdmin2 = persistence2.getPersistenceAdmin();
         QueryForAllGenerator allComplexDataObjects = 
                 new QueryForAllGenerator(persistenceAdmin2);
-        persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA, allComplexDataObjects);
+        persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA2, allComplexDataObjects);
     }
     
     /**

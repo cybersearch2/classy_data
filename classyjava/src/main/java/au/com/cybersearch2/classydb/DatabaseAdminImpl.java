@@ -195,6 +195,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         	}
         	persistenceConfig.checkEntityTablesExist(connectionSource);
         }
+        /* TODO - Investigate how to avoid closing an in-memory database which causes all changes to be lost
         try 
         {
 			connectionSource.close();
@@ -203,6 +204,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         {
 			throw new PersistenceException("Error closing " + puName + " connctionSource");
 		}
+		*/
     }
 
     /**

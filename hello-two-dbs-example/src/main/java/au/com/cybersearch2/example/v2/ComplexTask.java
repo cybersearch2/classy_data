@@ -64,7 +64,7 @@ public class ComplexTask implements PersistenceTask
     	/// EntityManagerDelegate delegate = (EntityManagerDelegate) entityManager.getDelegate();
     	/// PersistenceDao<ComplexData, Integer> complexDao = (PersistenceDao<ComplexData, Integer>) delegate.getDaoForClass(ComplexData.class);
 		/// List<ComplexData> list = complexDao.queryForAll();
-        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_COMPLEX_DATA);
+        Query query = entityManager.createNamedQuery(HelloTwoDbsMain.ALL_COMPLEX_DATA2);
         List<ComplexData> list = (List<ComplexData>) query.getResultList();
 
 		sb.append("Got ").append(list.size()).append(" ComplexData entries in ").append(context).append("\n");

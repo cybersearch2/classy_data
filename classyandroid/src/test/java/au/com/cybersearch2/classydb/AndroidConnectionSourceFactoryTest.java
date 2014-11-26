@@ -89,7 +89,6 @@ public class AndroidConnectionSourceFactoryTest
         properties.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
         androidDatabaseSupport = mock(AndroidDatabaseSupport.class);
         sqLiteOpenHelper = mock(SQLiteOpenHelper.class);
-        when(androidDatabaseSupport.createSQLiteOpenHelper(DATABASE_NAME, 2, context)).thenReturn(sqLiteOpenHelper);
         androidConnectionSourceFactory = new AndroidConnectionSourceFactory(androidDatabaseSupport);
     }
     
@@ -105,9 +104,7 @@ public class AndroidConnectionSourceFactoryTest
         OpenHelperConnectionSource result = 
              androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, properties);
         assertThat(result).isNotNull();
-        assertThat(result.openHelperCallbacks).isNotNull();
-        assertThat(result.openHelperCallbacks instanceof OpenHelperCallbacksImpl).isTrue();
-        assertThat(result.getSQLiteOpenHelper()).isEqualTo(sqLiteOpenHelper);
+        assertThat(result.getSQLiteOpenHelper()).isInstanceOf(OpenEventHandler.class);
     }
     
     @Test
@@ -119,7 +116,6 @@ public class AndroidConnectionSourceFactoryTest
         OpenHelperConnectionSource result = 
              androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, testProperties);
         assertThat(result).isNotNull();
-        assertThat(result.openHelperCallbacks).isNotNull();
         assertThat(result.getSQLiteOpenHelper()).isEqualTo(sqLiteOpenHelper);
     }
         

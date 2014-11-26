@@ -35,7 +35,6 @@ import javax.persistence.PersistenceException;
 
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.android.AndroidConnectionSource;
-import com.j256.ormlite.android.AndroidDatabaseConnection;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -53,59 +52,20 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
     protected boolean cancelQueriesEnabled;
     /** Flag to remember close() called */
     private volatile boolean isOpen = true;
-    /** Implementation of onCreate() and onUpdate() SQLiteOpenHelper abstract methods */
-    protected OpenHelperCallbacks openHelperCallbacks;
     /** The open helper object internal to super class and otherwise inaccessible */
     protected SQLiteOpenHelper sqLiteOpenHelper;
     /** The SQLiteDatabase db in the onOpen() callback */
-    protected SQLiteDatabase database;
+    protected SQLiteDatabase sqLiteDatabase;
 
     /**
      * Create OpenHelperConnectionSource object
      * @param sqLiteOpenHelper The open helper object internal to super class and otherwise inaccessible
-     * @param openHelperCallbacks Implementation of onCreate() and onUpdate() SQLiteOpenHelper abstract methods
      */
-    public OpenHelperConnectionSource(SQLiteOpenHelper sqLiteOpenHelper, OpenHelperCallbacks openHelperCallbacks)
+    public OpenHelperConnectionSource(SQLiteDatabase sqLiteDatabase, SQLiteOpenHelper sqLiteOpenHelper)
     {
-        super(sqLiteOpenHelper);
+        super(sqLiteDatabase);
+        this.sqLiteDatabase = sqLiteDatabase;
         this.sqLiteOpenHelper = sqLiteOpenHelper;
-        this.openHelperCallbacks = openHelperCallbacks;
-    }
-
-    /**
-     * Satisfies the {@link SQLiteOpenHelper#onCreate(SQLiteDatabase)} interface method.
-     */
-    public final void onCreate(final SQLiteDatabase db) 
-    {
-        /*
-         * The method is called by Android database helper's get-database calls when Android detects that we need to
-         * create or update the database. So we have to use the database argument and save a connection to it on the
-         * AndroidConnectionSource, otherwise it will go recursive if the subclass calls getConnectionSource().
-         */
-        wrappedDatabaseOperation(db, new Runnable(){
-
-            @Override
-            public void run() {
-                openHelperCallbacks.onCreate(OpenHelperConnectionSource.this);
-            }});
-    }
-
-    /**
-     * Satisfies the {@link SQLiteOpenHelper#onUpgrade(SQLiteDatabase, int, int)} interface method.
-     */
-    public final void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) 
-    {
-        /*
-         * The method is called by Android database helper's get-database calls when Android detects that we need to
-         * create or update the database. So we have to use the database argument and save a connection to it on the
-         * AndroidConnectionSource, otherwise it will go recursive if the subclass calls getConnectionSource().
-         */
-        wrappedDatabaseOperation(db, new Runnable(){
-
-            @Override
-            public void run() {
-                openHelperCallbacks.onUpgrade(OpenHelperConnectionSource.this, oldVersion, newVersion);
-            }});
     }
 
     /**
@@ -114,16 +74,14 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
      */
 	public int getVersion() 
 	{
-		return 1;
-		/*
-		if ((database != null) && database.isOpen())
-			return database.getVersion();
+ 		if (sqLiteDatabase.isOpen())
+			return sqLiteDatabase.getVersion();
 		DatabaseConnection connection = null;
 		int version = 0;
 		try 
 		{
 			connection = getReadWriteConnection();
-			version = database.getVersion();
+			version = sqLiteDatabase.getVersion();
 		} 
 		catch (SQLException e) 
 		{
@@ -134,7 +92,6 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 			releaseConnection(connection);
 		}
 		return version;
-		*/
 	}
 	
 	/**
@@ -143,11 +100,16 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 	 */
 	public void setVersion(int version) 
 	{
+		if (sqLiteDatabase.isOpen())
+		{
+			sqLiteDatabase.setVersion(version);
+			return;
+		}
 		DatabaseConnection connection = null;
 		try 
 		{
 			connection = getReadOnlyConnection();
-			getDatabase().setVersion(version);
+			sqLiteDatabase.setVersion(version);
 		} 
 		catch (SQLException e) 
 		{
@@ -166,55 +128,11 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
      */
     protected SQLiteDatabase getDatabase()
     {
-    	if (!isOpen || (database== null))
-    		throw new IllegalStateException("getDatabase() called when connection is not open");
-    	return database;
+    	if (!isOpen)
+    		throw new IllegalStateException("getDatabase() called when connectionSource is not open");
+    	return sqLiteDatabase;
     }
 
-    /**
-     * Set database - to be called by OpenHelperCallbacks implementation when onOpen() is called.
-     * @param database SQLiteDatabase
-     */
-	protected void setDatabase(SQLiteDatabase database) 
-	{
-		this.database = database;
-	}
-
-    /**
-     * Execute a task in the context database create or update. 
-     * Saves a database connection to the specified SQLiteDatabase object to avoid recursion on calls to getConnectionSource().
-     * @param db SQLiteDatabase undergoing create or update task
-     * @param runnable Create or update task
-     */
-    protected void wrappedDatabaseOperation(SQLiteDatabase db, Runnable runnable)
-    {
-        DatabaseConnection conn = getSpecialConnection();
-        boolean clearSpecial = false;
-        if (conn == null) 
-        {
-            conn = new AndroidDatabaseConnection(db, true, cancelQueriesEnabled);
-            try 
-            {   // Note that multi-threading not permitted due to use of ThreadLocal variable:
-                //  private ThreadLocal<NestedConnection> specialConnection = new ThreadLocal<NestedConnection>();
-                saveSpecialConnection(conn);
-                clearSpecial = true;
-            } 
-            catch (SQLException e) 
-            {
-                throw new IllegalStateException("Could not save special connection", e);
-            }
-        }
-        try 
-        {
-            runnable.run();
-        } 
-        finally 
-        {
-            if (clearSpecial) 
-                clearSpecialConnection(conn);
-        }
-    }
-    
     /**
      * Return true if the helper is still open. Once {@link #close()} is called then this will return false.
      */
