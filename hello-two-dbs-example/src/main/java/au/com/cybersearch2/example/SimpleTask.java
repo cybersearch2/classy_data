@@ -29,7 +29,7 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 
 /**
- * UsersByPostTask
+ * SimpleTask
  * @author Andrew Bowley
  * 23 Sep 2014
  */

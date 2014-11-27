@@ -172,13 +172,11 @@ public class PersistenceContainerTest
     private PersistenceContainer testContainer;
     private Transcript transcript;
     private EntityTransactionImpl transaction;
-    private static DI dependencyInjection;
 
     @Before
     public void setUp() throws Exception 
     {
-        if (dependencyInjection == null)
-            dependencyInjection = new DI(new PersistenceContainerTestModule());
+        new DI(new PersistenceContainerTestModule());
         transcript = new Transcript();
         testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
         transaction = TestEntityManagerFactory.setEntityManagerInstance();
@@ -202,7 +200,7 @@ public class PersistenceContainerTest
 
     @Test 
     public void test_exception_thrown() throws InterruptedException
-    {   // Expected behavior: The first exception is reported
+    {   
         EntityExistsException persistException = new EntityExistsException("Entity of class RecordCategory, primary key 1 already exists");
         final RecordCategory entity = new RecordCategory();
         PersistenceWork persistenceWork = new EntityManagerWork(entity, transcript);
@@ -214,6 +212,7 @@ public class PersistenceContainerTest
         }
         transcript.assertEventsSoFar("background task", "onRollback " + persistException.toString());
         verify(transaction).begin();
+        verify(transaction).setRollbackOnly();
         verify(entityManager).close();
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
     }
@@ -285,15 +284,10 @@ public class PersistenceContainerTest
     @Test 
     public void test_null_pointer_exception_thrown_on_persist() throws InterruptedException
     {
-        transaction = mock(EntityTransactionImpl.class);
-        TestTransaction testTransaction = new TestTransaction();
-        TestEntityManagerFactory.setEntityManagerInstance(testTransaction);
-        entityManager = (EntityManagerImpl) TestEntityManagerFactory.getEntityManager();
-
         NullPointerException exception = new NullPointerException("The parameter is null");
         final RecordCategory entity = new RecordCategory();
         PersistenceWork persistenceWork = new EntityManagerWork(entity, transcript);
-        when(transaction.isActive()).thenReturn(true);
+        when(transaction.isActive()).thenReturn(true, false);
         doThrow(exception).when(entityManager).persist(entity);
         Executable exe = testContainer.executeTask(persistenceWork);
         synchronized(exe)

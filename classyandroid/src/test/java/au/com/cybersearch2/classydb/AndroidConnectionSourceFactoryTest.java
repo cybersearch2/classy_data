@@ -25,6 +25,8 @@ import javax.persistence.PersistenceException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import dagger.Module;
 import dagger.Provides;
@@ -42,6 +44,7 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
  * @author Andrew Bowley
  * 10/07/2014
  */
+@RunWith(RobolectricTestRunner.class)
 public class AndroidConnectionSourceFactoryTest
 {
     @Module(injects = OpenHelperCallbacksImpl.class)
@@ -67,7 +70,6 @@ public class AndroidConnectionSourceFactoryTest
     
     protected AndroidConnectionSourceFactory androidConnectionSourceFactory;
     protected AndroidDatabaseSupport androidDatabaseSupport;
-    protected SQLiteOpenHelper sqLiteOpenHelper;
     static AndroidConnectionSourceFactoryTestModule androidConnectionSourceFactoryTestModule;
     static final String PU_NAME = "classyfy";
     static final String DATABASE_NAME = "classyfy.db";
@@ -88,7 +90,6 @@ public class AndroidConnectionSourceFactoryTest
         properties.setProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY, PU_NAME);
         properties.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
         androidDatabaseSupport = mock(AndroidDatabaseSupport.class);
-        sqLiteOpenHelper = mock(SQLiteOpenHelper.class);
         androidConnectionSourceFactory = new AndroidConnectionSourceFactory(androidDatabaseSupport);
     }
     
@@ -116,7 +117,9 @@ public class AndroidConnectionSourceFactoryTest
         OpenHelperConnectionSource result = 
              androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, testProperties);
         assertThat(result).isNotNull();
-        assertThat(result.getSQLiteOpenHelper()).isEqualTo(sqLiteOpenHelper);
+        assertThat(result.getSQLiteOpenHelper()).isInstanceOf(OpenEventHandler.class);
+        OpenEventHandler openEventHandler = (OpenEventHandler) result.getSQLiteOpenHelper();
+        assertThat(openEventHandler.openHelperCallbacks).isInstanceOf(TestOpenHelperCallbacks.class);
     }
         
     @Test

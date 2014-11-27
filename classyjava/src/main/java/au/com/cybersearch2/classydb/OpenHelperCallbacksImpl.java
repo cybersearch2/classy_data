@@ -15,20 +15,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceException;
-
-import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
-import au.com.cybersearch2.classyjpa.transaction.UserTransactionSupport;
+import au.com.cybersearch2.classyjpa.entity.InProcessPersistenceContainer;
 
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
  * ClassyOpenHelperCallbacks
- * Implementation of onCreate() and onUpdate() SQLiteOpenHelper abstract methods
+ * Implementation of onCreate() and onUpdate() SQLiteOpenHelper abstract methods.
+ * This is a persistence container in which tasks can be performed using a supplied
+ * EntityManager object by calling doWork(). Unlike other PersistenceContainer 
+ * implementations, the execution takes place in the current thread using supplied
+ * ConnectionSource to support ORMLite's special connection implementation. Any
+ * RuntimeException will be forwarded to the caller.
+ * 
  * @author Andrew Bowley
  * 24/06/2014
+ * @see InProcessPersistenceContainer
  */
 public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer implements OpenHelperCallbacks
 {
@@ -57,7 +59,7 @@ public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer imple
     @Override
     public void onCreate(ConnectionSource connectionSource) 
     {
-        super.onCreate(connectionSource);
+    	databaseAdmin.onCreate(connectionSource);
     }
 
     /**
@@ -78,98 +80,11 @@ public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer imple
      */
     @Override
     public void onUpgrade(
-            ConnectionSource connectionSource, int oldVersion,
+            ConnectionSource connectionSource, 
+            int oldVersion,
             int newVersion) 
     {
-    	super.onUpgrade(connectionSource, oldVersion, newVersion);
+    	databaseAdmin.onUpgrade(connectionSource, oldVersion, newVersion);
     }
 
-    /**
-     * Execute persistence work in background thread
-     * @param connectionSource Open ConnectionSource object
-     * @param persistenceWork Object specifying unit of work
-     */
-    protected void doWork(ConnectionSource connectionSource, PersistenceTask persistenceTask)
-    {
- 		EntityManagerLite entityManager = persistenceAdmin.createEntityManager(connectionSource);
- 		((UserTransactionSupport)entityManager).setUserTransaction(true);
- 		EntityTransaction transaction = entityManager.getTransaction();
- 		((UserTransactionSupport)entityManager).setUserTransaction(false);
-        // The container manages the transaction, so begin before work starts
-        transaction.begin();
-        // Commence work, ready to catch RuntimeExceptions declared to be throwable by EntityManager API
-        Throwable rollbackException = null;
-        boolean success = false; // Use flag for indicating unexpected RuntimeException
-        boolean setRollbackOnly = false;
-        try
-        {
-            persistenceTask.doTask(entityManager);
-            success = true;
-        }
-        catch (PersistenceException e)
-        {
-            rollbackException = e;
-        }
-        catch (IllegalArgumentException e)
-        {
-            rollbackException = e;
-        }
-        catch (IllegalStateException e)
-        {
-            rollbackException = e;
-        }
-        catch (UnsupportedOperationException e)
-        {
-            rollbackException = e;
-        }
-        // Other runtime exceptions are captured by the WorkerTask and reported onExecuteComplete()
-        finally
-        {
-            setRollbackOnly = resolveOutcome(entityManager, transaction, success, rollbackException);
-        }
-        if (!success && !setRollbackOnly)
-        	throw new PersistenceException(puName + " Persistence Task failed in onCreate()", rollbackException);
-    }
- 
-    /**
-     * Resolve outcome of persistence work given all relevant parameters. 
-     * Includes Commit/rollback by calling EntityManager close(), unless unexpected exception has occurred.
-     *@param entityManager Open EntityManager object  
-     *@param transaction EntityTransaction
-     *@param success boolean
-     *@param rollbackException Optional RuntimeException thrown by EntityManager object
-     *@return boolean - If rollback, then true
-     */
-    protected boolean resolveOutcome(
-            EntityManagerLite entityManager, 
-            EntityTransaction transaction, 
-            boolean success, 
-            Throwable rollbackException)
-    {
-        // Flag for do rollback
-        boolean setRollbackOnly = false;
-        if (!success && (rollbackException == null))
-        { // Unexpected exception thrown. Just rollback.
-            if (transaction.isActive())
-                transaction.rollback();
-        }
-        else
-        {
-            if (rollbackException != null)
-            {   // RuntimeException caught, so do rollback  
-                transaction.setRollbackOnly();
-            }
-            try
-            {
-                if (success && transaction.getRollbackOnly())
-                    setRollbackOnly = true;
-                entityManager.close();
-            } // Persistence exception may be thrown on commit or rollback. Just log it.
-            catch (PersistenceException e)
-            {   // Ensure onRollback() is called on PersistenceWork object
-                //log.error(TAG, "Persistence error on commit", e);
-            }
-        }
-        return setRollbackOnly;
-    }
 }

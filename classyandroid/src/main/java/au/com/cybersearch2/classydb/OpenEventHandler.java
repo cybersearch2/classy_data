@@ -27,6 +27,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * OpenEventHandler - SQLiteOpenHelper for AndroidConnectionSource
+ * The onCreate() and onUpgrade() methods are provided by an OpenHelperCallbacks implementation.
+ * A custom OpenHelperCallbacks implementation is specified by perisistence.xml property 
+ * "open-helper-callbacks-classname". If not specified, the default OpenHelperCallbacksImpl
+ * class is used which calls DatabaseAdmin onCreate() and onUpgrade() methods. 
  * @author Andrew Bowley
  * 26 Nov 2014
  * @see android.database.sqlite.SQLiteOpenHelper
@@ -39,6 +43,13 @@ public class OpenEventHandler extends SQLiteOpenHelper
     /** Support for optional android.os.CancellationSignal beginning with Jelly Bean onwards */
     protected boolean cancelQueriesEnabled;
 
+    /**
+     * Create OpenEventHandler object
+     * @param openHelperCallbacks The OpenHelperCallbacks delegate for onCreate() and onUpdate() handling
+     * @param context Android Context
+     * @param databaseName The name passed in the SQLiteOpenHelper constructor
+     * @param databaseVersion Schema version number
+     */
 	public OpenEventHandler(OpenHelperCallbacks openHelperCallbacks, Context context, String databaseName, int databaseVersion)
 	{
 		super(context,
@@ -107,6 +118,7 @@ public class OpenEventHandler extends SQLiteOpenHelper
      * Execute a task in the context database create or update. 
      * Saves a database connection to the specified SQLiteDatabase object to avoid recursion on calls to getConnectionSource().
      * @param db SQLiteDatabase undergoing create or update task
+     * @param connectionSource AndroidConnectionSource object
      * @param runnable Create or update task
      */
     protected void wrappedDatabaseOperation(SQLiteDatabase db, AndroidConnectionSource connectionSource, Runnable runnable)

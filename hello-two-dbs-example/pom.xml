@@ -89,30 +89,28 @@
                <goal>jar</goal>
              </goals>
              <configuration>
-               <showPackage>false</showPackage>
                <additionalparam>-tag inheritDoc:X</additionalparam>
              </configuration>
            </execution>
         </executions>
         <configuration>
-          <showPackage>false</showPackage>
-          <detectOfflineLinks>true</detectOfflineLinks>
           <doctitle><![CDATA[<h1>ClassyTools API - >Many to many example</h1>]]></doctitle>
-          <author>true</author>
-          <version>true</version>
           <windowtitle>ClassyTools API - >Many to many example</windowtitle> 
-          <bottom>
-               This documentation is licensed by Andrew Bowley under the
-               &lt;a
-               href="http://www.gnu.org/licenses/" &gt;GPLv3 License.
-               &lt;/a&gt; 
-          </bottom>
-          <links>
-            <link>http://docs.oracle.com/javase/7/docs/api/</link>
-          </links>
-          <additionalparam>-tag inheritDoc:X</additionalparam>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.6.1</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>resources/db</directory>
+              <includes><include>**/*</include></includes>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+         </filesets>
+       </configuration>
+     </plugin>
     </plugins>
   </build>
   <dependencies>

@@ -13,12 +13,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
-package au.com.cybersearch2.classydb;
+package au.com.cybersearch2.classyjpa.entity;
 
 import javax.inject.Inject;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 
+import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
@@ -26,6 +27,8 @@ import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.transaction.UserTransactionSupport;
+import au.com.cybersearch2.classylog.JavaLogger;
+import au.com.cybersearch2.classylog.Log;
 
 import com.j256.ormlite.support.ConnectionSource;
 
@@ -36,6 +39,9 @@ import com.j256.ormlite.support.ConnectionSource;
  */
 public class InProcessPersistenceContainer 
 {
+    private static final String TAG = "InProcessPersistenceContainer";
+    static Log log = JavaLogger.getLogger(TAG);
+    
     protected PersistenceAdmin persistenceAdmin;
     protected DatabaseAdmin databaseAdmin;
     protected String puName;
@@ -51,22 +57,10 @@ public class InProcessPersistenceContainer
         databaseAdmin = persistence.getDatabaseAdmin();
 	}
 	
-    public void onCreate(ConnectionSource connectionSource) 
-    {
-        databaseAdmin.onCreate(connectionSource);
-    }
-
-    public void onUpgrade(
-            ConnectionSource connectionSource, int oldVersion,
-            int newVersion) 
-    {
-    	databaseAdmin.onUpgrade(connectionSource, oldVersion, newVersion);
-    }
-
     /**
-     * Execute persistence work in background thread
+     * Execute persistence work in same thread as caller
      * @param connectionSource Open ConnectionSource object
-     * @param persistenceWork Object specifying unit of work
+     * @param persistenceTask Object specifying unit of work
      */
     protected void doWork(ConnectionSource connectionSource, PersistenceTask persistenceTask)
     {
@@ -107,7 +101,7 @@ public class InProcessPersistenceContainer
             setRollbackOnly = resolveOutcome(entityManager, transaction, success, rollbackException);
         }
         if (!success && !setRollbackOnly)
-        	throw new PersistenceException(puName + " Persistence Task failed in onCreate()", rollbackException);
+        	throw new PersistenceException(puName + " Persistence Task failed", rollbackException);
     }
  
     /**
@@ -146,7 +140,7 @@ public class InProcessPersistenceContainer
             } // Persistence exception may be thrown on commit or rollback. Just log it.
             catch (PersistenceException e)
             {   // Ensure onRollback() is called on PersistenceWork object
-                //log.error(TAG, "Persistence error on commit", e);
+                log.error(TAG, "Persistence error on commit", e);
             }
         }
         return setRollbackOnly;

@@ -37,20 +37,15 @@ import com.j256.ormlite.support.ConnectionSource;
 
 /**
  * AndroidDatabaseSupport
- * Implements DatabaseSupport interface while also satisfying SQLiteOpenHelper requirements.
- * The onCreate() and onUpgrade() methods are provided by an OpenHelperCallbacks implementation.
- * A custom OpenHelperCallbacks implementation is specified by perisistence.xml property 
- * "open-helper-callbacks-classname". If not specified, the default ClassyOpenHelperCallbacks
- * class is used which calls DatabaseAdmin onCreate() and onUpgrade() methods. The latter methods
- * assume database initialisation is performed using file-based SQL statements. 
+ * Implements DatabaseSupport interface for Android's SQLite database system.
  * @author Andrew Bowley
  * 20/06/2014
  */
 public class AndroidDatabaseSupport implements DatabaseSupport
 {
     /** 
-     * SQLiteQueryExecutor
-     * Interface to allow testing of database behaviour
+     * SQLiteQueryExecutor Interface
+     * Implementation performs queries for getResultList() and getSingleResult()
      * @author Andrew Bowley
      * 10/07/2014
      */
@@ -66,9 +61,9 @@ public class AndroidDatabaseSupport implements DatabaseSupport
 
     /** SqliteAndroidDatabaseType */
     protected DatabaseType databaseType;
-    /** Connection factory which creates SqlOpenHelper */
+    /** Connection factory which attaches an SqlOpenHelper object to an ORMLite AndroidConnectionSource */
     protected AndroidConnectionSourceFactory androidConnectionSourceFactory;
-    /** Maps Persistence Unit name to a single connection associated with it */
+    /** Maps database name to a single connection associated with it */
     protected Map<String, OpenHelperConnectionSource> androidSQLiteMap;
 
     /**
@@ -92,8 +87,8 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     }
 
     /**
-     * Returns ConnectionSource
-     * @param databaseName
+     * Returns OpenHelperConnectionSource object
+     * @param databaseName The name passed in the SQLiteOpenHelper constructor
      * @param properties Properties defined in persistence unit
      * @return com.j256.ormlite.support.ConnectionSource
      * @see au.com.cybersearch2.classydb.DatabaseSupport#getConnectionSource(java.lang.String, java.util.Properties)
@@ -270,8 +265,8 @@ public class AndroidDatabaseSupport implements DatabaseSupport
     /**
      * Returns writeable SQLiteDatabase object
      * @param sqLiteOpenHelper SQLiteOpenHelper
-     * @throws PersistenceException
      * @return SQLiteDatabase
+     * @throws PersistenceException
      */
     protected SQLiteDatabase getSQLiteDatabase(SQLiteOpenHelper sqLiteOpenHelper)
     {

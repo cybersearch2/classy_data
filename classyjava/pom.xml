@@ -140,28 +140,17 @@
                <goal>jar</goal>
              </goals>
              <configuration>
-               <showPackage>false</showPackage>
                <additionalparam>-tag inheritDoc:X</additionalparam>
              </configuration>
            </execution>
         </executions>
         <configuration>
-          <showPackage>false</showPackage>
-             <doctitle><![CDATA[<h1>ClassyTools API - Java Library</h1>]]></doctitle>
-             <author>true</author>
-             <version>true</version>
-             <windowtitle>ClassyTools API - Java Library</windowtitle> 
-             <bottom>
-               This documentation is licensed by Andrew Bowley under the
-               &lt;a
-               href="http://www.gnu.org/licenses/" &gt;GPLv3 License.
-               &lt;/a&gt; 
-             </bottom>
-             <links>
-               <link>http://docs.oracle.com/javase/7/docs/api/</link>
-             </links>
-             <additionalparam>-tag inheritDoc:X</additionalparam>
-        </configuration>
+          <doctitle><![CDATA[<h1>ClassyTools API - Java Library</h1>]]></doctitle>
+          <windowtitle>ClassyTools API - Java Library</windowtitle> 
+          <links>
+           <link>https://square.github.io/dagger/javadoc/</link>
+          </links>
+         </configuration>
        </plugin>
        <!-- Set skipTests = "true" to bypass test phase in build -->
        <plugin>

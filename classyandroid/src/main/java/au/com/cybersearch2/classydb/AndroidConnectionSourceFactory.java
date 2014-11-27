@@ -29,8 +29,8 @@ import au.com.cybersearch2.classylog.Log;
 
 /**
  * AndroidConnectionSourceFactory
- * Connection management is delegated to AndroidConnectionSourceFactory
- * which also manages SQLiteOpenHelper objects
+ * Creates OpenHelperConnectionSource objects which extend AndroidConnectionSource by
+ * attaching an SQLiteOpenHelper implemented as an OpenEventHandler object.
  * @author Andrew Bowley
  * 10/07/2014
  */
@@ -53,8 +53,8 @@ public class AndroidConnectionSourceFactory
     }
 
     /**
-     * Return an AndroidSQLiteConnection object
-     * @param databaseName
+     * Returns an OpenHelperConnectionSource object
+     * @param databaseName The name passed in the SQLiteOpenHelper constructor
      * @param properties Properties defined in persistence unit
      */
     protected OpenHelperConnectionSource createAndroidSQLiteConnection(final String databaseName, Properties properties)
@@ -85,14 +85,15 @@ public class AndroidConnectionSourceFactory
             openHelperCallbacks = new OpenHelperCallbacksImpl(puName);
         }
         int databaseVersion = PersistenceAdminImpl.getDatabaseVersion(properties);
-        // AndroidSQLiteConnection also contains an SQLiteOpenHelper. 
-        // The onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
+        // The SQLiteOpenHelper onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
         OpenEventHandler openEventHandler = 
         		new OpenEventHandler(
         				openHelperCallbacks,
         				applicationContext.getContext(), 
         				databaseName,
         				databaseVersion);
+        // The OpenHelperConnectionSource object is constructed with an SQLiteDatabase object so it can
+        // implement get/set dataabase version methods.
         OpenHelperConnectionSource openHelperConnectionSource = 
         		new OpenHelperConnectionSource(androidDatabaseSupport.getSQLiteDatabase(openEventHandler), openEventHandler);
         return openHelperConnectionSource;

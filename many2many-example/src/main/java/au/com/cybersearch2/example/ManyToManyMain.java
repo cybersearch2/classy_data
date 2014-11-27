@@ -276,7 +276,7 @@ public class ManyToManyMain
 	/**
 	 * Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object.
 	 * Override to run with different database and/or platform. 
-	 * @see au.com.cybersearch2.example.AndroidManyToMany in classyandroid module for Android example.
+	 * Refer au.com.cybersearch2.example.AndroidManyToMany in classyandroid module for Android example.
 	 */
 	protected void createObjectGraph()
 	{

@@ -26,8 +26,6 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import com.j256.ormlite.support.ConnectionSource;
-
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseAdminImpl;

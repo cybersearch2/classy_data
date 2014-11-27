@@ -35,6 +35,8 @@ import com.j256.ormlite.support.DatabaseConnection;
 
 /**
  * NativeScriptDatabaseWork
+ * Implementation of TransactionCallable interface to be executed upon transaction commit.
+ * Executes SQL statements contained in a script file. Each statement must be delimited with a semi-colon ';'.
  * @author Andrew Bowley
  * 31/07/2014
  */
@@ -48,27 +50,19 @@ public class NativeScriptDatabaseWork implements TransactionCallable
     @Inject ResourceEnvironment resourceEnvironment;
     
     /**
-     * @param connectionSource
+     * Create NativeScriptDatabaseWork object
+     * @param filenames SQL script file names 
      */
-    public NativeScriptDatabaseWork(ConnectionSource connectionSource, final String... filenames)
+    public NativeScriptDatabaseWork(final String... filenames)
     {
         this.filenames = filenames;
-        DI.inject(this); // Inject ResourceEnvironment
+        DI.inject(this); // Inject resourceEnvironment
     }
 
-    private void close(InputStream instream, String filename) 
-    {
-        if (instream != null)
-            try
-            {
-                instream.close();
-            }
-            catch (IOException e)
-            {
-                log.warn(TAG, "Error closing file " + filename, e);
-            }
-    }
-
+	/**
+	 * Execute SQL statements contained in a script file
+	 * @see au.com.cybersearch2.classyjpa.transaction.TransactionCallable#call(com.j256.ormlite.support.DatabaseConnection)
+	 */
 	@Override
 	public Boolean call(final DatabaseConnection databaseConnection) throws Exception 
 	{   // Execute SQL statement in SqlParser callback
@@ -105,5 +99,23 @@ public class NativeScriptDatabaseWork implements TransactionCallable
         }
         return success;
 	}
+
+	/**
+	 * Quietly close file stream
+	 * @param instream InputStream
+	 * @param filename
+	 */
+    private void close(InputStream instream, String filename) 
+    {
+        if (instream != null)
+            try
+            {
+                instream.close();
+            }
+            catch (IOException e)
+            {
+                log.warn(TAG, "Error closing file " + filename, e);
+            }
+    }
 
 }

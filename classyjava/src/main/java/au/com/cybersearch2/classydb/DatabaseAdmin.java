@@ -15,9 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import au.com.cybersearch2.classytask.WorkStatus;
-import au.com.cybersearch2.classytask.WorkTracker;
-
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
@@ -27,8 +24,6 @@ import com.j256.ormlite.support.ConnectionSource;
  */
 public interface DatabaseAdmin
 {
-    /** Wait one minute maximum for tasks to complete */
-    public final static int MAX_TASK_WAIT_SECS = 60;
     /** Property key for create database */
     public final static String SCHEMA_FILENAME = "schema-filename";
     /** Property key for drop database */
@@ -71,20 +66,7 @@ public interface DatabaseAdmin
      * @param connectionSource Open Connection Source
      * @param oldVersion The old database version.
      * @param newVersion The new database version.
-     * @return ConnectionSource used for implementation to allow post-creation operations.
      */
     void onUpgrade(ConnectionSource connectionSource, int oldVersion, int newVersion);
     
-    /**
-     * Wait for currently executing persistence unit task to complete
-     * @return WorkStatus Status value will be FINISHED or FAILED
-     */
-    WorkStatus waitForTask(WorkTracker workTracker);
-    
-    /**
-     * Wait up to specified number of seconds for currently executing persistence unit task to complete
-     * @param timeoutSecs int
-     * @return WorkStatus Status value will be FINISHED or FAILED
-     */
-    WorkStatus waitForTask(WorkTracker workTracker, int timeoutSecs);
 }

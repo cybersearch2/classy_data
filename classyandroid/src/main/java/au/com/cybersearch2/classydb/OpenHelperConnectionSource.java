@@ -41,7 +41,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * OpenHelperConnectionSource
- * Sub class of AndroidConnectionSource which exposes the internal SOLiteOpenHelper object 
+ * Extends AndroidConnectionSource by attaching an 
+ * SQLiteOpenHelper implemented as an OpenEventHandler object 
  * @author kevingalligan, graywatson
  * @author Andrew Bowley
  * 22/06/2014
@@ -59,7 +60,9 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 
     /**
      * Create OpenHelperConnectionSource object
-     * @param sqLiteOpenHelper The open helper object internal to super class and otherwise inaccessible
+     * @param sqLiteDatabase Open SQLiteDatabase object (superclass hides it's db as a private field)
+     * @param sqLiteOpenHelper The open helper object made accessible for sharing with collaborators -
+     * eg. to create Fast Test Search database for content provider.
      */
     public OpenHelperConnectionSource(SQLiteDatabase sqLiteDatabase, SQLiteOpenHelper sqLiteOpenHelper)
     {

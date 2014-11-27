@@ -39,7 +39,6 @@ import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.WorkerRunnable;
 
-import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 
 import dagger.Module;
@@ -84,13 +83,11 @@ public class NativeScriptDatabaseWorkTest
 
     PersistenceAdmin persistenceAdmin;
     ResourceEnvironment resourceEnvironment;
-    ConnectionSource connectionSource;
     DatabaseConnection databaseConnection;
 
     @Before
     public void setUp()
     {
-        connectionSource = mock(ConnectionSource.class);
         databaseConnection = mock(DatabaseConnection.class);
         resourceEnvironment = mock(ResourceEnvironment.class);
         persistenceAdmin = mock(PersistenceAdmin.class);
@@ -100,46 +97,47 @@ public class NativeScriptDatabaseWorkTest
     @Test
     public void test_constructor()
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(connectionSource, CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
         assertThat(databaseWork.resourceEnvironment).isNotNull();
     }
-/*    
+    
     @Test
-    public void test_doInBackground() throws Exception
+    public void test_call() throws Exception
     {
         TestByteArrayInputStream bais = new TestByteArrayInputStream(CREATE_SQL.getBytes());
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(connectionSource, CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
         when(resourceEnvironment.openResource(CREATE_SQL_FILENAME)).thenReturn(bais);
-        Boolean result = databaseWork.doInBackground(databaseConnection);
+        Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(true);
         assertThat(bais.isClosed()).isTrue();
         verify(databaseConnection).executeStatement(CREATE_SQL.trim(), DatabaseConnection.DEFAULT_RESULT_FLAGS);
     }
 
     @Test
-    public void test_doInBackground_null_filename() throws Exception
+    public void test_call_null_filename() throws Exception
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(connectionSource, (String)null);
-        Boolean result = databaseWork.doInBackground(databaseConnection);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork((String)null);
+        Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(false);
    }
+ 
 
     @Test
-    public void test_doInBackground_empty_filename() throws Exception
+    public void test_call_empty_filename() throws Exception
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(connectionSource, "");
-        Boolean result = databaseWork.doInBackground(databaseConnection);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork("");
+        Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(false);
    }
 
     @Test
     public void test_doInBackground_ioexception_on_open() throws Exception
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(connectionSource, CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
         doThrow(new IOException("File not found")).when(resourceEnvironment).openResource(CREATE_SQL_FILENAME);
         try
         {
-            databaseWork.doInBackground(databaseConnection);
+            databaseWork.call(databaseConnection);
             failBecauseExceptionWasNotThrown(IOException.class);
         }
         catch (IOException e)
@@ -153,11 +151,11 @@ public class NativeScriptDatabaseWorkTest
     {
         TestByteArrayInputStream bais = new TestByteArrayInputStream(CREATE_SQL.getBytes());
         bais.throwExceptionOnClose = true;
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(connectionSource, CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
         when(resourceEnvironment.openResource(CREATE_SQL_FILENAME)).thenReturn(bais);
-        Boolean result = databaseWork.doInBackground(databaseConnection);
+        Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(true);
         verify(databaseConnection).executeStatement(CREATE_SQL.trim(), DatabaseConnection.DEFAULT_RESULT_FLAGS);
     }
-*/    
+    
 }

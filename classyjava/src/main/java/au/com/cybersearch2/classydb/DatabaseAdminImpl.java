@@ -37,9 +37,6 @@ import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classyjpa.transaction.TransactionCallable;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
-import au.com.cybersearch2.classytask.Executable;
-import au.com.cybersearch2.classytask.WorkStatus;
-import au.com.cybersearch2.classytask.WorkTracker;
 
 import com.j256.ormlite.support.ConnectionSource;
 
@@ -95,7 +92,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         {
         	// Database work is executed as background task
         	TransactionCallable processFilesCallable = 
-                new NativeScriptDatabaseWork(connectionSource, schemaFilename, dropSchemaFilename, dataFilename);    
+                new NativeScriptDatabaseWork(schemaFilename, dropSchemaFilename, dataFilename);    
         	executeTask(connectionSource, processFilesCallable);
         }
     }
@@ -154,7 +151,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
             log.info(TAG, "Upgrade file \"" + filename + "\" exists: " + upgradeSupported);
     	// Database work is executed in a transaction
         TransactionCallable processFilesCallable = 
-            new NativeScriptDatabaseWork(connectionSource, filename);    
+            new NativeScriptDatabaseWork(filename);    
     	executeTask(connectionSource, processFilesCallable);
     }
     
@@ -195,68 +192,11 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         	}
         	persistenceConfig.checkEntityTablesExist(connectionSource);
         }
-        /* TODO - Investigate how to avoid closing an in-memory database which causes all changes to be lost
-        try 
-        {
-			connectionSource.close();
-		} 
-        catch (IOException e) 
-        {
-			throw new PersistenceException("Error closing " + puName + " connctionSource");
-		}
-		*/
-    }
-
-    /**
-     * Wait for currently executing persistence unit task to complete
-     * @param workTracker WorkTracker object used to monitor task
-     * @return WorkStatus Status value will be FINISHED or FAILED
-     */
-    @Override
-    public WorkStatus waitForTask(WorkTracker workTracker)
-    {
-        return waitForTask(workTracker, DatabaseAdmin.MAX_TASK_WAIT_SECS); 
-    }
-    
-    /**
-     * Wait up to specified number of seconds for currently executing persistence unit task to complete
-     * @param workTracker WorkTracker object used to monitor task
-     * @param timeoutSecs int
-     * @return WorkStatus Status value will be FINISHED or FAILED
-     */
-    @Override
-    public WorkStatus waitForTask(WorkTracker workTracker, int timeoutSecs) 
-    {
-        if (timeoutSecs < 0)
-            timeoutSecs = DatabaseAdmin.MAX_TASK_WAIT_SECS;
-        WorkStatus workStatus = WorkStatus.PENDING;
-        if (workTracker.getStatus() == WorkStatus.RUNNING)
-        {
-            if ((timeoutSecs == 0) && !log.isLoggable(TAG, Level.FINE))
-               // Only allow indeterminate wait for debugging
-                timeoutSecs = DatabaseAdmin.MAX_TASK_WAIT_SECS;
-            if (timeoutSecs == 0)
-                synchronized(workTracker)
-                {
-                    try
-                    {
-                    	workTracker.wait();
-                    }
-                    catch (InterruptedException e)
-                    {
-                        log.warn(TAG, "createDatabaseTask interrupted", e);
-                    }
-                }
-            else
-                waitTicks(workTracker, timeoutSecs);
-            workStatus = workTracker.getStatus();
-        }
-        return workStatus;
     }
 
     /**
      * Execute database work
-     * @paramm connectionSource Open ConnectionSource
+     * @param connectionSource Open ConnectionSource
      * @param processFilesCallable TransactionCallable Object containing unit of work to perform
      */
     protected void executeTask(ConnectionSource connectionSource, TransactionCallable processFilesCallable)
@@ -291,38 +231,6 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         return openHelperCallbacks;
     }
     
-    /**
-     * Wait specified number of seconds for task to complte
-     *@param task Executable tracking Database work
-     *@param timeoutSecs int
-     */
-    private void waitTicks(Executable task, int timeoutSecs) 
-    {
-        int tick = 0;
-        while (tick < timeoutSecs)
-        {
-            synchronized(task)
-            {
-                try
-                {
-                    task.wait(1000);
-                }
-                catch (InterruptedException e)
-                {
-                    log.warn(TAG, "createDatabaseTask interrupted", e);
-                    return;
-                }
-            }
-            if (task.getStatus() != WorkStatus.RUNNING)
-                break;
-            ++tick;
-        }
-        if (tick == DatabaseAdmin.MAX_TASK_WAIT_SECS)
-        {
-            log.warn(TAG, "Task for persistence unit \"" + puName + "\" taking more than " + DatabaseAdmin.MAX_TASK_WAIT_SECS + " seconds to complete");
-        }
-    }
-
     /**
      * Cloes input stream quietly
      * @param instream InputStream
