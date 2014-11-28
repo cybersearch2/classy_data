@@ -1,15 +1,56 @@
 Classy Tools v1.0.2
 
-1. Change "Property key for database version" in classyjava interface au.com.cybersearch2.classydb.DatabaseAdmin to make it consistent with other property keys.
+1. Refactor database classes in classydb package to provide consistency between Java and Android database management. 
 
-    Before:
-    public final static String DATABASE_VERSION = "database_version";
-    
-    After:
-    public final static String DATABASE_VERSION = "database-version";
-    
-2. Add static method to return database version read from Properties using DATABASE_VERSION key. Updated classyjava class au.com.cybersearch2.classyjpa.persist.PersistenceAdminImpl.
+This increases support provided for ORMLite special connections used in Android onCreate and onUpgrade handling.
 
-    Defaults to 1 if property is not defined.    
-    
-3. Change classyandroid class au.com.cybersearch2.classydb.AndroidConnectionSourceFactory to pass DATABASE_VERSION property to SqlLiteOpenHelper constructor.
+* OpenHelperCallbacks interface moved to classyjava project.
+* Default OpenHelperCallbacks implementation changed from ClassyOpenHelperCallbacks to OpenHelperCallbacksImpl.
+* OpenHelperCallbacksImpl is a JPA Persistence Container - runs in the same thread as caller, uses a provided ConnectionSource.
+* DatabaseSupport interface increased with addition of database version accessors. 
+* Detection of change of version triggers onCreate and onUpgrade events for non-Android databases.
+* Added SQL script file(s) for datbase upgrades. A default naming convention applies which incorporates old and new version numbers. 
+* DatabaseAdmin DATABASE_VERSION changed from "database_version" to "database-version"
+* New DatabaseAdmin UPGRADE_FILENAME_FORMAT for custom upgrade file names
+* OpenEventHandler is a new SQLiteOpenHelper implementation class which manages ORMLite special connections 
+* DatabaseAdminImpl.initializeDatabase() now runs on same thread as caller.
+
+2. New HelloTwoDbs project for Java implementation of Android counterpart.
+
+* Unit test demonstrates datbase version upgrade case for two databases.
+
+3. Change Robolectric version from 2.4-SNAPSHOT to 2.4
+
+* Removed installation of SNAPSHOT files to local repository
+
+4. Added configuration to Classy Tools pom.xml for reporting an aggregate JavaDocs site
+
+* The site will be published at http://cybersearch2.com.au/apidocs/ so external links work for project JavaDocs.
+
+5. WorkTracker in classytask package has new waitForTask() methods
+
+* The waitForTask implementation transferred from DatabaseAdminImpl after refactor.
+* Optional taskName added for timeout error reporting.
+
+6. PersistenceFactory new initializeAllDatabases() method to be called on application start up
+
+Note: initializeAllDatabases() method is sychronous and will propgate any RuntimeException thrown
+
+* Provides a context in which database onCreate and onUpgrade events happen
+* Existing test and sample code updated to call new method
+
+_______________________________________________________________________________________________________________________
+
+Classy Apps v1.0.2
+
+1. Added Android HelloTwoDs sample applications 
+
+* android-hello-two-dbs demonstrates support for 2 databases provided by persistence.xml configuration.
+* android-hello-two-dbs also demonstrates layering on a Java database implemention using just a dependency configuration change
+* android-hello-two-dbs-v2 has a revised database schema and support for a version upgrade
+* android-hello-two-dbs-v2 Unit test demonstrates database upgrade in a single session.
+
+2. Updated ClassyFy StartUp class to use PersistenceFactory initializeAllDatabases() (point 6 above)
+
+3. Changed ClassyFy AlfrescoFilePlanLoader class and DataLoader interface because of Classy Tools changes
+
