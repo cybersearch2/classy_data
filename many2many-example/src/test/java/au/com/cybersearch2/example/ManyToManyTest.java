@@ -48,14 +48,14 @@ public class ManyToManyTest
                 manyToManyMain.getPost2().id);
 
         PersistenceContainer container = new PersistenceContainer("manytomany");
-        manyToManyMain.waitForTask(container.executeTask(postsByUserEntityTask));
+        container.executeTask(postsByUserEntityTask).waitForTask();
         manyToManyMain.verifyPostsByUser(postsByUserEntityTask.getPosts());
         UsersByPostTask usersByPostTask= new UsersByPostTask(
                 manyToManyMain.getUser1().id,
                 manyToManyMain.getUser2().id,
                 manyToManyMain.getPost1().id,
                 manyToManyMain.getPost2().id);
-        manyToManyMain.waitForTask(container.executeTask(usersByPostTask));
+        container.executeTask(usersByPostTask).waitForTask();
         manyToManyMain.verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
     }
 

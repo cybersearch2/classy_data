@@ -143,20 +143,7 @@ public class ManyToManyMain
         };
         // Execute work and wait synchronously for completion
         PersistenceContainer container = new PersistenceContainer("manytomany");
-        waitForTask(container.executeTask(setUpWork));
-    }
-
-    /**
-     * Wait sychronously for task completion
-     * @param exe Executable object returned upon starting task
-     * @throws InterruptedException Should not happen
-     */
-    protected void waitForTask(Executable exe) throws InterruptedException
-    {
-        synchronized (exe)
-        {
-            exe.wait();
-        }
+        container.executeTask(setUpWork).waitForTask();
     }
 
     /**
@@ -249,7 +236,7 @@ public class ManyToManyMain
                     post1.id,
                     post2.id);
             PersistenceContainer container = new PersistenceContainer("manytomany");
-            manyToManyMain.waitForTask(container.executeTask(postsByUserEntityTask));
+            container.executeTask(postsByUserEntityTask).waitForTask();
             List<Post> posts = postsByUserEntityTask.getPosts();
             manyToManyMain.verifyPostsByUser(posts);
             System.out.println("PostsByUser: ");
@@ -259,7 +246,7 @@ public class ManyToManyMain
                     user2.id,
                     post1.id,
                     post2.id);
-            manyToManyMain.waitForTask(container.executeTask(usersByPostTask));
+            container.executeTask(usersByPostTask).waitForTask();
             manyToManyMain.verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
             System.out.println("UsersByPosts: ");
             System.out.println("Only " + user1.name + " posted \"" + post1.contents + "\"");

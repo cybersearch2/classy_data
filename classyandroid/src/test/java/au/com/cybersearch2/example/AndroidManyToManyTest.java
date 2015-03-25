@@ -50,14 +50,14 @@ public class AndroidManyToManyTest
                 androidManyToMany.getPost2().id);
 
         PersistenceContainer container = new PersistenceContainer("manytomany");
-        androidManyToMany.waitForTask(container.executeTask(postsByUserEntityTask));
+        container.executeTask(postsByUserEntityTask).waitForTask();
         androidManyToMany.verifyPostsByUser(postsByUserEntityTask.getPosts());
         UsersByPostTask usersByPostTask= new UsersByPostTask(
                 androidManyToMany.getUser1().id,
                 androidManyToMany.getUser2().id,
                 androidManyToMany.getPost1().id,
                 androidManyToMany.getPost2().id);
-        androidManyToMany.waitForTask(container.executeTask(usersByPostTask));
+        container.executeTask(usersByPostTask).waitForTask();
         androidManyToMany.verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
     }
 
