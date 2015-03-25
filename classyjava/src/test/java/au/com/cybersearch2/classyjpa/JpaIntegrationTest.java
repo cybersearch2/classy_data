@@ -137,10 +137,7 @@ public class JpaIntegrationTest
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
         Executable exe = testContainer.executeTask(persistenceWork);
-        synchronized(exe)
-        {
-            exe.wait();
-        }
+        exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
     }
@@ -162,10 +159,7 @@ public class JpaIntegrationTest
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
         Executable exe = testContainer.executeTask(persistenceWork);
-        synchronized(exe)
-        {
-            exe.wait();
-        }
+        exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
      }
@@ -199,10 +193,7 @@ public class JpaIntegrationTest
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
         Executable exe = testContainer.executeTask(persistenceWork);
-        synchronized(exe)
-        {
-            exe.wait();
-        }
+        exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
     }
@@ -225,10 +216,7 @@ public class JpaIntegrationTest
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
         Executable exe = testContainer.executeTask(persistenceWork);
-        synchronized(exe)
-        {
-            exe.wait();
-        }
+        exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.query() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
     }
@@ -249,11 +237,7 @@ public class JpaIntegrationTest
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
         Executable exe = testContainer.executeTask(persistenceWork);
-        synchronized(exe)
-        {
-            exe.wait();
-        }
-        transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
+        exe.waitForTask();
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
         Node node = Node.marshall(entityHolder[0]);
         assertThat(node).isNotNull();

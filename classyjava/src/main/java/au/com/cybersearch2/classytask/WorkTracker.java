@@ -27,7 +27,7 @@ import au.com.cybersearch2.classylog.Log;
  * @author Andrew Bowley
  * 29/06/2014
  */
-public class WorkTracker implements Executable, Serializable
+public class WorkTracker extends Executable implements Serializable
 {
     private static final String TAG = "WorkTracker";
     private static Log log = JavaLogger.getLogger(TAG);

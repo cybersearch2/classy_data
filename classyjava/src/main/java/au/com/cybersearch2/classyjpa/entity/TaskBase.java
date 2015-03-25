@@ -15,14 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.entity;
 
-import java.util.concurrent.ExecutionException;
-
-import javax.persistence.EntityTransaction;
-
 import au.com.cybersearch2.classyjpa.transaction.TransactionInfo;
-import au.com.cybersearch2.classylog.JavaLogger;
-import au.com.cybersearch2.classylog.Log;
-import au.com.cybersearch2.classytask.WorkStatus;
+//import au.com.cybersearch2.classylog.JavaLogger;
+//import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.WorkerTask;
 
 /**
@@ -31,24 +26,21 @@ import au.com.cybersearch2.classytask.WorkerTask;
  * @author Andrew Bowley
  * 19/08/2014
  */
-public abstract class TaskBase extends WorkerTask<Boolean>
+public class TaskBase extends WorkerTask<Boolean>
 {
-    private static final String TAG = "TaskBase";
-    private Log log = JavaLogger.getLogger(TAG);
+    //private static final String TAG = "TaskBase";
+    //private Log log = JavaLogger.getLogger(TAG);
     
-    /** Enclosing transaction and associated information */ 
-    protected TransactionInfo transactionInfo;
-    /** Work to be performed */
-    protected PersistenceWork persistenceWork;
+    /** Task to be performed */
+    protected PersistenceTaskImpl persistenceTask;
 
     /**
      * Constructor
      * @param persistenceWork Object containing work to be performed
      */
-    public TaskBase(PersistenceWork persistenceWork)
+    public TaskBase(PersistenceTaskImpl persistenceTask)
     {
-        this.persistenceWork = persistenceWork;
-        transactionInfo = new TransactionInfo();
+        this.persistenceTask = persistenceTask;
     }
  
     /**
@@ -70,35 +62,9 @@ public abstract class TaskBase extends WorkerTask<Boolean>
     @Override
     public void onPostExecute(Boolean success) 
     {
-        // Check for uncaught exception causing background thread to abort
-        ExecutionException executionException = getExecutionException();
-        if (executionException != null)
-        {
-            EntityTransaction transaction = transactionInfo.getTransaction();
-            // Rollback transaction, if active
-            if ((transaction != null) && transaction.isActive())
-                transaction.rollback();
-            // If rollback exception not already captured, set the uncaught exception as the rollback cause
-            if (transactionInfo.getRollbackException() == null)
-                transactionInfo.setRollbackException(executionException.getCause());
-
-        }
-        // Complete work based on final outcome: success/failure/rollback
-        Throwable rollbackException = transactionInfo.getRollbackException();
-        if ((rollbackException != null) || (success == null))
-            success = Boolean.valueOf(false);
-        if (rollbackException != null)
-        {
-            persistenceWork.onRollback(rollbackException);
-            log.error(TAG, "Persistence container rolled back transaction", rollbackException);
-        }
-        else
-            persistenceWork.onPostExecute(success);
-        // Set final work status FINISHED/FAILED
-        if (success)
-            status = WorkStatus.FINISHED;
-        else
-            status = WorkStatus.FAILED;
+    	persistenceTask.setExecutionException(getExecutionException());
+    	persistenceTask.onPostExecute(success);
+    	status = persistenceTask.getWorkStatus();
     }
 
     /**
@@ -109,7 +75,7 @@ public abstract class TaskBase extends WorkerTask<Boolean>
     @Override
     public void onCancelled(Boolean success) 
     {
-        onPostExecute(success);
+    	persistenceTask.onPostExecute(success);
         notifyTaskCompleted();
     }
 
@@ -119,7 +85,7 @@ public abstract class TaskBase extends WorkerTask<Boolean>
      */
     public TransactionInfo getTransactionInfo()
     {
-        return transactionInfo;
+        return persistenceTask.getTransactionInfo();
     }
  
     /**
@@ -132,4 +98,10 @@ public abstract class TaskBase extends WorkerTask<Boolean>
             this.notifyAll();
         }
     }
+
+	@Override
+	public Boolean doInBackground() 
+	{
+		return persistenceTask.doInBackground();
+	}
 }

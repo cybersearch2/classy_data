@@ -70,7 +70,8 @@ public class TaskManager
                                            {
                                                return new Thread(r, "Worker #" + count.getAndIncrement());
                                            }
-                                       });
+                                       },
+                                       new ThreadPoolExecutor.CallerRunsPolicy());
     }
     
     /**

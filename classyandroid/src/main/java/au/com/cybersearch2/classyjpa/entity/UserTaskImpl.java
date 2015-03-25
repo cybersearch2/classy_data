@@ -40,19 +40,9 @@ public class UserTaskImpl extends TaskBase
      */
     public UserTaskImpl(PersistenceContainer persistenceContainer, PersistenceWork persistenceWork)
     {
-        super(persistenceWork);
+        super(persistenceContainer.getPersistenceTask(persistenceWork));
         this.persistenceContainer = persistenceContainer;
         userTaskContext = new UserTaskContext();
-    }
-
-    /**
-     * Execute persistence work in background thread
-     * @see au.com.cybersearch2.classytask.WorkerTask#doInBackground()
-     */
-    @Override
-    public Boolean doInBackground() 
-    {
-        return persistenceContainer.executeInBackground(persistenceWork, transactionInfo);
     }
 
     /**

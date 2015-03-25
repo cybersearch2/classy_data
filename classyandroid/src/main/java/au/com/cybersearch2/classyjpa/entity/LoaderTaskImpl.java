@@ -90,7 +90,7 @@ public class LoaderTaskImpl extends AsyncTaskLoader<Boolean> implements OnLoadCo
                 chain.uncaughtException(t, uncaughtException);
             }
         });
-        return persistenceContainer.executeInBackground(persistenceWork, transactionInfo);
+        return persistenceContainer.getPersistenceTask(persistenceWork, transactionInfo).executeInBackground();
     }
     
     /**

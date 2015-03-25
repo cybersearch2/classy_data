@@ -37,8 +37,6 @@ import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
-import au.com.cybersearch2.classytask.WorkStatus;
-import au.com.cybersearch2.classytask.WorkTracker;
 
 /**
  * DatabaseAdminImplTest
@@ -86,7 +84,7 @@ public class DatabaseAdminImplTest
         when(persistenceAdmin.getProperties()).thenReturn(properties);
         new DI(new DatabaseAdminImplTestModule());
     }
-/*
+
     @Test
     public void test_onCreate()
     {
@@ -114,30 +112,4 @@ public class DatabaseAdminImplTest
         assertThat(processFilesCallable.filenames.length).isEqualTo(1);
         assertThat(processFilesCallable.filenames[0]).isEqualTo(UPGRADE_DATA_FILENAME);
     }
-    
-    @Test
-    public void test_waitForTask() throws InterruptedException
-    {
-        final DatabaseAdminImpl databaseAdminImpl = new DatabaseAdminImpl(TestClassyApplication.PU_NAME, persistenceAdmin);
-        final WorkTracker exe = new WorkTracker();
-        // Status must be RUNNING for wait to occur
-        exe.setStatus(WorkStatus.RUNNING);
-        databaseAdminImpl.task = exe;
-        Runnable runnable = new Runnable(){
-
-            @Override
-            public void run() {
-                synchronized(exe)
-                {
-                    exe.setStatus(WorkStatus.FINISHED);
-                    exe.notifyAll();
-                }
-
-            }};
-        Thread thread = new Thread(runnable);
-        thread.start();
-        WorkStatus result =  databaseAdminImpl.waitForTask();
-        assertThat(result).isEqualTo(WorkStatus.FINISHED);
-    }
-    */
 }

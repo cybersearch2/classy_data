@@ -21,11 +21,29 @@ package au.com.cybersearch2.classytask;
  * @author Andrew Bowley
  * 27/06/2014
  */
-public interface Executable
+public abstract class Executable
 {
     /**
      * Returns task status
      * @return WorkStatus
      */
-    WorkStatus getStatus();
+    public abstract WorkStatus getStatus();
+
+    /**
+     * Wait for task completion. The caller thread may block
+     * if task is executed asynchronously 
+     * @param exe Executable object returned upon starting task
+     * @throws InterruptedException Should not happen
+     */
+    public WorkStatus waitForTask() throws InterruptedException
+    {
+    	WorkStatus status = getStatus();
+    	if ((status == WorkStatus.FINISHED) || (status == WorkStatus.FAILED))
+    		return status;
+        synchronized (this)
+        {
+            wait();
+        }
+        return WorkStatus.FINISHED;
+    }
 }

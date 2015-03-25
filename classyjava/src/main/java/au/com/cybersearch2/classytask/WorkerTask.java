@@ -125,7 +125,7 @@ import java.util.concurrent.Callable;
  *     a second execution is attempted.)</li>
  * </ul>
 */
-public abstract class WorkerTask<Result> implements ThreadMessenger<Result>, Executable
+public abstract class WorkerTask<Result> extends Executable implements ThreadMessenger<Result>
 {
     /** Manages the thread pool */
     protected static TaskManager taskManager; 

@@ -41,6 +41,7 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classylog.*;
 
 import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.support.DatabaseConnection;
 
 /**
  * EntityTransactionImpl
@@ -152,13 +153,14 @@ public class EntityTransactionImpl implements EntityTransaction
         boolean doRollback = rollbackOnly;
         rollbackOnly = false;
         isActive = false;
+        DatabaseConnection connection = commitTransactionState.getDatabaseConnection();
         if (!doRollback && (onPreCommit != null))
         {
             // Delegate pre-commit call to PreCommit class. This will capture error details if the call fails.
             PreCommit preCommit = new PreCommit(onPreCommit);
             try
             {
-                preCommit.doPreCommit(commitTransactionState.getDatabaseConnection());
+                preCommit.doPreCommit(connection);
             }
             finally
             {
@@ -203,7 +205,10 @@ public class EntityTransactionImpl implements EntityTransaction
                 log.error(TAG, postCommit.getError());
         }
         if (sqlException != null)
-            throw new PersistenceException("Exception on commit/rollback: " + sqlException.getMessage(), sqlException);
+            //throw new PersistenceException("Exception on commit/rollback: " + sqlException.getMessage(), sqlException);
+        {    // Only log commit/rollback exception as transaction outcome is uncertain.
+            log.error(TAG, "Error on commit/rollback", sqlException);
+        }
     }
 
 

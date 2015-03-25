@@ -16,19 +16,19 @@
 package au.com.cybersearch2.classyjpa.entity;
 
 import javax.inject.Inject;
-import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceException;
+
+import com.j256.ormlite.support.ConnectionSource;
 
 import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.transaction.TransactionInfo;
-import au.com.cybersearch2.classyjpa.transaction.UserTransactionSupport;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
+import au.com.cybersearch2.classytask.WorkStatus;
 
 /**
  * PersistenceContainer
@@ -40,20 +40,6 @@ import au.com.cybersearch2.classytask.Executable;
  */
 public class PersistenceContainer
 {
-    /** Task to run background thread and notify caller of outcome */
-    public class PersistenceTaskImpl extends TaskBase
-    {
-        public PersistenceTaskImpl(PersistenceWork persistenceWork)
-        {
-            super(persistenceWork);
-        }
-        
-        @Override
-        public Boolean doInBackground() 
-        {
-            return executeInBackground(persistenceWork, transactionInfo);
-        }
-    }
 
     private static final String TAG = "PersistenceContainer";
     static Log log = JavaLogger.getLogger(TAG);
@@ -61,6 +47,10 @@ public class PersistenceContainer
     protected volatile boolean isUserTransactionMode;
     /** JPA EntityManager "lite" factory ie. only API v1 supported. */
     protected EntityManagerLiteFactory entityManagerFactory;
+    boolean singleConnection;
+    protected ConnectionSource connectionSource;
+    
+    String puName;
     /** Object which provides access to full persistence implementation */
     @Inject PersistenceFactory persistenceFactory;
 
@@ -70,13 +60,16 @@ public class PersistenceContainer
      */
     public PersistenceContainer(String puName)
     {
+        this.puName = puName;
         DI.inject(this);
         /** Reference Persistence Unit specified by name to extract EntityManagerFactory object */
         Persistence persistence = persistenceFactory.getPersistenceUnit(puName);
-        entityManagerFactory = persistence.getPersistenceAdmin().getEntityManagerFactory();
+        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        singleConnection = persistenceAdmin.isSingleConnection();
+        entityManagerFactory = persistenceAdmin.getEntityManagerFactory();
     }
 
-    /**
+	/**
      * Set user transaction mode. The transaction is accessed by calling EntityManager getTransaction() method.
      * @param value boolean
      */
@@ -90,137 +83,50 @@ public class PersistenceContainer
      * @param persistenceWork Object specifying unit of work
      * @return Executable. 
      */
-    public Executable executeTask(PersistenceWork persistenceWork)
+    public Executable executeTask(final PersistenceWork persistenceWork)
     {
-        TaskBase taskBase = new PersistenceTaskImpl(persistenceWork);
-        taskBase.getTransactionInfo().setUserTransaction(isUserTransactionMode);
-        taskBase.execute();
-        return taskBase;
+    	final PersistenceTaskImpl persistenceTask = new PersistenceTaskImpl(persistenceWork, entityManagerFactory);
+    	persistenceTask.getTransactionInfo().setUserTransaction(isUserTransactionMode);
+        if (singleConnection)
+        {
+        	final Executable exe = new Executable()
+    		{
+    			@Override
+    			public WorkStatus getStatus() 
+    			{
+    				return persistenceTask.status;
+    			}
+    		};
+        	final Boolean[] success =  { Boolean.FALSE };
+    		success[0] = persistenceTask.executeInProcess(exe);
+        	return exe;
+        }
+        else
+        {
+        	TaskBase  task = new TaskBase(persistenceTask);
+        	task.execute();
+        	return task;
+        }
     }
 
-    /**
-     * Execute persistence work in background thread
-     * @param persistenceWork Object specifying unit of work
-     * @param transactionInfo Enclosing transaction and associated information
-     * @return Boolean result - TRUE = success, FALSE = failure/rollback 
-     *          or null if exception thrown on transaction begin() called.
-     */
-    protected Boolean executeInBackground(PersistenceWork persistenceWork, TransactionInfo transactionInfo)
+    public PersistenceTaskImpl getPersistenceTask(final PersistenceWork persistenceWork)
     {
-        // Use UserTransactionSupport interface to safely set user transaction mode
-        UserTransactionSupport userTransactionSupport = null;
-        EntityManagerLite entityManager = entityManagerFactory.createEntityManager();
-        if (entityManager instanceof UserTransactionSupport)
-        {
-            userTransactionSupport = (UserTransactionSupport)entityManager;
-            // Set user transaction true initially to obtain actual transaction object
-            userTransactionSupport.setUserTransaction(true);
-        }
-        // Set transaction available to worker in transactionInfo object. 
-        // This will only be a proxy if not in user transaction mode.
-        EntityTransaction transaction = entityManager.getTransaction();
-        transactionInfo.setEntityTransaction(transaction);
-        // Now set actual enclosing transaction in transactionInfo object so it is available on commit
-        if (transactionInfo.isUserTransaction())
-        {
-            if (userTransactionSupport == null)
-                throw new PersistenceException("EntityManger does not support user transactions");
-        }
-        else
-            try
-            {   // Use container managed transaction. User can only request rollback.
-                userTransactionSupport.setUserTransaction(false);
-                 // The container manages the transaction, so begin before work starts
-                transaction.begin();
-            }
-            catch (PersistenceException e)
-            {
-                transactionInfo.setRollbackException(e);
-                // Return null as special value indicating work not commenced
-                return null;
-            }
-        // Commence work, ready to catch RuntimeExceptions declared to be throwable by EntityManager API
-        Throwable rollbackException = null;
-        boolean success = false; // Use flag for indicating unexpected RuntimeException
-        boolean setRollbackOnly = false;
-        try
-        {
-            persistenceWork.doInBackground(entityManager);
-            success = true;
-        }
-        catch (PersistenceException e)
-        {
-            rollbackException = e;
-        }
-        catch (IllegalArgumentException e)
-        {
-            rollbackException = e;
-        }
-        catch (IllegalStateException e)
-        {
-            rollbackException = e;
-        }
-        catch (UnsupportedOperationException e)
-        {
-            rollbackException = e;
-        }
-        // Other runtime exceptions are captured by the WorkerTask and reported onExecuteComplete()
-        finally
-        {
-            setRollbackOnly = resolveOutcome(entityManager, userTransactionSupport, transactionInfo, success, rollbackException);
-        }
-        return success && !setRollbackOnly;
-    }
- 
-    /**
-     * Resolve outcome of persistence work given all relevant parameters. 
-     * Includes Commit/rollback by calling EntityManager close(), unless unexpected exception has occurred.
-     *@param entityManager Open EntityManager object  
-     *@param userTransactionSupport Optional implemention of user transaction in EntityManager object
-     *@param transactionInfo Enclosing transaction and associated information
-     *@param success boolean
-     *@param rollbackException Optional RuntimeException thrown by EntityManager object
-     *@return boolean - If rollback, then true
-     */
-    protected boolean resolveOutcome(
-            EntityManagerLite entityManager, 
-            UserTransactionSupport userTransactionSupport, 
-            TransactionInfo transactionInfo, 
-            boolean success, 
-            Throwable rollbackException)
-    {
-        // Flag for do rollback
-        boolean setRollbackOnly = false;
-        // Set user transaction mode to access actual enclosing transaction
-        if (userTransactionSupport != null)
-            userTransactionSupport.setUserTransaction(true);
-        EntityTransaction transaction = entityManager.getTransaction();
-        if (!success && (rollbackException == null))
-        { // Unexpected exception thrown. Just rollback.
-            if (transaction.isActive())
-                transaction.rollback();
-        }
-        else
-        {
-            if (rollbackException != null)
-            {   // RuntimeException caught, so do rollback  
-                transactionInfo.setRollbackException(rollbackException);
-                transaction.setRollbackOnly();
-            }
-            try
-            {
-                if (success && transaction.getRollbackOnly())
-                    setRollbackOnly = true;
-                entityManager.close();
-            } // Persistence exception may be thrown on commit or rollback. Just log it.
-            catch (PersistenceException e)
-            {   // Ensure onRollback() is called on PersistenceWork object
-                if (rollbackException == null)
-                    transactionInfo.setRollbackException(e);
-                log.error(TAG, "Persistence error on commit", e);
-            }
-        }
-        return setRollbackOnly;
+    	final PersistenceTaskImpl persistenceTask = new PersistenceTaskImpl(persistenceWork, entityManagerFactory);
+    	persistenceTask.getTransactionInfo().setUserTransaction(isUserTransactionMode);
+    	return persistenceTask;
     }
     
+    public PersistenceTaskImpl getPersistenceTask(final PersistenceWork persistenceWork, TransactionInfo transactionInfo)
+    {
+    	final PersistenceTaskImpl persistenceTask = new PersistenceTaskImpl(persistenceWork, entityManagerFactory, transactionInfo);
+    	persistenceTask.getTransactionInfo().setUserTransaction(isUserTransactionMode);
+    	return persistenceTask;
+    }
+
+	public Boolean executeInBackground(PersistenceWork persistenceWork,
+			TransactionInfo transactionInfo) 
+	{
+		getPersistenceTask(persistenceWork, transactionInfo).executeInBackground(); 
+		return null;
+	}
 }

@@ -102,4 +102,7 @@ public interface PersistenceAdmin extends ConnectionSourceFactory
      * @return Eentity manager instance
      */
     EntityManagerLite createEntityManager(ConnectionSource connectionSource);
+    
+    /** Flag set true if connection source is for a single connection */
+    boolean isSingleConnection();
 }

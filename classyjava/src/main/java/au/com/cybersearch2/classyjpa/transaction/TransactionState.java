@@ -46,6 +46,8 @@ public class TransactionState
     protected Boolean autoCommitAtStart;
     protected Boolean hasSavePoint;
     protected Savepoint savePoint;
+    protected String savePointName;
+    protected int transactionId;
 
     static
     {   // Use counter to generate unique savepoint identifiers
@@ -64,7 +66,6 @@ public class TransactionState
         boolean success = false;
         try
         {
-            connection = connectionSource.getReadWriteConnection();
             setup();
             success = true;
         }
@@ -99,8 +100,10 @@ public class TransactionState
          * </p>
          * 
          */
-        connectionSource.saveSpecialConnection(connection);
-        setAutoCommit();
+    	connection = connectionSource.getReadWriteConnection();
+    	connectionSource.saveSpecialConnection(connection);
+    	transactionId = savePointCounter.incrementAndGet();
+        connection.setAutoCommit(false);
         setSavePoint();
     }
     
@@ -111,13 +114,13 @@ public class TransactionState
     {
         if (connection != null)
         {
+            clearSpecialConnection();
             savePoint = null;
             hasSavePoint = null;
             if (autoCommitAtStart != null)
                 resetAutoCommit();
-            clearSpecialConnection();
             connection = null;
-        }
+    	}
     }
   
     /**
@@ -127,7 +130,7 @@ public class TransactionState
     public void doCommit() throws SQLException 
     {
         // Perform check for release state. 
-        if (!isValid())
+        if (!isValid() || connection.isAutoCommit())
         {
             if (log.isLoggable(TAG, Level.WARNING))
                 log.warn(TAG, "doCommit() called while invalid");
@@ -135,12 +138,10 @@ public class TransactionState
         }
         try
         {
-            String name = (savePoint == null ? null : savePoint.getSavepointName());
-            if (name == null)
-                name = "";
+	    	//System.out.println("Transaction " + transactionId + " about to commit");
             connection.commit(savePoint);
             if (log.isLoggable(TAG, Level.FINE))
-                log.debug(TAG, "committed savePoint transaction " + name);
+                log.debug(TAG, "committed savePoint transaction " + savePointName);
         }
         finally
         {
@@ -155,20 +156,17 @@ public class TransactionState
     public void doRollback() throws SQLException 
     {
         // Perform check for release state. 
-        if (!isValid())
+        if (!isValid() || connection.isAutoCommit())
         {
             if (log.isLoggable(TAG, Level.WARNING))
-                log.warn(TAG, "doCommit() called while invalid");
+                log.warn(TAG, "doRollback() called while invalid");
             return;
         }
         try
         {
-            String name = (savePoint == null ? null : savePoint.getSavepointName());
-            if (name == null)
-                name = "";
             connection.rollback(savePoint);
             if (log.isLoggable(TAG, Level.FINE))
-                log.debug(TAG, "rolled back savePoint transaction " + name);
+                log.debug(TAG, "rolled back savePoint transaction " + savePointName);
         }
         finally
         {
@@ -186,37 +184,15 @@ public class TransactionState
     }
 
     /**
-     * Turn off auto commit
-     * @throws SQLException
-     */
-    private void setAutoCommit() throws SQLException
-    {
-        if (connection.isAutoCommitSupported()) 
-        {
-            autoCommitAtStart = Boolean.valueOf(connection.isAutoCommit());
-            if (autoCommitAtStart) 
-            {
-                // Disable auto-commit mode if supported and enabled at start
-                connection.setAutoCommit(false);
-                if (log.isLoggable(TAG, Level.FINE))
-                    log.debug(TAG, "Had to set auto-commit to false");
-            }
-        }
-
-    }
-
-    /**
      * Store save point
      * @throws SQLException
      */
     private void setSavePoint() throws SQLException
     {
-        savePoint = connection.setSavePoint(SAVE_POINT_PREFIX + savePointCounter.incrementAndGet());
-        String name = (savePoint == null ? null : savePoint.getSavepointName());
-        if (name == null)
-            name = "";
+    	savePointName = SAVE_POINT_PREFIX + transactionId;
+        savePoint = connection.setSavePoint(savePointName);
         if (log.isLoggable(TAG, Level.FINE))
-            log.debug(TAG, "Started savePoint transaction " + name);
+            log.debug(TAG, "Started savePoint transaction " + savePointName);
         hasSavePoint = Boolean.valueOf(true);
     }
  
@@ -250,7 +226,6 @@ public class TransactionState
     private void clearSpecialConnection()
     {
         connectionSource.clearSpecialConnection(connection);
-        /* com.j256.ormlite.jdbc.JdbcConnectionSource releaseConnection() is "noop right now"
         try
         {
             connectionSource.releaseConnection(connection);
@@ -260,6 +235,5 @@ public class TransactionState
             if (log.isLoggable(TAG, Level.WARNING))
                 log.warn(TAG, "releaseConnection() failed");
         }
-        */
     }
 }

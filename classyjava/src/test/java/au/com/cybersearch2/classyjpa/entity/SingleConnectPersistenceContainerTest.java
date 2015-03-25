@@ -23,6 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import javax.inject.Singleton;
 import javax.persistence.EntityExistsException;
@@ -43,6 +44,7 @@ import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
@@ -60,7 +62,7 @@ import au.com.cybersearch2.classyutil.Transcript;
  * @author Andrew Bowley
  * 27/06/2014
  */
-public class PersistenceContainerTest
+public class SingleConnectPersistenceContainerTest
 {
     @Module(injects = { PersistenceContainer.class, WorkerRunnable.class })
     public static class PersistenceContainerTestModule implements ApplicationModule
@@ -73,7 +75,7 @@ public class PersistenceContainerTest
             when(persistenceFactory.getPersistenceUnit(isA(String.class))).thenReturn(persistence);
             PersistenceAdmin persistenceAdmin = mock(PersistenceAdmin.class);
             ConnectionSource connectionSource = mock(ConnectionSource.class);
-            when(persistenceAdmin.isSingleConnection()).thenReturn(false);
+            when(persistenceAdmin.isSingleConnection()).thenReturn(true);
             when(persistenceAdmin.getConnectionSource()).thenReturn(connectionSource);
             when(persistence.getPersistenceAdmin()).thenReturn(persistenceAdmin);
             when(persistenceAdmin.getEntityManagerFactory()).thenReturn(new TestEntityManagerFactory());
@@ -169,6 +171,7 @@ public class PersistenceContainerTest
     private PersistenceContainer testContainer;
     private Transcript transcript;
     private EntityTransactionImpl transaction;
+    public static boolean isSingleConnection;
 
     @Before
     public void setUp() throws Exception 
@@ -254,10 +257,14 @@ public class PersistenceContainerTest
         PersistenceWork persistenceWork = new TestPersistenceWork(transcript);
         doThrow(exception).when(entityManager).close();
         when(transaction.isActive()).thenReturn(true);
-        Executable exe = testContainer.executeTask(persistenceWork);
-        exe.waitForTask();
-        transcript.assertEventsSoFar("background task", "onRollback " + exception.toString());
-        assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
+        try
+        {
+            testContainer.executeTask(persistenceWork);
+            failBecauseExceptionWasNotThrown(NullPointerException.class);
+       }
+       catch (NullPointerException e)
+       {
+       }
     }
     
     @Test 
@@ -268,13 +275,22 @@ public class PersistenceContainerTest
         PersistenceWork persistenceWork = new EntityManagerWork(entity, transcript);
         when(transaction.isActive()).thenReturn(true, false);
         doThrow(exception).when(entityManager).persist(entity);
-        Executable exe = testContainer.executeTask(persistenceWork);
-        exe.waitForTask();
+        try
+        {
+             testContainer.executeTask(persistenceWork);
+             failBecauseExceptionWasNotThrown(NullPointerException.class);
+        }
+        catch (NullPointerException e)
+        {
+        }
+        synchronized(persistenceWork)
+        {
+     	   persistenceWork.wait(1000);
+        }
         transcript.assertEventsSoFar("background task", "onRollback " + exception.toString());
         verify(transaction).begin();
         verify(transaction).rollback();
         verify(entityManager, never()).close();
-        assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
     }
     
     @Test 
@@ -290,13 +306,23 @@ public class PersistenceContainerTest
         when(transaction.isActive()).thenReturn(false);
         doThrow(exception).when(entityManager).persist(entity);
         testContainer.setUserTransactionMode(true);
-        Executable exe = testContainer.executeTask(persistenceWork);
-        exe.waitForTask();
+        try
+        {
+            testContainer.executeTask(persistenceWork);
+            failBecauseExceptionWasNotThrown(NullPointerException.class);
+       }
+       catch (NullPointerException e)
+       {
+       	
+       }
+        synchronized(persistenceWork)
+        {
+     	   persistenceWork.wait(1000);
+        }
         transcript.assertEventsSoFar("background task", "onRollback " + exception.toString());
         verify(transaction, times(0)).begin();
         verify(transaction, times(0)).rollback();
         verify(entityManager, never()).close();
-        assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
     }
     
     @Test 

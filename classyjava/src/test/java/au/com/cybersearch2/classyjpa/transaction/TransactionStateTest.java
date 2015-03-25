@@ -195,32 +195,7 @@ public class TransactionStateTest
         verify(connection).setAutoCommit(true);
    }
 
-    @Test
-    public void test_begin_get_save_point_name_exception() throws Exception
-    {
-        SQLException exception = new SQLException("getSavePointName failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
-        when(connection.isAutoCommitSupported()).thenReturn(true);
-        when(connection.isAutoCommit()).thenReturn(true);
-        Savepoint savePoint = mock(Savepoint.class);
-        when(connection.setSavePoint(isA(String.class))).thenReturn(savePoint);
-        doThrow(exception).when(savePoint).getSavepointName();
-        try
-        {
-            new TransactionState(connectionSource);
-            failBecauseExceptionWasNotThrown(SQLException.class);
-        }
-        catch(SQLException e)
-        {
-            assertThat(e.getMessage()).contains("getSavePointName failed");
-        }
-        verify(connection).setAutoCommit(false);
-        verify(connectionSource).saveSpecialConnection(connection);
-        verify(connection).setSavePoint(isA(String.class));
-        verify(connection).setAutoCommit(true);
-   }
-    
-    
+   
     
     
     @Test
@@ -228,7 +203,7 @@ public class TransactionStateTest
     {
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
         when(connection.isAutoCommitSupported()).thenReturn(true);
-        when(connection.isAutoCommit()).thenReturn(true);
+        when(connection.isAutoCommit()).thenReturn(true, false);
         Savepoint savePoint = mock(Savepoint.class);
         when(connection.setSavePoint(isA(String.class))).thenReturn(savePoint);
         when(savePoint.getSavepointName()).thenReturn("mySavePoint");
