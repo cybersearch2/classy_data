@@ -51,6 +51,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.Dao.CreateOrUpdateStatus;
 import com.j256.ormlite.dao.Dao.DaoObserver;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.dao.DatabaseResultsMapper;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.dao.ObjectCache;
@@ -490,6 +491,18 @@ public class PersistenceDao<T, ID> implements CloseableIterable<T> {
 	public GenericRawResults<String[]> queryRaw(String query, String... arguments) {
 		try {
 			return dao.queryRaw(query, arguments);
+		} catch (SQLException e) {
+			logMessage(e, "queryRaw threw exception on: " + query);
+			throw new PersistenceException(e);
+		}
+	}
+
+	/**
+	 * @see Dao#queryRaw(String, DatabaseResultsMapper, String...)
+	 */
+	public <UO> GenericRawResults<UO> queryRaw(String query, DatabaseResultsMapper<UO> mapper, String... arguments) {
+		try {
+			return dao.queryRaw(query, mapper, arguments);
 		} catch (SQLException e) {
 			logMessage(e, "queryRaw threw exception on: " + query);
 			throw new PersistenceException(e);
