@@ -117,43 +117,6 @@ public class TransactionStateTest
    }
 
     @Test
-    public void test_begin_auto_commit_supported_exception() throws Exception
-    {
-        SQLException exception = new SQLException("isAutoCommitSupported failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
-        doThrow(exception).when(connection).isAutoCommitSupported();
-        try
-        {
-            new TransactionState(connectionSource);
-            failBecauseExceptionWasNotThrown(SQLException.class);
-        }
-        catch(SQLException e)
-        {
-            assertThat(e.getMessage()).contains("isAutoCommitSupported failed");
-        }
-        verify(connectionSource).saveSpecialConnection(connection);
-   }
-
-    @Test
-    public void test_begin_get_auto_commit_exception() throws Exception
-    {
-        SQLException exception = new SQLException("isAutoCommit failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
-        when(connection.isAutoCommitSupported()).thenReturn(true);
-        doThrow(exception).when(connection).isAutoCommit();
-        try
-        {
-            new TransactionState(connectionSource);
-            failBecauseExceptionWasNotThrown(SQLException.class);
-        }
-        catch(SQLException e)
-        {
-            assertThat(e.getMessage()).contains("isAutoCommit failed");
-        }
-        verify(connectionSource).saveSpecialConnection(connection);
-   }
-
-    @Test
     public void test_begin_set_auto_commit_exception() throws Exception
     {
         SQLException exception = new SQLException("setAutoCommit failed");
@@ -192,7 +155,6 @@ public class TransactionStateTest
         }
         verify(connection).setAutoCommit(false);
         verify(connectionSource).saveSpecialConnection(connection);
-        verify(connection).setAutoCommit(true);
    }
 
    
@@ -203,7 +165,7 @@ public class TransactionStateTest
     {
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
         when(connection.isAutoCommitSupported()).thenReturn(true);
-        when(connection.isAutoCommit()).thenReturn(true, false);
+        when(connection.isAutoCommit()).thenReturn(false);
         Savepoint savePoint = mock(Savepoint.class);
         when(connection.setSavePoint(isA(String.class))).thenReturn(savePoint);
         when(savePoint.getSavepointName()).thenReturn("mySavePoint");

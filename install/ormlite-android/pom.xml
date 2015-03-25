@@ -187,7 +187,7 @@
 						href="http://creativecommons.org/licenses/by-sa/3.0/" &gt;Creative Commons Attribution-Share Alike 3.0 License.
 						&lt;/a&gt; </bottom>
 					<showPackage>false</showPackage>
-					<additionalparam>-tag inheritDoc:X</additionalparam>
+					<additionalparam>-tag inheritDoc:X -Xdoclint:none</additionalparam>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -280,6 +280,19 @@
 										<ignore />
 									</action>
 								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
@@ -292,8 +305,9 @@
 			and have any other characters where this is used, it'll get replaced with string "null" -->
 		<surefire.argLine />
 
-		<!-- <android-version>2.3.3</android-version>-->
+		<!-- <android-version>2.3.3</android-version> -->
 		<android-version>4.1.1.4</android-version>
+		<android-support-version>r6</android-support-version>
 		<!-- external test package versions -->
 		<easymock-version>2.3</easymock-version>
 		<h2-version>1.2.128</h2-version>
@@ -317,6 +331,14 @@
 			<version>${android-version}</version>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>support-v4</artifactId>
+			<scope>provided</scope>
+			<version>${android-support-version}</version>
+			<optional>true</optional>
+		</dependency>
+
 		<!-- =================================================================== -->
 		<!-- test dependencies -->
 		<dependency>

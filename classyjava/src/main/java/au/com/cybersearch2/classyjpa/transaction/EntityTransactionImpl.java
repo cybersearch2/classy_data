@@ -205,10 +205,11 @@ public class EntityTransactionImpl implements EntityTransaction
                 log.error(TAG, postCommit.getError());
         }
         if (sqlException != null)
-            //throw new PersistenceException("Exception on commit/rollback: " + sqlException.getMessage(), sqlException);
+            throw new PersistenceException("Exception on commit/rollback: " + sqlException.getMessage(), sqlException);
+        /* Alternative
         {    // Only log commit/rollback exception as transaction outcome is uncertain.
             log.error(TAG, "Error on commit/rollback", sqlException);
-        }
+        } */
     }
 
 
