@@ -70,8 +70,8 @@ public class HelloTwoDbsTest
         ComplexTask complexTask = new ComplexTask("main");
         Executable exe1 = helloTwoDbsMain.launchPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
         Executable exe2 = helloTwoDbsMain.launchPersistenceWork(HelloTwoDbsMain.PU_NAME2, complexTask);
-        helloTwoDbsMain.waitForTask(exe1);
-        helloTwoDbsMain.waitForTask(exe2);
+        exe1.waitForTask();
+        exe2.waitForTask();
         helloTwoDbsMain.logMessage(HelloTwoDbsMain.TAG, "Test completed successfully page at " + System.currentTimeMillis());
 		// Our string builder for building the content-view
 		StringBuilder sb = new StringBuilder();
