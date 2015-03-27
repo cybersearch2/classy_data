@@ -211,24 +211,9 @@ public class HelloTwoDbsMain
      */
     public void performPersistenceWork(final String puName, final PersistenceTask persistenceTask) throws InterruptedException
     {
-    	Executable exe = launchPersistenceWork(puName, persistenceTask);
-        waitForTask(exe);
-        logMessage(puName, "Task final status = " + exe.getStatus().toString());
+    	launchPersistenceWork(puName, persistenceTask).waitForTask();
     }
     
-    /**
-     * Wait sychronously for task completion
-     * @param exe Executable object returned upon starting task
-     * @throws InterruptedException Should not happen
-     */
-    protected void waitForTask(Executable exe) throws InterruptedException
-    {
-        synchronized (exe)
-        {
-            exe.wait();
-        }
-    }
-
 	/**
 	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
 	 * Override to run with different database and/or platform. 
