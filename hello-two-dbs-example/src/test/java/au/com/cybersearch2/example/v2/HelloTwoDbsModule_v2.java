@@ -13,21 +13,20 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
-package au.com.cybersearch2.example;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
+package au.com.cybersearch2.example.v2;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import au.com.cybersearch2.classyapp.ApplicationContext;
+import au.com.cybersearch2.example.HelloTwoDbsMain_v1;
+import au.com.cybersearch2.example.v2.HelloTwoDbsMain;
+import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
-import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseAdminImpl;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
+import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
@@ -36,8 +35,8 @@ import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.WorkerRunnable;
 
 /**
- * ManyToManyModule
- * Dependency injection data object. @see ManyToManyMain.
+ * HelloTwoDbsModule_v1
+ * Dependency injection data object. @see HelloTwoDbsMain_v1.
  * @author Andrew Bowley
  * 23 Sep 2014
  */
@@ -45,11 +44,16 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
+        HelloTwoDbsMain_v1.class, 
+        HelloTwoDbsMain.class,
         PersistenceContext.class,
         DatabaseAdminImpl.class
         })
-public class AndroidManyToManyModule implements ApplicationModule
+public class HelloTwoDbsModule_v2 implements ApplicationModule
 {
+    // Implement a file database to test version upgrade
+	ConnectionType CONNECTION_TYPE = ConnectionType.file;
+	
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
         return new TestSystemEnvironment();
@@ -57,25 +61,16 @@ public class AndroidManyToManyModule implements ApplicationModule
     
     @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
     {
-        return new ResourceEnvironment(){
-
-            @Override
-            public InputStream openResource(String resourceName)
-                    throws IOException
-            {
-                ApplicationContext applicationContext = new ApplicationContext();
-                return applicationContext.getContext().getAssets().open("manytomany/" + resourceName);
-            }
-
-            @Override
-            public Locale getLocale()
-            {
-                return new Locale("en", "AU");
-            }};
+        return new JavaTestResourceEnvironment();
     }
 
     @Provides @Singleton PersistenceFactory providePersistenceModule()
     {
-        return new PersistenceFactory(new AndroidDatabaseSupport());
+        return new PersistenceFactory(new SQLiteDatabaseSupport(CONNECTION_TYPE));
+    }
+
+    @Provides @Singleton ConnectionType provideConnectionType()
+    {
+    	return CONNECTION_TYPE;
     }
 }

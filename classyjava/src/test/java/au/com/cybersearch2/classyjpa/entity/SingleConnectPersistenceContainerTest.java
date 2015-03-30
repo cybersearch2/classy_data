@@ -47,6 +47,7 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestEntityManagerFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
@@ -64,7 +65,7 @@ import au.com.cybersearch2.classyutil.Transcript;
  */
 public class SingleConnectPersistenceContainerTest
 {
-    @Module(injects = { PersistenceContainer.class, WorkerRunnable.class })
+    @Module(injects = { PersistenceContext.class, WorkerRunnable.class })
     public static class PersistenceContainerTestModule implements ApplicationModule
     {
 

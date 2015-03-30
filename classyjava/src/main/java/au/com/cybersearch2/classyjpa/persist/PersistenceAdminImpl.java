@@ -235,6 +235,12 @@ public class PersistenceAdminImpl implements PersistenceAdmin
 	@Override
 	public boolean isSingleConnection() 
 	{
+		// Default to true until setSingleConnection() is called
+		return singleConnection == null ? true : singleConnection;
+	}
+	
+	public void setSingleConnection()
+	{
 		if (singleConnection == null)
 		    try
 			{
@@ -263,6 +269,11 @@ public class PersistenceAdminImpl implements PersistenceAdmin
 			{
 				throw new PersistenceException("Database connection error", e);
 			}
-			return singleConnection;
 		}
+
+	@Override
+	public void registerClasses(List<String> managedClassNames) 
+	{
+		config.registerClasses(managedClassNames);
 	}
+}

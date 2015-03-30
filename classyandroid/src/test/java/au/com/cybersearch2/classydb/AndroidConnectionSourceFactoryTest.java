@@ -31,11 +31,11 @@ import org.robolectric.RobolectricTestRunner;
 import dagger.Module;
 import dagger.Provides;
 import android.content.Context;
-import android.database.sqlite.SQLiteOpenHelper;
 import au.com.cybersearch2.classyapp.ContextModule;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 
@@ -47,7 +47,7 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidConnectionSourceFactoryTest
 {
-    @Module(injects = OpenHelperCallbacksImpl.class)
+    @Module(injects = PersistenceContext.class)
     static class AndroidConnectionSourceFactoryTestModule implements ApplicationModule
     {
         DatabaseAdmin databaseAdmin;

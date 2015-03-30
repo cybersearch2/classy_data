@@ -25,7 +25,7 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.transaction.UserTransactionSupport;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
@@ -46,15 +46,14 @@ public class InProcessPersistenceContainer
     protected DatabaseAdmin databaseAdmin;
     protected String puName;
     
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
 
 	public InProcessPersistenceContainer(String puName)
 	{
     	this.puName = puName;
-        DI.inject(this);
-        Persistence persistence = persistenceFactory.getPersistenceUnit(puName);
-        persistenceAdmin = persistence.getPersistenceAdmin();
-        databaseAdmin = persistence.getDatabaseAdmin();
+        persistenceContext = new PersistenceContext();
+        persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
+        databaseAdmin = persistenceContext.getDatabaseAdmin(puName);
 	}
 	
     /**

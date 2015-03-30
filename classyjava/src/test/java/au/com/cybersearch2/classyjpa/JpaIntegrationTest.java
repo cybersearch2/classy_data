@@ -19,7 +19,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
@@ -42,7 +41,7 @@ import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork.Callable;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
@@ -61,7 +60,7 @@ import dagger.Module;
  */
 public class JpaIntegrationTest
 {
-    @Module(injects = { JpaIntegrationTest.class }, includes = TestClassyApplicationModule.class)
+    @Module(includes = TestClassyApplicationModule.class)
     static class JpaIntegrationTestModule implements ApplicationModule
     {
     }
@@ -71,14 +70,15 @@ public class JpaIntegrationTest
     protected Transcript transcript;
     protected TestPersistenceFactory testPersistenceFactory; 
     
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
     
     @Before
     public void setup() throws Exception
     {
 	    createObjectGraph();
-        persistenceFactory.initializeAllDatabases();
-        Persistence persistence = persistenceFactory.getPersistenceUnit(TestClassyApplication.PU_NAME);
+        persistenceContext = new PersistenceContext();
+	    persistenceContext.initializeAllDatabases();
+        Persistence persistence = persistenceContext.getPersistenceUnit(TestClassyApplication.PU_NAME);
         testPersistenceFactory = new TestPersistenceFactory(persistence);
         transcript = new Transcript();
         testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
@@ -98,7 +98,6 @@ public class JpaIntegrationTest
 	{
         DI dependencyInjection = new DI(new JpaIntegrationTestModule());
         dependencyInjection.validate();
-        DI.inject(this);
 	}
 
     @Test

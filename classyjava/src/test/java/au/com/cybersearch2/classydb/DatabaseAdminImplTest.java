@@ -35,8 +35,8 @@ import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 
 /**
  * DatabaseAdminImplTest
@@ -46,7 +46,7 @@ import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 public class DatabaseAdminImplTest
 {
     @Module(injects = { 
-            EntityTransactionImpl.class,
+            PersistenceContext.class,
             NativeScriptDatabaseWork.class,
             DatabaseAdminImpl.class,
             TestDatabaseAdminImpl.class})

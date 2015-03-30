@@ -121,19 +121,7 @@ public class PersistenceFactory
     protected synchronized void initializePersistenceContext(DatabaseSupport databaseSupport)
     {
         // Input persistence.xml
-        Map<String, PersistenceUnitInfo> puMap = null;
-        try
-        {
-            puMap  = getPersistenceUnitInfo(resourceEnvironment);
-        }
-        catch (IOException e)
-        {
-            throw new PersistenceException("Error opening persistence configuration file", e);
-        }
-        catch (XmlPullParserException e)
-        {
-            throw new PersistenceException("Error parsing persistence configuration file", e);
-        }
+        Map<String, PersistenceUnitInfo> puMap = readPersistenceConfigFile(resourceEnvironment);
         // Set up PU implementations
         for (String name: puMap.keySet())
         {
@@ -150,6 +138,25 @@ public class PersistenceFactory
         databaseSupport.initialize();
     }
 
+    protected Map<String, PersistenceUnitInfo> readPersistenceConfigFile(ResourceEnvironment resourceEnv)
+    {
+        // Input persistence.xml
+        Map<String, PersistenceUnitInfo> puMap = null;
+        try
+        {
+            puMap  = getPersistenceUnitInfo(resourceEnv);
+        }
+        catch (IOException e)
+        {
+            throw new PersistenceException("Error opening persistence configuration file", e);
+        }
+        catch (XmlPullParserException e)
+        {
+            throw new PersistenceException("Error parsing persistence configuration file", e);
+        }
+        return puMap;
+    }
+    
     public void initializeAllDatabases()
     {
         //Initialize PU implementations
@@ -158,6 +165,7 @@ public class PersistenceFactory
         	DatabaseAdminImpl databaseAdmin = entry.getValue();
         	PersistenceAdminImpl persistenceAdmin = persistenceImplMap.get(entry.getKey());
         	databaseAdmin.initializeDatabase(persistenceAdmin.getConfig(), databaseSupport);
+        	persistenceAdmin.setSingleConnection();
         }
     }
     
@@ -167,14 +175,14 @@ public class PersistenceFactory
      * @throws IOException for error reading persistence.xml
      * @throws XmlPullParserException for error parsing persistence.xml
      */
-    protected Map<String, PersistenceUnitInfo> getPersistenceUnitInfo(ResourceEnvironment resourceEnvironment) throws IOException, XmlPullParserException
+    protected Map<String, PersistenceUnitInfo> getPersistenceUnitInfo(ResourceEnvironment resourceEnv) throws IOException, XmlPullParserException
     {
         InputStream inputStream = null;
         PersistenceXmlParser parser = null;
         Map<String, PersistenceUnitInfo> persistenceUnitInfoMap = null;
         try
         {
-            inputStream = resourceEnvironment.openResource(PersistenceUnitInfoImpl.PERSISTENCE_CONFIG_FILENAME);
+            inputStream = resourceEnv.openResource(PersistenceUnitInfoImpl.PERSISTENCE_CONFIG_FILENAME);
             parser = new PersistenceXmlParser();
             persistenceUnitInfoMap = parser.parsePersistenceXml(inputStream);
         }

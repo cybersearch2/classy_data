@@ -17,16 +17,13 @@ package au.com.cybersearch2.classyjpa;
 
 import java.util.Properties;
 
-import javax.inject.Inject;
 import javax.persistence.PersistenceException;
-
-import com.j256.ormlite.support.ConnectionSource;
 
 import android.database.sqlite.SQLiteOpenHelper;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+
+import com.j256.ormlite.support.ConnectionSource;
 
 
 /**
@@ -38,14 +35,14 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 public class AndroidPersistenceFactory
 {
     /** Object which provides access to full persistence implementation */
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
     
     /**
      * Create AndroidPersistenceFactory object
      */
     public AndroidPersistenceFactory()
     {
-        DI.inject(this); // Inject persistenceFactory
+        persistenceContext = new PersistenceContext();
     }
 
     /**
@@ -56,17 +53,16 @@ public class AndroidPersistenceFactory
     public AndroidPersistenceEnvironment getAndroidPersistenceEnvironment(final String puName)
     {
         // Assumes DatabaseSupport is implemented as an AndroidDatabaseSupport object
-        final AndroidDatabaseSupport androidDatabaseSupport = (AndroidDatabaseSupport)persistenceFactory.getDatabaseSupport();
-        final Persistence persistence = persistenceFactory.getPersistenceUnit(puName);
+        final AndroidDatabaseSupport androidDatabaseSupport = (AndroidDatabaseSupport)persistenceContext.getDatabaseSupport();
         return new AndroidPersistenceEnvironment(){
             @Override
             public SQLiteOpenHelper getSQLiteOpenHelper() {
                 // With AndroidDatabaseSupport and database name, obtain Persistence Unit ConnectionSource 
                 // Then call getSQLiteOpenHelper() on the ConnectionSource to obtain the open helper
-                Properties properties = persistence.getPersistenceAdmin().getProperties();
+                Properties properties = persistenceContext.getPersistenceAdmin(puName).getProperties();
                 String databaseName = properties.getProperty("database-name");
                 if ((databaseName == null) || (databaseName.length() == 0))
-                    throw new PersistenceException("\"" + persistence.getPersistenceUnitName() + "\" does not have property \"database-name\"");
+                    throw new PersistenceException("\"" + puName + "\" does not have property \"database-name\"");
                 ConnectionSource connectionSource = androidDatabaseSupport.getConnectionSource(databaseName, properties);
                 return androidDatabaseSupport.getSQLiteOpenHelper(connectionSource);
             }};

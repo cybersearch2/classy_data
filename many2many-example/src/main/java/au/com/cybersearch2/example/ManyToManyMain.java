@@ -4,16 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.classytask.Executable;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 
 /**
  * ORIGINAL COMMENTS:
@@ -36,7 +32,7 @@ import au.com.cybersearch2.classytask.Executable;
  * Also noteable is dependency injection using Dagger @see ManyToManyModule. If one studies the details, what the
  * dependency inject allows is flexibility in 3 ways:
  * <ol>
- * <li>Choice of database - the PersistenceFactory binding</li>
+ * <li>Choice of database - the PersistenceContext binding</li>
  * <li>Location of resource files such as persistence.xml (and Locale too) - the ResourceEnvironment binding</li>
  * <li>How to reduce background thread priority - the ThreadHelper binding</li>
  * </ol>
@@ -62,7 +58,7 @@ public class ManyToManyMain
     /** Now it's a bit warmer thank goodness. */
     Post post2;
     /** Factory object to create "manytomany" Persistence Unit implementation */
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
 
     /**
      * Create ManyToManyMain object
@@ -72,13 +68,11 @@ public class ManyToManyMain
     {
         // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
         createObjectGraph();
-        // Inject persistenceFactory and create "manytomany" persistence unit.
-        DI.inject(this); 
+        persistenceContext = new PersistenceContext();
         // Note that the table for each entity class will be created in the following step (assuming database is in memory).
         // To populate these tables, call setUp().
-        Persistence persistence = persistenceFactory.getPersistenceUnit(PU_NAME);
         // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(PU_NAME);
         // Create named queries to exploit UserPost join table.
         // Note ManyToManyGenerator class is reuseable as it allows any Many to Many association to be queried.
         ManyToManyGenerator manyToManyPostsByUser = 

@@ -15,10 +15,16 @@ package au.com.cybersearch2.example.v2;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 
+import java.util.Collections;
+import java.util.Properties;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import au.com.cybersearch2.classydb.DatabaseAdmin;
+import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.example.HelloTwoDbsMain_v1;
 
@@ -58,9 +64,6 @@ public class HelloTwoDbsUpgradeTest
         {
             e.printStackTrace();
         }
-        if (helloTwoDbsMain == null)
-            helloTwoDbsMain = new HelloTwoDbsMain();
-        helloTwoDbsMain.setUp();
     } 
 
     @After
@@ -72,6 +75,20 @@ public class HelloTwoDbsUpgradeTest
     @Test 
     public void test_hello_two_dbs_serial_jpa() throws Exception
     {
+        if (helloTwoDbsMain == null)
+            helloTwoDbsMain = new HelloTwoDbsMain();
+        // We cannot load a 2nd persistence.xml to get V2 configuration, so will 
+        // update the V1 configuration instead.
+        // We need to add the V2 entity classes and change the database version from 1 to 2.
+        PersistenceContext persistenceContext = new PersistenceContext();
+        persistenceContext.registerClasses(HelloTwoDbsMain.PU_NAME1, Collections.singletonList("au.com.cybersearch2.example.v2.SimpleData"));
+        Properties dbV2 = new Properties();
+        dbV2.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
+        persistenceContext.putProperties(HelloTwoDbsMain.PU_NAME1, dbV2);
+        persistenceContext.registerClasses(HelloTwoDbsMain.PU_NAME2, Collections.singletonList("au.com.cybersearch2.example.v2.ComplexData"));
+        persistenceContext.putProperties(HelloTwoDbsMain.PU_NAME2, dbV2);
+        // Use version of set up which does not include Dependency Injection initialization
+        helloTwoDbsMain.setUpNoDI();
         SimpleTask simpleTask = new SimpleTask("main");
         helloTwoDbsMain.performPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
 		// Our string builder for building the content-view

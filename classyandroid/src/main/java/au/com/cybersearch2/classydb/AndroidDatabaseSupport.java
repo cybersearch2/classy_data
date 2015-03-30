@@ -105,6 +105,9 @@ public class AndroidDatabaseSupport implements DatabaseSupport
             return openHelperConnectionSource;
         openHelperConnectionSource = androidConnectionSourceFactory.createAndroidSQLiteConnection(databaseName, properties);
         androidSQLiteMap.put(databaseName, openHelperConnectionSource);
+    	SQLiteDatabase db = openHelperConnectionSource.getDatabase();
+    	db.execSQL("PRAGMA journal_mode=WAL;");
+    	db.execSQL("PRAGMA temp_store=FILE;");
         return openHelperConnectionSource;
     }
     

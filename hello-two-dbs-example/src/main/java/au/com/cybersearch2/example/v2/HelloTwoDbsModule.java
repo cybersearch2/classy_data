@@ -26,9 +26,8 @@ import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.WorkerRunnable;
@@ -44,15 +43,19 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
         HelloTwoDbsMain.class, 
-        PersistenceContainer.class,
-        EntityTransactionImpl.class,
-        DatabaseAdminImpl.class,
-        SimpleOpenHelperCallbacks.class,
-        ComplexOpenHelperCallbacks.class
+        PersistenceContext.class,
+        DatabaseAdminImpl.class
         })
 public class HelloTwoDbsModule implements ApplicationModule
 {
 	ConnectionType CONNECTION_TYPE = ConnectionType.file;
+	
+	PersistenceFactory persistenceFactory;
+
+	public HelloTwoDbsModule()
+	{
+		persistenceFactory = new PersistenceFactory(new SQLiteDatabaseSupport(CONNECTION_TYPE));
+	}
 	
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
@@ -66,7 +69,7 @@ public class HelloTwoDbsModule implements ApplicationModule
 
     @Provides @Singleton PersistenceFactory providePersistenceModule()
     {
-        return new PersistenceFactory(new SQLiteDatabaseSupport(CONNECTION_TYPE));
+        return persistenceFactory;
     }
 
 }

@@ -35,6 +35,7 @@ import org.junit.Test;
 import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 
 import com.j256.ormlite.support.ConnectionSource;
@@ -51,7 +52,7 @@ import dagger.Provides;
 public class ClassyEntityTransactionTest
 {
     @Module(injects = { 
-            TestClassyEntityTransaction.class })
+            PersistenceContext.class })
     class ClassyEntityTransactionTestModule implements ApplicationModule
     {
         @Provides @Singleton PersistenceFactory providePersistenceFactory()

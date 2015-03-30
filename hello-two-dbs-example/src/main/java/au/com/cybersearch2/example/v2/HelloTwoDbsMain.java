@@ -1,33 +1,21 @@
 package au.com.cybersearch2.example.v2;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.inject.Inject;
-import javax.persistence.PersistenceException;
-
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
-
 import java.util.logging.Level;
 
-import au.com.cybersearch2.classylog.*;
-import au.com.cybersearch2.classydb.DatabaseSupport;
-import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
-import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
+import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
-import au.com.cybersearch2.classyjpa.persist.ConnectionSourceFactory;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classylog.JavaLogger;
+import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.example.QueryForAllGenerator;
-import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 
 /**
  * Version 2 of HelloTwoDbsMain introduces a new "quote" field to both SimpleData and ComplexData entities.
@@ -52,7 +40,7 @@ public class HelloTwoDbsMain
     private static HelloTwoDbsMain singleton;
     
     /** Factory object to create "simple" and "complex" Persistence Unit implementations */
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
     
     static
     {
@@ -72,6 +60,14 @@ public class HelloTwoDbsMain
     }
 
     /**
+	 * @return the persistenceContext
+	 */
+	public PersistenceContext getPersistenceContext() 
+	{
+		return persistenceContext;
+	}
+
+	/**
      * Test 2 Databases accessed by application version 2
      * @param args Not used
      */
@@ -117,20 +113,31 @@ public class HelloTwoDbsMain
     	if (!applicationInitialized)
     	{
     		initializeApplication();
-    		initializeDatabase();
 			applicationInitialized = true;
+			initializeDatabase();
     	}
+    }
+
+    /**
+     * Initialize entity tables ensuring version is correct and contains initial data  
+     * for integrated test. 
+     * @throws InterruptedException
+     */
+    public void setUpNoDI() throws InterruptedException
+    {
+		applicationInitialized = true;
+		initializeDatabase();
     }
 
     public void shutdown()
     {
-    	if(persistenceFactory == null)
+    	if (persistenceContext == null)
     		return;
         String[] puNames = { PU_NAME1, PU_NAME2 }; 
         {
         	for (String puName: puNames)
         	{
-        		Persistence pu = persistenceFactory.getPersistenceUnit(puName);
+        		Persistence pu = persistenceContext.getPersistenceUnit(puName);
         		if (pu != null)
         			pu.getPersistenceAdmin().close();
         	}
@@ -141,24 +148,21 @@ public class HelloTwoDbsMain
     {
         // Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object
         createObjectGraph();
-        // Inject persistenceFactory and create persistence units.
-        DI.inject(this); 
     }
     
     protected void initializeDatabase()
     {
+        persistenceContext = new PersistenceContext();
     	// Initialize all databases. This handles create and update events automatically.
-    	persistenceFactory.initializeAllDatabases();
+    	persistenceContext.initializeAllDatabases();
         // To populate these tables, call setUp().
-        Persistence persistence1 = persistenceFactory.getPersistenceUnit(PU_NAME1);
         // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin1 = persistence1.getPersistenceAdmin();
+        PersistenceAdmin persistenceAdmin1 = persistenceContext.getPersistenceAdmin(PU_NAME1);
         QueryForAllGenerator allSimpleDataObjects = 
                 new QueryForAllGenerator(persistenceAdmin1);
         persistenceAdmin1.addNamedQuery(SimpleData.class, ALL_SIMPLE_DATA2, allSimpleDataObjects);
-        Persistence persistence2 = persistenceFactory.getPersistenceUnit(PU_NAME2);
         // Get Interface for JPA Support, required to create named queries
-        PersistenceAdmin persistenceAdmin2 = persistence2.getPersistenceAdmin();
+        PersistenceAdmin persistenceAdmin2 = persistenceContext.getPersistenceAdmin(PU_NAME2);
         QueryForAllGenerator allComplexDataObjects = 
                 new QueryForAllGenerator(persistenceAdmin2);
         persistenceAdmin2.addNamedQuery(ComplexData.class, ALL_COMPLEX_DATA2, allComplexDataObjects);

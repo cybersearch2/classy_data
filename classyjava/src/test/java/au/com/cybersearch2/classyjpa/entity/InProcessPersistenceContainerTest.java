@@ -40,6 +40,7 @@ import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 
@@ -56,7 +57,7 @@ import dagger.Provides;
  */
 public class InProcessPersistenceContainerTest 
 {
-    @Module(injects = { InProcessPersistenceContainer.class })
+    @Module(injects = { PersistenceContext.class })
     public static class PersistenceContainerTestModule implements ApplicationModule
     {
 

@@ -19,8 +19,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.sql.SQLException;
 
-import javax.inject.Inject;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -28,8 +26,7 @@ import org.robolectric.RobolectricTestRunner;
 import android.content.Context;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 
 import com.j256.ormlite.db.SqliteAndroidDatabaseType;
 import com.j256.ormlite.support.ConnectionSource;
@@ -49,16 +46,13 @@ public class RoboTest
     {
     }
     
-    @Inject PersistenceFactory persistenceFactory;
-    
     @Test
     public void test_Robolectric() throws SQLException
     {
         Context context = TestRoboApplication.getTestInstance();
         new DI(new RoboTestModule(), new ContextModule(context));
-        DI.inject(this);
-        Persistence persistence = persistenceFactory.getPersistenceUnit(TestClassyApplication.PU_NAME);
-        ConnectionSource connectionSource = persistence.getPersistenceAdmin().getConnectionSource();
+        PersistenceContext persistenceContext = new PersistenceContext();
+        ConnectionSource connectionSource = persistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME).getConnectionSource();
         assertThat(connectionSource.getDatabaseType()).isInstanceOf(SqliteAndroidDatabaseType.class);
         //DatabaseConnection connection = connectionSource.getReadWriteConnection();
         //assertThat(connection.isAutoCommit()).isTrue();

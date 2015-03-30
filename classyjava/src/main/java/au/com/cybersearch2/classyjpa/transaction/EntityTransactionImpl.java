@@ -28,7 +28,6 @@ The author may be contacted via http://ormlite.com/
 */
 package au.com.cybersearch2.classyjpa.transaction;
 
-import javax.inject.Inject;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 
@@ -36,8 +35,6 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
-import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classylog.*;
 
 import com.j256.ormlite.support.ConnectionSource;
@@ -68,7 +65,6 @@ public class EntityTransactionImpl implements EntityTransaction
     protected Callable<Boolean> onPostCommit;
     protected ConnectionSource connectionSource;
     protected TransactionState transactionState;
-    @Inject PersistenceFactory persistenceFactory;
 
     /**
      * Construct a ClassyEntityTransaction instance
@@ -102,7 +98,6 @@ public class EntityTransactionImpl implements EntityTransaction
         this.connectionSource = connectionSource;
         this.onPreCommit = onPreCommit;
         this.onPostCommit = onPostCommit;
-        DI.inject(this); // Inject persistenceFactory
     }
 
     /**

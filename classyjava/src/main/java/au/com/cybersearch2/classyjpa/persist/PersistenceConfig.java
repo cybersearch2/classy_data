@@ -173,21 +173,24 @@ public class PersistenceConfig
         this.puInfo = puInfo;
         List<String> managedClassNames = puInfo.getManagedClassNames();
         if (!managedClassNames.isEmpty())
-        {
-            ClassRegistry classRegistry = new ClassRegistry(){
+        	registerClasses(managedClassNames);
+    }
 
-                @Override
-                public <T, ID> void registerEntityClass(Class<T> entityClass,
-                        Class<ID> primaryKeyClass) 
-                {
-                    String key = entityClass.getName();
-                    helperFactoryMap.put(key, new OrmDaoHelperFactory<T,ID>(entityClass));
-               }};
-            ClassAnalyser classAnlyser = new ClassAnalyser(databaseType, classRegistry);
-            List<DatabaseTableConfig<?>> configs = classAnlyser.getDatabaseTableConfigList(managedClassNames);
-            if (!configs.isEmpty())
-                DaoManager.addCachedDatabaseConfigs(configs);
-        }
+    protected void registerClasses(List<String> managedClassNames)
+    {
+        ClassRegistry classRegistry = new ClassRegistry(){
+
+            @Override
+            public <T, ID> void registerEntityClass(Class<T> entityClass,
+                    Class<ID> primaryKeyClass) 
+            {
+                String key = entityClass.getName();
+                helperFactoryMap.put(key, new OrmDaoHelperFactory<T,ID>(entityClass));
+           }};
+        ClassAnalyser classAnlyser = new ClassAnalyser(databaseType, classRegistry);
+        List<DatabaseTableConfig<?>> configs = classAnlyser.getDatabaseTableConfigList(managedClassNames);
+        if (!configs.isEmpty())
+            DaoManager.addCachedDatabaseConfigs(configs);
     }
 
     public void checkEntityTablesExist(ConnectionSource connectionSource)

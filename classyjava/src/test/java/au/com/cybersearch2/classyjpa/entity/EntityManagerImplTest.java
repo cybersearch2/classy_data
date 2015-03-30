@@ -21,7 +21,6 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.Map;
@@ -47,6 +46,7 @@ import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceConfig;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.query.EntityQuery;
 import au.com.cybersearch2.classyjpa.query.NamedDaoQuery;
@@ -71,7 +71,7 @@ import dagger.Provides;
 public class EntityManagerImplTest
 {
     @Module(injects = { 
-            EntityTransactionImpl.class,
+            PersistenceContext.class,
             NativeScriptDatabaseWork.class })
     class ClassyEntityManagerTestModule implements ApplicationModule
     {

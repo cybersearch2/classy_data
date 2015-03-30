@@ -15,15 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.entity;
 
-import javax.inject.Inject;
-
 import com.j256.ormlite.support.ConnectionSource;
 
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.transaction.TransactionInfo;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
@@ -50,9 +46,9 @@ public class PersistenceContainer
     boolean singleConnection;
     protected ConnectionSource connectionSource;
     
-    String puName;
+    protected String puName;
     /** Object which provides access to full persistence implementation */
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
 
     /**
      * Create PersistenceContainer object 
@@ -61,10 +57,9 @@ public class PersistenceContainer
     public PersistenceContainer(String puName)
     {
         this.puName = puName;
-        DI.inject(this);
+        persistenceContext = new PersistenceContext();
         /** Reference Persistence Unit specified by name to extract EntityManagerFactory object */
-        Persistence persistence = persistenceFactory.getPersistenceUnit(puName);
-        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
         singleConnection = persistenceAdmin.isSingleConnection();
         entityManagerFactory = persistenceAdmin.getEntityManagerFactory();
     }

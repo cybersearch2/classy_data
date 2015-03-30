@@ -95,6 +95,8 @@ public interface PersistenceAdmin extends ConnectionSourceFactory
      * @return java.util.Properties
      */
     Properties getProperties();
+    
+    void registerClasses(List<String> managedClassNames);
 
     /**
      * Create a EntityManager bound to an existing connectionSource. Use only for special case of database creation or update.

@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyapp;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -27,10 +26,8 @@ import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordFolder;
 import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.JpaIntegrationTest;
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classynode.Node;
 
@@ -42,9 +39,7 @@ import au.com.cybersearch2.classynode.Node;
 public class TestClassyApplication
 {
     @Module(injects = { 
-            TestClassyApplication.class, 
-            JpaIntegrationTest.class,
-            PersistenceContainer.class})
+            PersistenceContext.class})
     static class PersistenceModule
     {
         @Provides @Singleton PersistenceFactory providePersistenceModule()
@@ -59,8 +54,7 @@ public class TestClassyApplication
     public static final String FOLDER_BY_NODE_ID = Node.NODE_BY_PRIMARY_KEY_QUERY + Model.recordFolder.ordinal();
     
     protected TestClassyApplicationModule applicationModule;
-    protected DI dependencyInjection;
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
     
     public TestClassyApplication()
     {
@@ -69,13 +63,11 @@ public class TestClassyApplication
 
     public void onCreate()
     {
-        dependencyInjection = new DI(applicationModule);
-        dependencyInjection.validate();
+        new DI(applicationModule).validate();
         DI.add(new PersistenceModule());
-        DI.inject(this);
-        Persistence persistence = persistenceFactory.getPersistenceUnit(PU_NAME);
+        persistenceContext = new PersistenceContext();
         EntityByNodeIdGenerator entityByNodeIdGenerator = new EntityByNodeIdGenerator();
-        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(PU_NAME);
         persistenceAdmin.addNamedQuery(RecordCategory.class, CATEGORY_BY_NODE_ID, entityByNodeIdGenerator);
         persistenceAdmin.addNamedQuery(RecordFolder.class, FOLDER_BY_NODE_ID, entityByNodeIdGenerator);
     }

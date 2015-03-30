@@ -32,9 +32,9 @@ import org.junit.Test;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.WorkerRunnable;
@@ -52,7 +52,7 @@ import dagger.Provides;
 public class NativeScriptDatabaseWorkTest
 {
     @Module(injects = { 
-            EntityTransactionImpl.class,
+            PersistenceContext.class,
             NativeScriptDatabaseWork.class, 
             PersistenceFactory.class,
             WorkerRunnable.class })
