@@ -43,7 +43,8 @@ public class PersistenceContainer
     protected volatile boolean isUserTransactionMode;
     /** JPA EntityManager "lite" factory ie. only API v1 supported. */
     protected EntityManagerLiteFactory entityManagerFactory;
-    boolean singleConnection;
+    /** Flag set if executes asynchronously (default = false if only single connection ) */
+    protected boolean async;
     protected ConnectionSource connectionSource;
     
     protected String puName;
@@ -56,11 +57,23 @@ public class PersistenceContainer
      */
     public PersistenceContainer(String puName)
     {
+    	this(puName, true);
+    }
+
+    /**
+     * Create PersistenceContainer object 
+     * @param puName Persistence Unit name
+     * @param async Flag set if executes asynchronously 
+     */
+    public PersistenceContainer(String puName, boolean async)
+    {
         this.puName = puName;
         persistenceContext = new PersistenceContext();
         /** Reference Persistence Unit specified by name to extract EntityManagerFactory object */
         PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
-        singleConnection = persistenceAdmin.isSingleConnection();
+        if (async && persistenceAdmin.isSingleConnection())
+        	async = false;
+        this.async = async;
         entityManagerFactory = persistenceAdmin.getEntityManagerFactory();
     }
 
@@ -82,7 +95,7 @@ public class PersistenceContainer
     {
     	final PersistenceTaskImpl persistenceTask = new PersistenceTaskImpl(persistenceWork, entityManagerFactory);
     	persistenceTask.getTransactionInfo().setUserTransaction(isUserTransactionMode);
-        if (singleConnection)
+        if (!async)
         {
         	final Executable exe = new Executable()
     		{

@@ -78,7 +78,9 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 	public int getVersion() 
 	{
  		if (sqLiteDatabase.isOpen())
+ 		{
 			return sqLiteDatabase.getVersion();
+ 		}
 		DatabaseConnection connection = null;
 		int version = 0;
 		try 

@@ -21,7 +21,6 @@ import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classynode.EntityByNodeIdGenerator;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordFolder;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
@@ -32,12 +31,12 @@ import com.j256.ormlite.support.ConnectionSource;
 public class TestPersistenceFactory
 {
     ConnectionSource connectionSource;
-    Persistence persistence;
+    PersistenceContext persistenceContext;
     
-    public TestPersistenceFactory(Persistence persistence)
+    public TestPersistenceFactory(PersistenceContext persistenceContext)
     {
-        this.persistence = persistence;
-        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        this.persistenceContext = persistenceContext;
+        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME);
         EntityByNodeIdGenerator entityByNodeIdGenerator = new EntityByNodeIdGenerator();
         persistenceAdmin.addNamedQuery(RecordCategory.class, TestClassyApplication.CATEGORY_BY_NODE_ID, entityByNodeIdGenerator);
         persistenceAdmin.addNamedQuery(RecordFolder.class, TestClassyApplication.FOLDER_BY_NODE_ID, entityByNodeIdGenerator);
@@ -45,17 +44,17 @@ public class TestPersistenceFactory
     
     public ConnectionSource setUpDatabase() throws SQLException 
     {
-        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME);
         return persistenceAdmin.getConnectionSource();
     }
 
     public void onShutdown()
     {
-        persistence.getPersistenceAdmin().close();
+    	persistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME).close();
     }
     
-    public Persistence getPersistenceEnvironment()
+    public PersistenceContext getPersistenceEnvironment()
     {
-        return persistence;
+        return persistenceContext;
     }
 }

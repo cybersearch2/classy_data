@@ -47,17 +47,28 @@ public class RoboTest
     }
     
     @Test
-    public void test_Robolectric() throws SQLException
+    public void test_Robolectric() throws SQLException, InterruptedException
     {
         Context context = TestRoboApplication.getTestInstance();
         new DI(new RoboTestModule(), new ContextModule(context));
-        PersistenceContext persistenceContext = new PersistenceContext();
-        ConnectionSource connectionSource = persistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME).getConnectionSource();
-        assertThat(connectionSource.getDatabaseType()).isInstanceOf(SqliteAndroidDatabaseType.class);
-        //DatabaseConnection connection = connectionSource.getReadWriteConnection();
-        //assertThat(connection.isAutoCommit()).isTrue();
-        //classyOpenHelper.close();
-        //assertThat(classyOpenHelper.isOpen()).isFalse();
+        Runnable connectionTask = new Runnable(){
+
+			@Override
+			public void run() {
+		        PersistenceContext persistenceContext = new PersistenceContext();
+		        ConnectionSource connectionSource = persistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME).getConnectionSource();
+		        assertThat(connectionSource.getDatabaseType()).isInstanceOf(SqliteAndroidDatabaseType.class);
+		        synchronized(this)
+		        {
+		        	notifyAll();
+		        }
+			}};
+		Thread background = new Thread(connectionTask);
+		background.start();
+		synchronized(connectionTask)
+		{
+			connectionTask.wait();
+		}
     }
 
 }

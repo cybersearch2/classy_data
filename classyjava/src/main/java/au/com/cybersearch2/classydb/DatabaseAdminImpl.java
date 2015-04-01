@@ -189,6 +189,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         			onUpgrade(connectionSource, reportedDatabaseVersion, currentDatabaseVersion);
         		else
         			openHelperCallbacks.onUpgrade(connectionSource, reportedDatabaseVersion, currentDatabaseVersion);
+    		    databaseSupport.setVersion(currentDatabaseVersion, connectionSource);
         	}
         	persistenceConfig.checkEntityTablesExist(connectionSource);
         }

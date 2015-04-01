@@ -43,6 +43,7 @@ public class TransactionState
 
     protected ConnectionSource connectionSource;
     protected DatabaseConnection connection;
+    protected Boolean autoCommitAtStart;
     protected Boolean hasSavePoint;
     protected Savepoint savePoint;
     protected String savePointName;
@@ -102,7 +103,7 @@ public class TransactionState
     	connection = connectionSource.getReadWriteConnection();
     	connectionSource.saveSpecialConnection(connection);
     	transactionId = savePointCounter.incrementAndGet();
-        connection.setAutoCommit(false);
+        setAutoCommit();
         setSavePoint();
     }
     
@@ -116,6 +117,8 @@ public class TransactionState
             clearSpecialConnection();
             savePoint = null;
             hasSavePoint = null;
+            if (autoCommitAtStart != null)
+                resetAutoCommit();
             connection = null;
     	}
     }
@@ -177,7 +180,27 @@ public class TransactionState
      */
     private boolean isValid()
     {
-        return (connection != null) && (hasSavePoint != null); 
+        return (connection != null) && (hasSavePoint != null) && (autoCommitAtStart != null); 
+    }
+
+    /**
+     * Turn off auto commit
+     * @throws SQLException
+     */
+    private void setAutoCommit() throws SQLException
+    {
+        if (connection.isAutoCommitSupported()) 
+        {
+            autoCommitAtStart = Boolean.valueOf(connection.isAutoCommit());
+            if (autoCommitAtStart) 
+            {
+                // Disable auto-commit mode if supported and enabled at start
+                connection.setAutoCommit(false);
+                if (log.isLoggable(TAG, Level.FINE))
+                    log.debug(TAG, "Had to set auto-commit to false");
+            }
+        }
+
     }
 
     /**
@@ -193,6 +216,30 @@ public class TransactionState
         hasSavePoint = Boolean.valueOf(true);
     }
  
+    /**
+     * Restore auto commit if required
+     */
+    private void resetAutoCommit()
+    {
+        // try to restore if we are in auto-commit mode
+        if (autoCommitAtStart) 
+            try
+            {
+                connection.setAutoCommit(true);
+                if (log.isLoggable(TAG, Level.FINE))
+                    log.debug(TAG, "restored auto-commit to true");
+            }
+            catch (SQLException e)
+            {
+                if (log.isLoggable(TAG, Level.WARNING))
+                    log.warn(TAG, "setAutoCommit() failed");
+            }
+            finally
+            {
+                autoCommitAtStart = null;
+            }
+    }
+    
     /**
      * Clear arrangement to use a single connection for the transaction
      */

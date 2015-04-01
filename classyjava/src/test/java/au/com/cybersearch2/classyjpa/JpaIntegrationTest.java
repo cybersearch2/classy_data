@@ -40,7 +40,6 @@ import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork.Callable;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
 import au.com.cybersearch2.classytask.Executable;
@@ -78,8 +77,7 @@ public class JpaIntegrationTest
 	    createObjectGraph();
         persistenceContext = new PersistenceContext();
 	    persistenceContext.initializeAllDatabases();
-        Persistence persistence = persistenceContext.getPersistenceUnit(TestClassyApplication.PU_NAME);
-        testPersistenceFactory = new TestPersistenceFactory(persistence);
+        testPersistenceFactory = new TestPersistenceFactory(persistenceContext);
         transcript = new Transcript();
         testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
     }
@@ -104,9 +102,9 @@ public class JpaIntegrationTest
     public void test_PersistenceEnvironment()
     {
         assertThat(testPersistenceFactory).isNotNull();
-        Persistence persistence = testPersistenceFactory.getPersistenceEnvironment();
-        assertThat(persistence).isNotNull();
-        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        PersistenceContext testPersistenceContext = testPersistenceFactory.getPersistenceEnvironment();
+        assertThat(testPersistenceContext).isNotNull();
+        PersistenceAdmin persistenceAdmin = testPersistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME);
         assertThat(persistenceAdmin).isNotNull();
         EntityManagerLiteFactory entityManagerFactory = persistenceAdmin.getEntityManagerFactory();
         assertThat(entityManagerFactory).isNotNull();

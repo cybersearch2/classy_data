@@ -19,7 +19,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
@@ -47,9 +46,8 @@ import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork.Callable;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
 import au.com.cybersearch2.classynode.Node;
 import au.com.cybersearch2.classynode.NodeEntity;
@@ -69,7 +67,7 @@ import dagger.Module;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidJpaIntegrationTest
 {
-    @Module(injects = { AndroidJpaIntegrationTest.class }, includes = TestAndroidModule.class)
+    @Module(includes = TestAndroidModule.class)
     static class AndroidJpaIntegrationTestModule implements ApplicationModule
     {
     }
@@ -78,15 +76,15 @@ public class AndroidJpaIntegrationTest
     protected PersistenceContainer testContainer;
     protected Transcript transcript;
     protected TestPersistenceFactory testPersistenceFactory; 
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceContext persistenceContext;
 
     @Before
     public void setup() throws Exception
     {
 	    createObjectGraph();
-        Persistence persistence = persistenceFactory.getPersistenceUnit(TestClassyApplication.PU_NAME);
+        persistenceContext = new PersistenceContext(); //(TestClassyApplication.PU_NAME);
     	initializeDatabase();
-        testPersistenceFactory = new TestPersistenceFactory(persistence);
+        testPersistenceFactory = new TestPersistenceFactory(persistenceContext);
         transcript = new Transcript();
         testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
     }
@@ -105,12 +103,11 @@ public class AndroidJpaIntegrationTest
 	{
 	    Context context = TestRoboApplication.getTestInstance();
 	    new DI(new AndroidJpaIntegrationTestModule(), new ContextModule(context));
-	    DI.inject(this);
 	}
 
     protected void initializeDatabase()
     {
-        persistenceFactory.initializeAllDatabases();
+    	persistenceContext.initializeAllDatabases();
     }
 
     protected void closeDatabase()
@@ -138,9 +135,9 @@ public class AndroidJpaIntegrationTest
     public void do_PersistenceEnvironment()
     {
         assertThat(testPersistenceFactory).isNotNull();
-        Persistence persistence = testPersistenceFactory.getPersistenceEnvironment();
-        assertThat(persistence).isNotNull();
-        PersistenceAdmin persistenceAdmin = persistence.getPersistenceAdmin();
+        PersistenceContext testPersistenceContext = testPersistenceFactory.getPersistenceEnvironment();
+        assertThat(testPersistenceContext).isNotNull();
+        PersistenceAdmin persistenceAdmin = testPersistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME);
         assertThat(persistenceAdmin).isNotNull();
         EntityManagerLiteFactory entityManagerFactory = persistenceAdmin.getEntityManagerFactory();
         assertThat(entityManagerFactory).isNotNull();
