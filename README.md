@@ -6,11 +6,8 @@ JPA lite for Android - uses OrmLite and Dagger
 For information on Classy Tools and install instructions, go to our support site at www.cybersearch2.com.au/develop/classytools.html.
 
 Classy Tools is a Lightweight Java Persistence package which builds on the OrmLite - Lightweight Object Relational Mapping Java Package 
-so server-side standards for persistence are reflected on the client-side. Classy Tools incorporates the javax.persistence package and 
-applies familiar JPA features such as persistence.xml for configuration, an Entity Manager and a Persistence Container, however
-it is important to note that the design assumes only one application is accessing any database at any time, and only in a single session.
-To keep things lightweight, database queries are performed using the Ormlite Custom Statement Builder rather than by using the 
-Java Persistence Query Language (JQL)
+so server-side standards for persistence are are now available on the client-side. Classy Tools incorporates the javax.persistence package and 
+applies familiar JPA features such as persistence.xml for configuration, an Entity Manager and a Persistence Container.
    
 The word "classy" means "elegant, smart, sophisticated..." which reflects the Classy Tools philosophy. The aim is to promote sound
 development practices to achieve in a timely manner, reponsive, reliable applications which are readily maintained and improved.

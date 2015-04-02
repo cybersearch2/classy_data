@@ -41,6 +41,36 @@ Note: initializeAllDatabases() method is sychronous and will propgate any Runtim
 
 _______________________________________________________________________________________________________________________
 
+Classy Tools v1.0.3
+
+1. Update included OrmLite library jars to pre-v1.49 release (03/15 build)
+2. Enhance PersistenceContainer class to support synchronous operation.
+
+Default is run persistence task in background thread but will now run in caller's thread
+if new constructor "async" flag is set false or ConnectionSource with single connection detected  eg.
+default OrmLite JdbcConnectionSource. The executeTask() return Executable object now has
+waitForTask() method which should always be used for synchrous call to hide how
+the PersistenceContainer is behaving.
+
+3. Create new PersistenceContext class.
+
+This is to hide PersistenceFactory dependency injection from all the classes dependent on it.
+This solves annotation processing link error generated when compiling the ClassyFy Android app.
+PersistenceContext has 2 methods to dynamically update the configuration of a persistence unit
+to support database up/down-grade. See HelloTwoDbsUpgradeTest in hello-two-dbs-example project.
+
+4. Create new PersistenceLoader class.
+
+This replaces LoaderPersistenceContainer and LoaderTaskImpl in a refactor to take advantage
+of PersistenceContainer's new synchronous cabability.
+
+5. Fix bug in database upgrade code.
+
+It was not updating database version except for version 0 to 1 upgrade.
+_______________________________________________________________________________________________________________________
+
+_______________________________________________________________________________________________________________________
+
 Classy Apps v1.0.2
 
 1. Added Android HelloTwoDs sample applications 
@@ -53,4 +83,14 @@ Classy Apps v1.0.2
 2. Updated ClassyFy StartUp class to use PersistenceFactory initializeAllDatabases() (point 6 above)
 
 3. Changed ClassyFy AlfrescoFilePlanLoader class and DataLoader interface because of Classy Tools changes
+_______________________________________________________________________________________________________________________
+Classy Apps v1.0.3
+
+1. Upgrade Classy Tools to v1.0.3.
+2. ClassyFy app MainActivity uses new PersistenceLoader class (see Classy Tools v1.0.3 change 4)
+3. Add new "db-upgrade" sample application to replace previous upgrade unit test in android-hello-two-dbs-v2
+
+
+.
+
 
