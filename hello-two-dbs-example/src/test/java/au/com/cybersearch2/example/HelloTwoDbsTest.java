@@ -29,13 +29,13 @@ import au.com.cybersearch2.classytask.Executable;
  */
 public class HelloTwoDbsTest
 {
-    private static HelloTwoDbsMain helloTwoDbsMain;
+    private static HelloTwoDbsMain_v1 helloTwoDbsMain;
 
     @Before
     public void setUp() throws Exception 
     {
         if (helloTwoDbsMain == null)
-            helloTwoDbsMain = new HelloTwoDbsMain();
+            helloTwoDbsMain = new HelloTwoDbsMain_v1();
         helloTwoDbsMain.setUp();
     } 
 
