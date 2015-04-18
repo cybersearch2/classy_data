@@ -26,6 +26,7 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+      <id>Robolectric Snapshots Repository</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
