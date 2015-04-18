@@ -20,6 +20,15 @@
     <connection>scm:git:ssh://git@github.com/andrew-bowley/classy-tools.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/andrew-bowley/classy-tools.git</developerConnection>
   </scm>
+  <repositories>
+  <!-- For Robolectric shadows-core API 16 to 19 -->
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
   <developers>
     <developer>
       <id>andrew-bowley</id>
@@ -270,10 +279,11 @@
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>shadows-core</artifactId>
-          <version>3.0-SNAPSHOT</version>
+          <version>3.0-rc2 </version>
           <scope>test</scope>
        </dependency> 
       <!---->
+  <!-- For Robolectric shadows-core API 16 to 19, use snapshots, which are updated regularly. -->
       <!-- API 19 Kit Kat
         <dependency>
           <groupId>org.robolectric</groupId>
@@ -284,7 +294,7 @@
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>shadows-core</artifactId>
-          <version>3.0-SNAPSHOT</version>
+          <version>shadows-core-3.0-20150413.181813-344-19</version>
           <classifier>19</classifier>
           <scope>test</scope>
        </dependency> 
@@ -299,7 +309,7 @@
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>shadows-core</artifactId>
-          <version>3.0-SNAPSHOT</version>
+          <version>shadows-core-3.0-20150413.181813-344-18</version>
           <classifier>18</classifier>
           <scope>test</scope>
        </dependency> 
@@ -314,7 +324,7 @@
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>shadows-core</artifactId>
-          <version>3.0-SNAPSHOT</version>
+          <version>shadows-core-3.0-20150413.181813-344-17</version>
           <classifier>17</classifier>
           <scope>test</scope>
        </dependency> 
@@ -329,7 +339,7 @@
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>shadows-core</artifactId>
-          <version>3.0-SNAPSHOT</version>
+          <version>shadows-core-3.0-20150413.181813-344-16</version>
           <classifier>17</classifier>
           <scope>test</scope>
        </dependency> 
