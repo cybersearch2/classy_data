@@ -17,7 +17,7 @@ package au.com.cybersearch2.classyapp;
 
 import java.lang.reflect.Method;
 
-import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycleApplication;
 
 import android.app.Application;
@@ -35,7 +35,7 @@ public class TestRoboApplication extends Application implements TestLifecycleApp
     public TestRoboApplication()
     {
         singleton = this;
-        Robolectric.application = singleton;
+        RuntimeEnvironment.application = singleton;
 
     }
 

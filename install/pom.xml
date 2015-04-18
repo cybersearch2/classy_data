@@ -3,7 +3,7 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
   </parent>
   <artifactId>install</artifactId>
   <packaging>pom</packaging>
@@ -43,7 +43,7 @@
     <sdk.android.jar.path>${android.sdk.path}/platforms/android-${android.platform.version}/android.jar</sdk.android.jar.path>
     <!-- v4 Support Library jar absolute path -->
     <sdk.compatibility.v4.jar.path>${android.support.path}/extras/android/support/v7/appcompat/libs/android-support-v4.jar</sdk.compatibility.v4.jar.path>
-    <!-- Google Maps v18 jar absolute path. Refer Robolectric 2.3 dependencies -->
+    <!-- Google Maps v18 jar absolute path. Refer Robolectric 3.0 dependencies -->
     <google.maps.18.path>${android.sdk.path}/add-ons/addon-google_apis-google-18/libs/maps.jar</google.maps.18.path>
   </properties>
 	<profiles>
@@ -189,7 +189,7 @@
           <!-- Install RobolectricTestRunner Maven dependencies now rather than wait for first
                test run. These dependencies are inserted in the TestRunner's classpath, hence
                the use of maven-dependency-plugin "build-classpath" goal which does the same thing as the TestRunner. 
-               See dependencies listed below and source for org.robolectric.SdkConfig for more information. -->
+               See dependencies listed below and source for org.robolectric.internal.SdkConfig for more information. -->
                    <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
@@ -255,31 +255,85 @@
       </pluginManagement>
     </build>
     <dependencies>
-   <!-- Assume Robolectric SDK Version = 18. Other supported version are 16 and 17.
+   <!-- Assume Robolectric SDK Version = 21. Other supported version are 16 to 19.
         For each version, there is a VERY LARGE "Android all" jar dependency. 
         RobolectricTestRunner will install this jar in the local repository if required.
         It is better to let Maven handle all dependencies for consistency.
         Please uncomment other version dependencies, if required. -->
+      <!-- API 21 Lollipop -->
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>android-all</artifactId>
+          <version>5.0.0_r2-robolectric-1</version>
+          <scope>test</scope>
+       </dependency> 
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>shadows-core</artifactId>
+          <version>3.0-SNAPSHOT</version>
+          <scope>test</scope>
+       </dependency> 
+      <!---->
+      <!-- API 19 Kit Kat
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>android-all</artifactId>
+          <version>4.4_r1-robolectric-1</version>
+          <scope>test</scope>
+       </dependency> 
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>shadows-core</artifactId>
+          <version>3.0-SNAPSHOT</version>
+          <classifier>19</classifier>
+          <scope>test</scope>
+       </dependency> 
+       -->
+      <!-- API 18
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>android-all</artifactId>
           <version>4.3_r2-robolectric-0</version>
           <scope>test</scope>
-       </dependency>
+       </dependency> 
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>shadows-core</artifactId>
+          <version>3.0-SNAPSHOT</version>
+          <classifier>18</classifier>
+          <scope>test</scope>
+       </dependency> 
+       -->
        <!-- API 17
        <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>android-all</artifactId>
           <version>4.2.2_r1.2-robolectric-0</version>
           <scope>test</scope>
-       </dependency> -->
+       </dependency> 
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>shadows-core</artifactId>
+          <version>3.0-SNAPSHOT</version>
+          <classifier>17</classifier>
+          <scope>test</scope>
+       </dependency> 
+       -->
        <!-- API 16
        <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>android-all</artifactId>
           <version>4.1.2_r1-robolectric-0</version>
           <scope>test</scope> 
-       </dependency> -->
+       </dependency> 
+        <dependency>
+          <groupId>org.robolectric</groupId>
+          <artifactId>shadows-core</artifactId>
+          <version>3.0-SNAPSHOT</version>
+          <classifier>17</classifier>
+          <scope>test</scope>
+       </dependency> 
+       -->
        <dependency>
           <groupId>org.json</groupId>
           <artifactId>json</artifactId>

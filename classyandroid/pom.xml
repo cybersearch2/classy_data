@@ -5,7 +5,7 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
   </parent>
   <artifactId>classyandroid</artifactId>
   <name>classyandroid</name>
@@ -157,17 +157,10 @@
       <version>${project.version}</version>
       <scope>test</scope>
      </dependency>
-    <!-- Exclude objenesis here in favour of Robolectric's later version -->
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.9.5</version>
-       <exclusions>
-        <exclusion>
-          <groupId>org.objenesis</groupId>
-          <artifactId>objenesis</artifactId>        
-        </exclusion>
-      </exclusions>
+      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>

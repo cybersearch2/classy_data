@@ -5,7 +5,7 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
   </parent>
   <artifactId>classyjava</artifactId>
   <name>classyjava</name>
@@ -191,7 +191,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.9.5</version>
+      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
