@@ -72,8 +72,9 @@ ________________________________________________________________________________
 Classy Tools v1.0.4
 
 1. Update Robolectric to 3.0.rc-2 (some trivial code changes required and install additions)
-2. Update android.sdk.version to 5.0.1
+2. Update android.sdk.version to 5.1.1 (API 22)
 3. Update android.support.version to 22.0.0
+4. Move Google Map API 18.3 dependency for Robolectric to "google-apis" profile for optional deployment.
 
 _______________________________________________________________________________________________________________________
 _______________________________________________________________________________________________________________________
@@ -101,9 +102,9 @@ ________________________________________________________________________________
 Classy Apps v1.0.4
 
 1. Update Robolectric to 3.0.rc-2 (some trivial code changes required)
-2. Update android.sdk.version to 5.0.1
+2. Update android.sdk.version to 5.1.1 (API 22)
 3. Update android.support.version to 22.0.0
-4. Update tests at api 18 to 21
+5. Change to API 21 for all Android apps for highest Robolectric API supported
 
 _______________________________________________________________________________________________________________________
 
