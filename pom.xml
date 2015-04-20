@@ -14,7 +14,7 @@
 <!-- Steps for Android development:
          1. Install Android SDK + Support Library
          2. Set ANDROID_HOME environment parameter 
-         3. Install Android SDK Level 4.3 (API 18) with Google Apis add on
+         3. Install Google Apis add on from Android SDK Level 4.3 (API 18) 
          4. Run "mvn initialize -P android"  
          5. Run "mvn install -pl classyandroid -->
    <properties>
@@ -22,7 +22,7 @@
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
     <android.platform.version>22</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>5.0.1</android.sdk.version>
+    <android.sdk.version>5.1.1_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
     <android.support.version>22.0.0</android.support.version>
     <robolectric.version>3.0-rc2</robolectric.version>

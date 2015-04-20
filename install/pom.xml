@@ -165,21 +165,6 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>goggle-maps-18</id>
-                 <goals>
-                    <goal>install-file</goal>
-                 </goals>
-                 <phase>initialize</phase>
-                 <configuration>
-                   <packaging>jar</packaging>
-                   <file>${google.maps.18.path}</file>
-                   <generatePom>true</generatePom>
-                   <groupId>com.google.android.maps</groupId>
-                   <artifactId>maps</artifactId>
-                   <version>18_r3</version>
-                 </configuration>
-              </execution>
-              <execution>
                  <id>support-v4</id>
                  <goals>
                     <goal>install-file</goal>
@@ -217,6 +202,35 @@
 	            </plugins>
 	        </build>
 	    </profile>
+        <profile>
+          <id>google-apis</id>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.1</version>
+                <executions>
+                  <execution>
+                    <id>goggle-maps-18</id>
+                    <goals>
+                      <goal>install-file</goal>
+                    </goals>
+                    <phase>initialize</phase>
+                    <configuration>
+                     <packaging>jar</packaging>
+                     <file>${google.maps.18.path}</file>
+                     <generatePom>true</generatePom>
+                     <groupId>com.google.android.maps</groupId>
+                     <artifactId>maps</artifactId>
+                     <version>18_r3</version>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+            </plugins>
+          </build>
+        </profile>
 	</profiles>
     <build>
       <plugins>

@@ -8,7 +8,7 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/net/sf/kxml/kxml2/2.3.0/kxml2-2.3.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/squareup/dagger/dagger/1.2.2/dagger-1.2.2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/j256/ormlite/ormlite-android/4.49-SNAPSHOT/ormlite-android-4.49-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/android/android/5.0.1/android-5.0.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/android/android/5.1.1_r2/android-5.1.1_r2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/android/support/compatibility-v4/22.0.0/compatibility-v4-22.0.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/squareup/dagger/dagger-compiler/1.2.2/dagger-compiler-1.2.2.jar" enabled="true" runInBatchMode="false"/>
