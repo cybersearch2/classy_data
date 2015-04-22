@@ -38,8 +38,8 @@ public class PersistenceLoader
 {
 	class LoaderImpl extends AsyncTaskLoader<Boolean> implements OnLoadCompleteListener<Boolean>
 	{
-	    /** Work to be performed */
-	    protected PersistenceWork persistenceWork;
+	    /** Persistence task */
+	    protected PersistenceTaskImpl persistenceTask;
 	    /** Object to track work status and notify completion */
 	    protected WorkTracker workTracker;
 	    /** RuntimeException, if thrown, which caused task to terminate unexpectedly */
@@ -50,7 +50,10 @@ public class PersistenceLoader
 	    {
 	        super(context);
 	        this.persistenceUnit = persistenceUnit;
-	        this.persistenceWork = persistenceWork;
+	        PersistenceContainer persistenceContainer = new PersistenceContainer(persistenceUnit, false);
+	        if (isUserTransactionMode)
+	        	persistenceContainer.setUserTransactionMode(true);
+	        persistenceTask = persistenceContainer.getPersistenceTask(persistenceWork);
 	        workTracker = new WorkTracker();
 	        // Register self as onLoadCompleteListener
 	        registerListener(1, this);
@@ -76,11 +79,9 @@ public class PersistenceLoader
 	                chain.uncaughtException(t, uncaughtException);
 	            }
 	        });
-	        PersistenceContainer persistenceContainer = new PersistenceContainer(persistenceUnit, false);
-	        if (isUserTransactionMode)
-	        	persistenceContainer.setUserTransactionMode(true);
-	        workTracker.setStatus(persistenceContainer.executeTask(persistenceWork).getStatus());
-	        return workTracker.getStatus() == WorkStatus.FINISHED;
+	        Boolean success =  persistenceTask.doInBackground();
+	        workTracker.setStatus(success ? WorkStatus.RUNNING : WorkStatus.FAILED);
+	        return success;
 	    }
 
 	    /**
@@ -106,6 +107,7 @@ public class PersistenceLoader
 	    @Override
 	    public void onLoadComplete(Loader<Boolean> loader, Boolean success) 
 	    {
+	    	persistenceTask.onPostExecute(success);
 	        if (uncaughtException != null)
 	            log.error(TAG, "Persistence container rolled back transaction", uncaughtException);
 	        // Notify waiting threads at very last point of exit
