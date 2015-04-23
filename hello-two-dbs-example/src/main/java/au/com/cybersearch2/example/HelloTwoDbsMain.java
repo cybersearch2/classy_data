@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.DatabaseTableConfig;
 import com.j256.ormlite.table.TableUtils;
 
 import java.util.logging.Level;
@@ -274,7 +276,10 @@ public class HelloTwoDbsMain
 		    	try 
 		    	{
 		    		if (simpleDao.isTableExists())
-		    			TableUtils.clearTable(simpleDao.getConnectionSource(), SimpleData.class);
+		    		{
+		    			ConnectionSource connectionSource = simpleDao.getConnectionSource();
+		    			TableUtils.dropTable(connectionSource, DatabaseTableConfig.fromClass(connectionSource, SimpleData.class), false);
+		    		}
 				} 
 		    	catch (SQLException e) 
 		    	{
@@ -294,7 +299,10 @@ public class HelloTwoDbsMain
 		    	try 
 		    	{
 		    		if (complexDao.isTableExists())
-		    			TableUtils.clearTable(complexDao.getConnectionSource(), ComplexData.class);
+		    		{
+		    			ConnectionSource connectionSource = complexDao.getConnectionSource();
+		    			TableUtils.dropTable(connectionSource, DatabaseTableConfig.fromClass(connectionSource, ComplexData.class), false);
+		    		}
 				} 
 		    	catch (SQLException e) 
 		    	{
