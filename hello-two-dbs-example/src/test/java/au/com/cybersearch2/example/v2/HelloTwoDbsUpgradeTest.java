@@ -23,10 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import au.com.cybersearch2.classydb.DatabaseAdmin;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classytask.Executable;
-import au.com.cybersearch2.example.HelloTwoDbsMain_v1;
 
 
 /**
@@ -42,10 +39,11 @@ public class HelloTwoDbsUpgradeTest
     public void setUp() throws Exception 
     {
         // Run version 1 of example which will leave 2 database tables populated with version 1 objects.
-	    HelloTwoDbsMain_v1 helloTwoDbsMain_v1 = new HelloTwoDbsMain_v1();
+    	au.com.cybersearch2.example.HelloTwoDbsMain helloTwoDbsMain_v1 = new au.com.cybersearch2.example.HelloTwoDbsMain();
         try
         {
-        	helloTwoDbsMain_v1.setUp();
+        	// Set up v1 from start which causes the database tables to be dropped and the version reset to 0
+        	helloTwoDbsMain_v1.setUp(true);
         	au.com.cybersearch2.example.SimpleTask simpleTask = new au.com.cybersearch2.example.SimpleTask("main");
             helloTwoDbsMain_v1.performPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
 			// Our string builder for building the content-view

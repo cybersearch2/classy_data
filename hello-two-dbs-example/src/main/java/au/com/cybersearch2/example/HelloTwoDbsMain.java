@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.DatabaseTableConfig;
+import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
 
 import java.util.logging.Level;
@@ -22,6 +22,7 @@ import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
+import au.com.cybersearch2.classyjpa.persist.ConnectionSourceFactory;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classytask.Executable;
@@ -50,6 +51,7 @@ public class HelloTwoDbsMain
     static public final String ALL_SIMPLE_DATA = "all_simple_data";
     /** Named query to find all ComplexData objects */
     static public final String ALL_COMPLEX_DATA = "all_complex_data";
+    static public final String DATABASE_INFO_NAME = "User_info";
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
@@ -124,14 +126,20 @@ public class HelloTwoDbsMain
      */
     public void setUp() throws InterruptedException
     {
+    	setUp(false);
+    }
+    
+    public void setUp(boolean fromStart) throws InterruptedException
+    {
+    
     	if (!applicationInitialized)
     	{
     		initializeApplication();
+			if (fromStart)
+				dropDatabaseTables();
     		initializeDatabase();
-    		if (connectionType != ConnectionType.memory)
-    		{
-    			clearDatabaseTables();
-    		}
+    		if (!fromStart && (connectionType != ConnectionType.memory))
+                	clearDatabaseTables();
     		applicationInitialized = true;
     	}
     	populateDatabases();
@@ -276,10 +284,7 @@ public class HelloTwoDbsMain
 		    	try 
 		    	{
 		    		if (simpleDao.isTableExists())
-		    		{
-		    			ConnectionSource connectionSource = simpleDao.getConnectionSource();
-		    			TableUtils.dropTable(connectionSource, DatabaseTableConfig.fromClass(connectionSource, SimpleData.class), false);
-		    		}
+		    			TableUtils.clearTable(simpleDao.getConnectionSource(), SimpleData.class);
 				} 
 		    	catch (SQLException e) 
 		    	{
@@ -299,10 +304,7 @@ public class HelloTwoDbsMain
 		    	try 
 		    	{
 		    		if (complexDao.isTableExists())
-		    		{
-		    			ConnectionSource connectionSource = complexDao.getConnectionSource();
-		    			TableUtils.dropTable(connectionSource, DatabaseTableConfig.fromClass(connectionSource, ComplexData.class), false);
-		    		}
+		    			TableUtils.clearTable(complexDao.getConnectionSource(), ComplexData.class);
 				} 
 		    	catch (SQLException e) 
 		    	{
@@ -311,6 +313,86 @@ public class HelloTwoDbsMain
 				logMessage(PU_NAME2, "Cleared table \"Complex\"");
 			}});
 	}
+	
+	public void dropDatabaseTables() throws InterruptedException
+	{
+        // Persistence task clears Simple table the helloTwoDb1.db database using JPA. 
+		performPersistenceWork(PU_NAME1, new PersistenceTask(){
+
+			@Override
+			public void doTask(EntityManagerLite entityManager) 
+			{
+		    	EntityManagerDelegate delegate = (EntityManagerDelegate) entityManager.getDelegate();
+		    	@SuppressWarnings("unchecked")
+				PersistenceDao<SimpleData, Integer> simpleDao = (PersistenceDao<SimpleData, Integer>) delegate.getDaoForClass(SimpleData.class);
+		    	try 
+		    	{
+		    		if (simpleDao.isTableExists())
+		    			TableUtils.dropTable(simpleDao.getConnectionSource(), SimpleData.class, false);
+				} 
+		    	catch (SQLException e) 
+		    	{
+					throw new PersistenceException(e);
+				}
+                logMessage(PU_NAME1, "Dropped table \"Simple\"");
+			}});
+		dropDatabaseVersionTable(PU_NAME1);
+    	// Persistence task drops then creates Complex table in the helloTwoDb2.db database using JPA.
+		performPersistenceWork(PU_NAME2, new PersistenceTask(){
+
+			@Override
+			public void doTask(EntityManagerLite entityManager) 
+			{
+		    	EntityManagerDelegate delegate = (EntityManagerDelegate) entityManager.getDelegate();
+		    	@SuppressWarnings("unchecked")
+		    	PersistenceDao<ComplexData, Integer> complexDao = (PersistenceDao<ComplexData, Integer>) delegate.getDaoForClass(ComplexData.class);
+		    	try 
+		    	{
+		    		if (complexDao.isTableExists())
+		    			TableUtils.dropTable(complexDao.getConnectionSource(), ComplexData.class, false);
+				} 
+		    	catch (SQLException e) 
+		    	{
+					throw new PersistenceException(e);
+				}
+				logMessage(PU_NAME2, "Dropped table \"Complex\"");
+			}});
+		dropDatabaseVersionTable(PU_NAME2);
+	}
+	
+	public void dropDatabaseVersionTable(String puName) throws InterruptedException
+	{
+		ConnectionSourceFactory connectionSourceFactory = persistenceContext.getPersistenceAdmin(puName);
+		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
+		boolean tableExists = false;
+		DatabaseConnection connection = null;
+		try 
+		{
+			connection = connectionSource.getReadOnlyConnection();
+			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
+			if (tableExists)
+			{
+				String dropTableStatement = "DROP TABLE " + DATABASE_INFO_NAME ;
+				connection.executeStatement(dropTableStatement, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+			}
+		} 
+		catch (SQLException e) 
+		{
+			throw new PersistenceException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				connectionSource.releaseConnection(connection);
+			} 
+			catch (SQLException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
 
 	/**
 	 * Populate databases with initial sample data
