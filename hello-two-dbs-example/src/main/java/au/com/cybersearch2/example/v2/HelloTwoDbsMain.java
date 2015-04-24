@@ -155,6 +155,7 @@ public class HelloTwoDbsMain
         persistenceContext = new PersistenceContext();
     	// Initialize all databases. This handles create and update events automatically.
     	persistenceContext.initializeAllDatabases();
+    	System.out.println("initializeAllDatabases() called");
         // To populate these tables, call setUp().
         // Get Interface for JPA Support, required to create named queries
         PersistenceAdmin persistenceAdmin1 = persistenceContext.getPersistenceAdmin(PU_NAME1);

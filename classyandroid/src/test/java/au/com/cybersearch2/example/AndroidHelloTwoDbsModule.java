@@ -15,15 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
+import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
+import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseAdminImpl;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
-import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
@@ -33,40 +37,54 @@ import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.WorkerRunnable;
 
 /**
- * HelloTwoDbsModule
- * Dependency injection data object. @see HelloTwoDbsMain.
+ * AndroidHelloTwoDbsModule
  * @author Andrew Bowley
- * 23 Sep 2014
+ * 24 Apr 2015
  */
 @Module(injects = { 
+		AndroidHelloTwoDbs.class,
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
-        HelloTwoDbsMain.class, 
         PersistenceContext.class,
         DatabaseAdminImpl.class
         })
-public class HelloTwoDbsModule implements ApplicationModule
+public class AndroidHelloTwoDbsModule implements ApplicationModule 
 {
-	public static boolean testInMemory = true;
-	
-    @Provides @Singleton ThreadHelper provideSystemEnvironment()
+	//ConnectionType CONNECTION_TYPE = ConnectionType.memory;
+	ConnectionType CONNECTION_TYPE = ConnectionType.file;
+
+	@Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
         return new TestSystemEnvironment();
     }
     
     @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
     {
-        return new JavaTestResourceEnvironment("src/main/resources");
+        return new ResourceEnvironment(){
+
+            @Override
+            public InputStream openResource(String resourceName)
+                    throws IOException
+            {
+                ApplicationContext applicationContext = new ApplicationContext();
+                return applicationContext.getContext().getAssets().open("hello2dbs/" + resourceName);
+            }
+
+            @Override
+            public Locale getLocale()
+            {
+                return new Locale("en", "AU");
+            }};
     }
 
     @Provides @Singleton PersistenceFactory providePersistenceModule()
     {
-        return new PersistenceFactory(new SQLiteDatabaseSupport(provideConnectionType()));
+        return new PersistenceFactory(new AndroidDatabaseSupport());
     }
 
     @Provides @Singleton ConnectionType provideConnectionType()
     {
-    	return testInMemory ? ConnectionType.memory : ConnectionType.file;
+    	return CONNECTION_TYPE;
     }
 }

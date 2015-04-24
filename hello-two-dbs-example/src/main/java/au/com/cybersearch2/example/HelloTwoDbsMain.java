@@ -55,7 +55,6 @@ public class HelloTwoDbsMain
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
-	protected static boolean applicationInitialized;
 
     /** Dependency injection data object */
     private HelloTwoDbsModule helloTwoDbsModule;
@@ -131,17 +130,12 @@ public class HelloTwoDbsMain
     
     public void setUp(boolean fromStart) throws InterruptedException
     {
-    
-    	if (!applicationInitialized)
-    	{
-    		initializeApplication();
-			if (fromStart)
-				dropDatabaseTables();
-    		initializeDatabase();
-    		if (!fromStart && (connectionType != ConnectionType.memory))
-                	clearDatabaseTables();
-    		applicationInitialized = true;
-    	}
+		initializeApplication();
+		if (fromStart)
+			dropDatabaseTables();
+		initializeDatabase();
+		if (!fromStart && (connectionType != ConnectionType.memory))
+            	clearDatabaseTables();
     	populateDatabases();
     }
 

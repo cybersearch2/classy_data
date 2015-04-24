@@ -44,6 +44,7 @@ public class PersistenceLoader
 	    protected WorkTracker workTracker;
 	    /** RuntimeException, if thrown, which caused task to terminate unexpectedly */
 	    protected Throwable uncaughtException;
+	    /** Persistence unit object to perform persistence work */
 	    protected String persistenceUnit;
 
 	    public LoaderImpl(String persistenceUnit, PersistenceWork persistenceWork)
@@ -133,13 +134,11 @@ public class PersistenceLoader
 
     /** Flag to indicate user transaction. If false, then only transaction method supported is setRollbackOnly() */
     protected volatile boolean isUserTransactionMode;
+    /** Android Application Context */
     protected Context context;
 
     /**
-     * Create LoaderTaskImpl object
-     * @param context Android Application Context
-     * @param persistenceContainer Persistence container in which to execute persistence work
-     * @param persistenceWork Persistence work object
+     * Create PersistenceLoader object
      */
     public PersistenceLoader()
     {
@@ -147,10 +146,8 @@ public class PersistenceLoader
     }
 
     /**
-     * Create LoaderTaskImpl object
+     * Create PersistenceLoader object
      * @param context Android Application Context
-     * @param persistenceContainer Persistence container in which to execute persistence work
-     * @param persistenceWork Persistence work object
      */
     public PersistenceLoader(Context context)
     {

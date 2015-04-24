@@ -158,6 +158,12 @@
       <scope>test</scope>
      </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>hello-two-dbs-example</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+     </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>1.10.19</version>
