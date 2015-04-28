@@ -5,11 +5,11 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
   </parent>
    <artifactId>hello-two-dbs-example</artifactId>
   <name>Hello Two Dbs Example</name>
-  <description>Two database example using lightweight Java Persistence API for persisting objects to SQL databases.</description>
+  <description>Two database example using lightweight Java Persistence API for persisting objects to SQL databases</description>
   <url>http://cybersearch2.com.au</url>
   <licenses>
      <license>
@@ -37,46 +37,6 @@
       <timezone>+10</timezone>
     </developer>
   </developers>
-   	<profiles>
-	    <profile>
-	        <id>classic-test</id>
-	        <build>
-	            <plugins>
-                   <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
-                    <executions>
-                        <execution>
-                            <id>default-cli</id>
-                            <goals><goal>copy-dependencies</goal></goals>
-                            <configuration><skip>true</skip></configuration>
-                        </execution>
-                    </executions>
-                   </plugin>
-	            </plugins>
-	        </build>
-	    </profile>
-	    <profile>
-	        <id>classic</id>
-	        <build>
-	            <plugins>
-                   <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
-                    <executions>
-                        <execution>
-                            <id>default-cli</id>
-                            <goals><goal>copy-dependencies</goal></goals>
-                            <configuration><skip>true</skip></configuration>
-                        </execution>
-                    </executions>
-                   </plugin>
-	            </plugins>
-	        </build>
-	    </profile>
-	</profiles>
   <build>
     <plugins>
        <plugin>
@@ -94,8 +54,8 @@
            </execution>
         </executions>
         <configuration>
-          <doctitle><![CDATA[<h1>ClassyTools API - >Many to many example</h1>]]></doctitle>
-          <windowtitle>ClassyTools API - >Many to many example</windowtitle> 
+          <doctitle><![CDATA[<h1>ClassyTools API - >Hello Two Dbs example</h1>]]></doctitle>
+          <windowtitle>ClassyTools API - >Hello Two Dbs example</windowtitle> 
         </configuration>
       </plugin>
       <plugin>

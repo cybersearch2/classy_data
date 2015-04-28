@@ -5,7 +5,7 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
   </parent>
   <artifactId>classyandroid</artifactId>
   <name>classyandroid</name>
@@ -37,58 +37,6 @@
       <timezone>+10</timezone>
     </developer>
   </developers>
-  	<profiles>
-	    <profile>
-	        <id>classic-test</id>
-	        <build>
-	            <plugins>
-                   <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
-                     <configuration>
-                      <outputDirectory>test-libs</outputDirectory>
-                      <overWriteReleases>false</overWriteReleases>
-                      <overWriteSnapshots>false</overWriteSnapshots>
-                      <overWriteIfNewer>true</overWriteIfNewer>
-                      <excludeScope>runtime</excludeScope>
-		              <excludeArtifactIds>
-                          junit
-		              </excludeArtifactIds>
-                    </configuration>
-                   </plugin>
-	            </plugins>
-	        </build>
-	    </profile>
-	    <profile>
-	        <id>classic</id>
-	        <build>
-	            <plugins>
-                   <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
-                     <configuration>
-                      <outputDirectory>libs</outputDirectory>
-                      <overWriteReleases>false</overWriteReleases>
-                      <overWriteSnapshots>false</overWriteSnapshots>
-                      <overWriteIfNewer>true</overWriteIfNewer>
-                      <includeScope>runtime</includeScope>
-		              <includeArtifactIds>
-		                ormlite-android,
-		                compatibility-v4,
-		              </includeArtifactIds>
-		              <excludeArtifactIds>
-		              	classyjava,
-		              	many2many-example,
-		              	dagger-compiler
-		              </excludeArtifactIds>
-                    </configuration>
-                   </plugin>
-	            </plugins>
-	        </build>
-	    </profile>
-	</profiles>
   <build>
     <plugins>
        <plugin>
@@ -142,6 +90,16 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>classyjava</artifactId>
+       <exclusions>
+        <exclusion>
+          <groupId>com.j256.ormlite</groupId>
+          <artifactId>ormlite-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+           <groupId>net.sf.kxml</groupId>
+           <artifactId>kxml2</artifactId>
+        </exclusion>
+      </exclusions>
       <version>${project.version}</version>
      </dependency>
     <dependency>
@@ -223,7 +181,7 @@
         </exclusion>
       </exclusions>
        <scope>test</scope>
-   </dependency>  
+    </dependency>  
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-ant-tasks</artifactId>
@@ -237,18 +195,18 @@
         </exclusion>
       </exclusions>
       <scope>test</scope>
-   </dependency>
+    </dependency>
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
       <version>1.8.0</version>
       <scope>test</scope>
-   </dependency>
-   <dependency>
+    </dependency>
+    <dependency>
       <groupId>com.squareup.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
       <version>${dagger.version}</version>
      <optional>true</optional>
-   </dependency>
+    </dependency>
   </dependencies>
 </project>

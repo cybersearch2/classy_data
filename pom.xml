@@ -3,26 +3,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>au.com.cybersearch2</groupId>
   <artifactId>classy_tools</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <packaging>pom</packaging>
   <name>Classy Tools Parent</name>
   <description>JPA lite for Android - uses OrmLite and Dagger</description>
-<!-- Steps for Java Development:
-         1. Ensure Java SDK 6 or higher installed
-         2. Run "mvn initialize -P java"
-         3. Run "mvn install -pl !classyandroid -->
-<!-- Steps for Android development:
-         1. Install Android SDK + Support Library
-         2. Set ANDROID_HOME environment parameter 
-         3. Install Google Apis add on from Android SDK Level 4.3 (API 18) 
-         4. Run "mvn initialize -P android"  
-         5. Run "mvn install -pl classyandroid -->
    <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
     <android.platform.version>22</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>5.1.1_r2</android.sdk.version>
+    <android.sdk.version>5.0.1_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
     <android.support.version>22.0.0</android.support.version>
     <robolectric.version>3.0-rc2</robolectric.version>
@@ -98,8 +88,52 @@
                     <target>1.6</target>
                 </configuration>
               </plugin>
-           </plugins>
-		</pluginManagement>
+        <plugin>
+          <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+          <artifactId>android-maven-plugin</artifactId>
+		  <version>${android.plugin.version}</version>
+          <configuration>
+            <sdk>
+              <platform>${android.platform.version}</platform>
+            </sdk>
+            <undeployBeforeDeploy>true</undeployBeforeDeploy>
+          </configuration>
+          <extensions>true</extensions>
+        </plugin>
+	  		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+	  		<plugin>
+	  			<groupId>org.eclipse.m2e</groupId>
+	  			<artifactId>lifecycle-mapping</artifactId>
+	  			<version>1.0.0</version>
+	  			<configuration>
+	  				<lifecycleMappingMetadata>
+	  					<pluginExecutions>
+	  						<pluginExecution>
+	  							<pluginExecutionFilter>
+	  								<groupId>
+	  									com.jayway.maven.plugins.android.generation2
+	  								</groupId>
+	  								<artifactId>
+	  									android-maven-plugin
+	  								</artifactId>
+	  								<versionRange>
+	  									[4.0.0-rc.2,)
+	  								</versionRange>
+	  								<goals>
+	  									<goal>generate-sources</goal>
+	  									<goal>proguard</goal>
+	  								</goals>
+	  							</pluginExecutionFilter>
+	  							<action>
+	  								<ignore></ignore>
+	  							</action>
+	  						</pluginExecution>
+	  					</pluginExecutions>
+	  				</lifecycleMappingMetadata>
+	  			</configuration>
+	  		</plugin>
+      </plugins>
+ 		</pluginManagement>
   </build>
   <reporting>
     <plugins>
