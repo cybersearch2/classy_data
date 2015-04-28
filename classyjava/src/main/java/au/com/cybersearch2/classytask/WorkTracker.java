@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classytask;
 
-import java.io.Serializable;
 import java.util.logging.Level;
 
 import au.com.cybersearch2.classylog.JavaLogger;
@@ -27,11 +26,10 @@ import au.com.cybersearch2.classylog.Log;
  * @author Andrew Bowley
  * 29/06/2014
  */
-public class WorkTracker extends Executable implements Serializable
+public class WorkTracker extends Executable
 {
     private static final String TAG = "WorkTracker";
     private static Log log = JavaLogger.getLogger(TAG);
-    private static final long serialVersionUID = 1573465579866704524L;
 
     /** Wait one minute maximum for tasks to complete */
     public final static int MAX_TASK_WAIT_SECS = 60;

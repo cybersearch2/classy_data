@@ -113,7 +113,7 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 		DatabaseConnection connection = null;
 		try 
 		{
-			connection = getReadOnlyConnection();
+			connection = getReadWriteConnection();
 			sqLiteDatabase.setVersion(version);
 		} 
 		catch (SQLException e) 
