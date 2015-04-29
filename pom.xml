@@ -12,7 +12,7 @@
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
     <android.platform.version>22</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>5.0.1_r2</android.sdk.version>
+    <android.sdk.version>5.1.1_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
     <android.support.version>22.1.1</android.support.version>
     <robolectric.version>3.0-rc2</robolectric.version>
