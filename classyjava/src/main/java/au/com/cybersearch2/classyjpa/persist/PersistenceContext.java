@@ -16,13 +16,10 @@
 package au.com.cybersearch2.classyjpa.persist;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.inject.Inject;
-import javax.persistence.spi.PersistenceUnitInfo;
 
-import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classyinject.DI;
