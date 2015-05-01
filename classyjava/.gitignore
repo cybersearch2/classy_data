@@ -1,12 +1,6 @@
-/target/apidocs
-/target/classes/**
-/target/generated-sources/**
-/target/javadoc-bundle-options
-/target/maven-archiver
-/target/surefire-reports
-/target/test-classes/**
-/target/.apt_generated
-/.apt_generated
+.classpath
+/.settings/
+/.apt_generated/
 /target/
 /libs/
 /test-libs/
