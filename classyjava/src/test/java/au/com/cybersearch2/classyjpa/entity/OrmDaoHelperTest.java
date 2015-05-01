@@ -15,18 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.entity;
 
-import java.sql.SQLException;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 
-import com.j256.ormlite.support.ConnectionSource;
-
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 /**
@@ -37,7 +31,7 @@ import static org.mockito.Mockito.*;
 public class OrmDaoHelperTest
 {
 /*    
-
+    // TODO Reinstate tests if worthy
     // Overide internal methods which create concrete objects to replace them with mocks 
     class OrmDaoHelper<T,ID> extends OrmDaoHelper<T,ID>
     {
