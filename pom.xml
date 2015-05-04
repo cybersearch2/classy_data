@@ -10,11 +10,11 @@
    <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
-    <android.platform.version>22</android.platform.version>
+    <android.platform.version>21</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>5.1.1_r2</android.sdk.version>
+    <android.sdk.version>5.0.1_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
-    <android.support.version>22.1.1</android.support.version>
+    <android.support.version>21.0.1</android.support.version>
     <robolectric.version>3.0-rc2</robolectric.version>
     <ormlite.version>4.49-SNAPSHOT</ormlite.version>
     <dagger.version>1.2.2</dagger.version>
