@@ -77,6 +77,18 @@ Classy Tools v1.0.4
 4. Move Google Map API 18.3 dependency for Robolectric to "google-apis" profile for optional deployment.
 
 _______________________________________________________________________________________________________________________
+
+Classy Tools v1.0.5
+
+1. Hello Two Dbs example minor revision to simplify it
+2. Change PersistenceLoader so onPostExecute() runs on caller thread
+3. Remove Eclipse generated project files from reposistory
+4. Remove from poms dependencies which are no longer required
+5. End "classic" Eclipse support by removing setup-eclipse install script files and profiles.  
+6. Update Maven Android plugin version to 4.2.0
+7. Reverse android.support.version to 21.0.1
+8. Reverse android.platform.version to 21, android.sdk.version to 5.0.1_r2 
+_______________________________________________________________________________________________________________________
 _______________________________________________________________________________________________________________________
 
 Classy Apps v1.0.2
@@ -106,6 +118,23 @@ Classy Apps v1.0.4
 3. Update android.support.version to 22.0.0
 5. Change to API 21 for all Android apps for highest Robolectric API supported
 
+_______________________________________________________________________________________________________________________
+
+Classy Apps v1.0.5
+
+1.  Add Gradle folder containing zipped Android Studio project for all sample applications
+1.  Android Hello Two Dbs synched with Gradle version
+2.  Change "classic" Eclipse install script files and profiles to install Android Dependencies and pre-configured .classpath. 
+    This is a work-around for m2e-android Non Runtime Container not working.  
+3.  Remove Eclipse generated project files from reposistory
+4.  Remove from poms dependencies which are no longer required
+5.  Update Maven Android plugin version to 4.2.0
+6.  Reverse android.support.version to 21.0.1
+7.  Reverse android.platform.version to 21, android.sdk.version to 5.0.1_r2 
+8.  Change Support Library apklib to aar.
+9.  Update as_compatibility-v7-appcompat pom so initialization and clean up is perform only as an "eclipse" profile.
+10. Add m2e Lifecycle mapping jar to local repository install
+11. Replace ClassyTestRunner with RobolectricTestRunner as the latter now reads the AndroidManifests in target/unpackedlibs
 _______________________________________________________________________________________________________________________
 
 
