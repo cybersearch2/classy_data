@@ -1,6 +1,8 @@
 .classpath
+.factorypath
 /.settings/
 /.apt_generated/
+/bin/
 /target/
 /libs/
 /test-libs/
