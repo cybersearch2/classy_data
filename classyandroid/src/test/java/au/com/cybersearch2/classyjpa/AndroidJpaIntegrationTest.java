@@ -96,7 +96,7 @@ public class AndroidJpaIntegrationTest
     }
 
 	/**
-	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
+	 * Set up dependency injection, which creates an ObjectGraph from test configuration object.
 	 * Override to run with different database and/or platform. 
 	 */
 	protected void createObjectGraph()
