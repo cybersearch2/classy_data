@@ -44,6 +44,6 @@ public abstract class Executable
         {
             wait();
         }
-        return WorkStatus.FINISHED;
+        return getStatus() == WorkStatus.FINISHED ? WorkStatus.FINISHED : WorkStatus.FAILED;
     }
 }
