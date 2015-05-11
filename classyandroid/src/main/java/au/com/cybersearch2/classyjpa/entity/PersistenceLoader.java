@@ -42,8 +42,6 @@ public class PersistenceLoader
 	    protected PersistenceTaskImpl persistenceTask;
 	    /** Object to track work status and notify completion */
 	    protected WorkTracker workTracker;
-	    /** RuntimeException, if thrown, which caused task to terminate unexpectedly */
-	    protected Throwable uncaughtException;
 	    /** Persistence unit object to perform persistence work */
 	    protected String persistenceUnit;
 
@@ -68,18 +66,6 @@ public class PersistenceLoader
 	    @Override
 	    public Boolean loadInBackground() 
 	    {
-	        // Hook into UncaughtExceptionHandler chain 
-	        final UncaughtExceptionHandler chain = Thread.getDefaultUncaughtExceptionHandler();
-	        Thread.setDefaultUncaughtExceptionHandler(
-	                new Thread.UncaughtExceptionHandler() {
-
-	            @Override
-	            public void uncaughtException(Thread t, Throwable uncaughtException) 
-	            {   // Save exception for post-execution error handling
-	            	LoaderImpl.this.uncaughtException = uncaughtException;
-	                chain.uncaughtException(t, uncaughtException);
-	            }
-	        });
 	        Boolean success =  persistenceTask.doInBackground();
 	        workTracker.setStatus(success ? WorkStatus.RUNNING : WorkStatus.FAILED);
 	        return success;
@@ -109,8 +95,8 @@ public class PersistenceLoader
 	    public void onLoadComplete(Loader<Boolean> loader, Boolean success) 
 	    {
 	    	persistenceTask.onPostExecute(success);
-	        if (uncaughtException != null)
-	            log.error(TAG, "Persistence container rolled back transaction", uncaughtException);
+	    	if (workTracker.getStatus() != WorkStatus.FAILED)
+	    		workTracker.setStatus(success ? WorkStatus.FINISHED : WorkStatus.FAILED);
 	        // Notify waiting threads at very last point of exit
 	        synchronized(workTracker)
 	        {

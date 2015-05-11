@@ -52,11 +52,23 @@
            </executions>
        </plugin>
        <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.1</version>
-        <executions>
-          <execution>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-source-plugin</artifactId>
+         <executions>
+           <execution>
+             <id>attach-sources</id>
+             <goals>
+               <goal>jar</goal>
+             </goals>
+            </execution>
+         </executions>
+       </plugin>       
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-javadoc-plugin</artifactId>
+         <version>2.10.1</version>
+         <executions>
+           <execution>
              <goals>
                <goal>jar</goal>
              </goals>
@@ -69,7 +81,7 @@
           <doctitle><![CDATA[<h1>ClassyTools API - Android Library</h1>]]></doctitle>
           <windowtitle>ClassyTools API - Android Library</windowtitle> 
         </configuration>
-      </plugin>
+       </plugin>
        <!-- Set skipTests = "true" to bypass test phase in build -->
        <plugin>
             <groupId>org.apache.maven.plugins</groupId>

@@ -5,9 +5,10 @@ package au.com.cybersearch2.classyjpa.entity;
 
 import java.util.concurrent.Callable;
 
+import javax.persistence.EntityExistsException;
+
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RuntimeEnvironment;
@@ -22,6 +23,7 @@ import org.robolectric.util.TestRunnerWithManifest;
 import org.robolectric.util.Transcript;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown; // idem
 import dagger.Module;
 import android.content.Context;
 import android.os.SystemClock;
@@ -30,7 +32,9 @@ import au.com.cybersearch2.classyapp.ContextModule;
 import au.com.cybersearch2.classyapp.TestAndroidModule;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
 
@@ -95,6 +99,7 @@ public class PersistenceLoaderTest
 	}
 	
     protected PersistenceLoader testLoaderTask;
+    protected PersistenceLoader testUserTransLoaderTask;
     protected PersistenceContext persistenceContext;
 
     @Before
@@ -102,6 +107,8 @@ public class PersistenceLoaderTest
     {
     	Context context = createObjectGraph();
 	    testLoaderTask = new PersistenceLoader(context);
+	    testUserTransLoaderTask = new PersistenceLoader(context);
+	    testUserTransLoaderTask.setUserTransactionMode(true);
         persistenceContext = new PersistenceContext();
     	initializeDatabase();
         ShadowLooper.getUiThreadScheduler().pause();
@@ -144,6 +151,106 @@ public class PersistenceLoaderTest
 
         final PersistenceWork persistenceWork = new TestPersistenceWork(transcript);
         Executable exe = testLoaderTask.execute("classyfy", persistenceWork);
+        ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        transcript.assertEventsSoFar("background task");
+        ShadowLooper.getUiThreadScheduler().runOneTask();
+        transcript.assertEventsSoFar("onPostExecute true");
+        assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
+    }
+    
+    @Config(shadows = { MyShadowSystemClock.class, MyShadowAsyncTaskLoader.class })
+	@Test
+    public void do_rollback_only() throws Throwable
+    {
+		Transcript transcript = new Transcript();
+        final PersistenceWork persistenceWork = new TestPersistenceWork(transcript,
+                new TestPersistenceWork.Callable(){
+
+                    @Override
+                    public Boolean call(EntityManagerLite entityManager)
+                            throws Exception 
+                    {
+                        // Return false to cause transaction setRollbackOnly() to be called
+                        return false;
+                    }});
+        Executable exe = testLoaderTask.execute("classyfy", persistenceWork);
+        ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        transcript.assertEventsSoFar("background task");
+        ShadowLooper.getUiThreadScheduler().runOneTask();
+        transcript.assertEventsSoFar("onPostExecute false");
+        assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
+    }
+
+    @Config(shadows = { MyShadowSystemClock.class, MyShadowAsyncTaskLoader.class })
+	@Test
+    public void do_exception_thrown() throws Throwable
+    {   
+		Transcript transcript = new Transcript();
+        final EntityExistsException persistException = new EntityExistsException("Entity of class RecordCategory, primary key 1 already exists");
+        final PersistenceWork persistenceWork = new TestPersistenceWork(transcript,
+                new TestPersistenceWork.Callable(){
+
+                    @Override
+                    public Boolean call(EntityManagerLite entityManager)
+                            throws Exception 
+                    {
+                        throw persistException;
+                    }});
+        Executable exe = testLoaderTask.execute("classyfy", persistenceWork);
+        ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        transcript.assertEventsSoFar("background task");
+        ShadowLooper.getUiThreadScheduler().runOneTask();
+        transcript.assertEventsSoFar("onRollback " + persistException.toString());
+        assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
+    }
+
+    @Config(shadows = { MyShadowSystemClock.class, MyShadowAsyncTaskLoader.class })
+	@Test
+    public void do_npe_thrown() throws Throwable
+    {
+		Transcript transcript = new Transcript();
+        final PersistenceWork persistenceWork = new TestPersistenceWork(transcript,
+                new TestPersistenceWork.Callable(){
+
+                    @SuppressWarnings("null")
+                    @Override
+                    public Boolean call(EntityManagerLite entityManager)
+                            throws Exception 
+                    {
+                        Object object = null;
+                        object.toString();
+                        return true;
+                    }});
+        testLoaderTask.execute("classyfy", persistenceWork);
+        try
+        {
+        	ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        	failBecauseExceptionWasNotThrown(RuntimeException.class);
+        }
+        catch (RuntimeException e)
+        {
+        	assertThat(e.getCause()).isNotNull();
+        	assertThat(e.getCause()).isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Config(shadows = { MyShadowSystemClock.class, MyShadowAsyncTaskLoader.class })
+	@Test
+    public void do_user_transaction() throws Throwable
+    {
+		Transcript transcript = new Transcript();
+        final PersistenceWork persistenceWork = new TestPersistenceWork(transcript,
+                new TestPersistenceWork.Callable(){
+
+                    @Override
+                    public Boolean call(EntityManagerLite entityManager)
+                            throws Exception 
+                    {
+                        // Return false to cause transaction setRollbackOnly() to be called
+                        // User Transactions get access to actual transaction
+                        return entityManager.getTransaction() instanceof EntityTransactionImpl;
+                    }});
+        Executable exe = testUserTransLoaderTask.execute("classyfy", persistenceWork);
         ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
         transcript.assertEventsSoFar("background task");
         ShadowLooper.getUiThreadScheduler().runOneTask();
