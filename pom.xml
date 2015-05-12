@@ -48,9 +48,10 @@
   </developers>
   <modules>
     <module>classyjava</module>
-    <module>classyandroid</module>
     <module>many2many-example</module>
     <module>hello-two-dbs-example</module>
+    <!-- Comment out next two modules for Java-only development -->
+    <module>classyandroid</module>
     <module>android-tests</module>
   </modules>
   <build>
