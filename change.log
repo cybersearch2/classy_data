@@ -88,8 +88,18 @@ Classy Tools v1.0.5
 6. Update Maven Android plugin version to 4.2.0
 7. Reverse android.support.version to 21.0.1
 8. Reverse android.platform.version to 21, android.sdk.version to 5.0.1_r2 
+
 _______________________________________________________________________________________________________________________
-_______________________________________________________________________________________________________________________
+
+Classy Tools v1.0.6
+
+1. Update android.sdk.version to 5.1.1 (API 22)
+2. Update android.support.version to 22.1.1
+3. Added new "android-tests" module for Support Library tests
+4. Revised support library artifacts to align with Android Support Libraries
+5. Fixed Executable class in classyjava so returns FAIL status if not FINISHED
+6. Fixed PersistenceLoader in classyandroid to return correct status on completion
+______________________________________________________________________________________________________________________
 
 Classy Apps v1.0.2
 
@@ -137,4 +147,11 @@ Classy Apps v1.0.5
 11. Replace ClassyTestRunner with RobolectricTestRunner as the latter now reads the AndroidManifests in target/unpackedlibs
 _______________________________________________________________________________________________________________________
 
+Classy Apps v1.0.6
+
+1. Update android.sdk.version to 5.1.1 (API 22)
+2. Update android.support.version to 22.1.1
+3. Revised support library artifacts to align with Android Support Libraries
+4. Updated ClassyFy integration tests to work in API 22 runtime environment. All working in Eclipse, but 2 fail in Maven - not worth persuing.
+______________________________________________________________________________________________________________________
 
