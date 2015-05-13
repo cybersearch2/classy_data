@@ -52,8 +52,8 @@
       <scope>provided</scope>
     </dependency>  
     <dependency>
-      <groupId>android.support</groupId>
-      <artifactId>compatibility-v4</artifactId>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-v4</artifactId>
       <version>${android.support.version}</version>
     </dependency>  
     <dependency>
@@ -210,35 +210,6 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.9.1</version>
        </plugin>
-      <!--
-      <plugin>
-        <groupId>org.bsc.maven</groupId>
-        <artifactId>maven-processor-plugin</artifactId>
-        <version>3.1.0-beta1</version>
-        <configuration>
-          <additionalSourceDirectories>
-            <sourceDirectory>target/generated-shadows</sourceDirectory>
-          </additionalSourceDirectories>
-          <outputDirectory>target/generated-sources</outputDirectory>
-          <compilerArguments>-source ${maven.compiler.source} -target ${maven.compiler.target} -Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.support.v4</compilerArguments>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>process</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.robolectric</groupId>
-            <artifactId>robolectric-processor</artifactId>
-            <version>${robolectric.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      -->
     </plugins>
   </build>
 </project>
