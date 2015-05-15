@@ -122,19 +122,6 @@
                    <pomFile>${basedir}/ormlite-jdbc/pom.xml</pomFile>
                  </configuration>
               </execution>
-              <execution>
-                 <id>lifecycle-mapping</id>
-                 <goals>
-                    <goal>install-file</goal>
-                 </goals>
-                 <phase>initialize</phase>
-                 <configuration>
-                   <packaging>jar</packaging>
-                   <file>${basedir}/lifecycle-mapping-1.0.0.jar</file>
-                   <generatePom>false</generatePom>
-                   <pomFile>${basedir}/lifecycle-mapping-1.0.0.pom</pomFile>
-                 </configuration>
-              </execution>
            </executions>
           </plugin>      
 	            </plugins>
