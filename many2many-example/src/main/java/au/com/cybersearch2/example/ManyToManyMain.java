@@ -47,8 +47,6 @@ public class ManyToManyMain
     /** Persistence Unit name to look up configuration details in persistence.xml */
     static public final String PU_NAME = "manytomany";
 
-    /** Dependency injection data object */
-    private ManyToManyModule manyToManyModule;
     /** Bilbo Baggins */
     User user1;
     /** Gandalf Gray */
@@ -69,6 +67,7 @@ public class ManyToManyMain
         // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
         createObjectGraph();
         persistenceContext = new PersistenceContext();
+        persistenceContext.initializeAllDatabases();
         // Note that the table for each entity class will be created in the following step (assuming database is in memory).
         // To populate these tables, call setUp().
         // Get Interface for JPA Support, required to create named queries
@@ -83,6 +82,15 @@ public class ManyToManyMain
         persistenceAdmin.addNamedQuery(User.class, USERS_BY_POST, manyToManyUsersByPost);
     }
 
+    /**
+     * Test ManyToMany association
+     * @param args Not used
+     */
+	public static void main(String[] args)
+	{
+        new ManyToManyMain().runApplication();
+	}
+	
     /**
      * Populate entity tables. Call this before doing any queries. 
      * Note the calling thread is suspended while the work is performed on a background thread. 
@@ -209,21 +217,16 @@ public class ManyToManyMain
         assertEquals(user2.id, usersByPost2.get(1).id);
         assertEquals(user2.name, usersByPost2.get(1).name);
     }
-    
-    /**
-     * Test ManyToMany association
-     * @param args Not used
-     */
-	public static void main(String[] args)
-	{
-        ManyToManyMain manyToManyMain = new ManyToManyMain();
+ 
+    protected void runApplication()
+    {
         try
         {
-            manyToManyMain.setUp();
-            User user1 = manyToManyMain.getUser1();
-            User user2 = manyToManyMain.getUser2();
-            Post post1 = manyToManyMain.getPost1();
-            Post post2 = manyToManyMain.getPost2();
+            setUp();
+            User user1 = getUser1();
+            User user2 = getUser2();
+            Post post1 = getPost1();
+            Post post2 = getPost2();
             PostsByUserEntityTask postsByUserEntityTask = new PostsByUserEntityTask(
                     user1.id,
                     user2.id,
@@ -232,7 +235,7 @@ public class ManyToManyMain
             PersistenceContainer container = new PersistenceContainer("manytomany");
             container.executeTask(postsByUserEntityTask).waitForTask();
             List<Post> posts = postsByUserEntityTask.getPosts();
-            manyToManyMain.verifyPostsByUser(posts);
+            verifyPostsByUser(posts);
             System.out.println("PostsByUser: ");
             System.out.println(user1.name + " posted \"" + posts.get(0).contents + "\" & \"" + posts.get(1).contents + "\"");
             UsersByPostTask usersByPostTask= new UsersByPostTask(
@@ -241,7 +244,7 @@ public class ManyToManyMain
                     post1.id,
                     post2.id);
             container.executeTask(usersByPostTask).waitForTask();
-            manyToManyMain.verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
+            verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
             System.out.println("UsersByPosts: ");
             System.out.println("Only " + user1.name + " posted \"" + post1.contents + "\"");
             System.out.println("Both " + user1.name + " and " + user2.name +
@@ -252,8 +255,8 @@ public class ManyToManyMain
         {
             e.printStackTrace();
         }
-	}
-	
+    }
+    
 	/**
 	 * Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object.
 	 * Override to run with different database and/or platform. 
@@ -261,8 +264,6 @@ public class ManyToManyMain
 	 */
 	protected void createObjectGraph()
 	{
-        // 
-        manyToManyModule = new ManyToManyModule();
-        new DI(manyToManyModule).validate();
+        new DI(new ManyToManyModule()).validate();
 	}
 }

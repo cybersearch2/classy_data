@@ -241,35 +241,9 @@ public class PersistenceAdminImpl implements PersistenceAdmin
 	
 	public void setSingleConnection()
 	{
-		if (singleConnection == null)
-		    try
-			{
-				singleConnection = Boolean.FALSE;
-				ConnectionSource connectionSource = getConnectionSource();
-		    	if (connectionSource.getSpecialConnection() == null)
-		    	{
-		    		DatabaseConnection testConnection = null;
-		    		try
-		    		{
-				    	synchronized (connectionSource)
-				    	{
-				    		testConnection = connectionSource.getReadWriteConnection();
-				    		connectionSource.saveSpecialConnection(testConnection);
-				    		singleConnection = Boolean.valueOf(connectionSource.getSpecialConnection() == null);
-				    	}
-		    		}
-		    		finally
-		    		{
-		    			if (testConnection != null)
-				    		connectionSource.releaseConnection(testConnection);
-		    		}
-		    	}
-			}
-			catch (SQLException e)
-			{
-				throw new PersistenceException("Database connection error", e);
-			}
-		}
+		ConnectionSource connectionSource = getConnectionSource();
+		singleConnection = Boolean.valueOf(connectionSource.isSingleConnection());
+	}
 
 	@Override
 	public void registerClasses(List<String> managedClassNames) 

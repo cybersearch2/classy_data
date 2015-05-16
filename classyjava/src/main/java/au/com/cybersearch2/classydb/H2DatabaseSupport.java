@@ -13,22 +13,6 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
-// Contains extracts from android.database.sqlite.SQLiteQueryBuilder, which has following copyright notice:
-/*
- * Copyright (C) 2006 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package au.com.cybersearch2.classydb;
 
 import java.io.File;
@@ -38,37 +22,39 @@ import java.util.Properties;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
 
-import com.j256.ormlite.db.SqliteDatabaseType;
+import org.h2.jdbcx.JdbcDataSource;
+
+import com.j256.ormlite.db.H2DatabaseType;
+import com.j256.ormlite.jdbc.DataSourceConnectionSource;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
- * SQLiteDatabaseSupport
- * SQLite implementation for direct database access to allow native operations to be performed
+ * H2DatabaseSupport
  * @author Andrew Bowley
- * 16/06/2014
+ * 16 May 2015
  */
-public class SQLiteDatabaseSupport extends DatabaseSupportBase
+public class H2DatabaseSupport extends DatabaseSupportBase 
 {
 	/** Log name */
-    private static final String TAG = "SQLiteDatabaseSupport";
+    private static final String TAG = "H2DatabaseSupport";
     static Log log = JavaLogger.getLogger(TAG);
     /** SQLite memory path */
-    private static final String IN_MEMORY_PATH = "jdbc:sqlite::memory:";
+    private static final String IN_MEMORY_PATH = "jdbc:h2:mem:";
     /** SQLite location for file database */
     private static final String FILE_LOCATION = "resources/db";
- 
+
     /**
-     * Construct a SQLiteDatabaseSupport object
+     * Construct an H2DatabaseSupport object
      * @param connectionType ConnectionType - memory, file or pooled
      */
-    public SQLiteDatabaseSupport(ConnectionType connectionType)
-    {
-    	super(new SqliteDatabaseType(), connectionType, log, TAG);
-    }
+	public H2DatabaseSupport(ConnectionType connectionType) 
+	{
+        super(new H2DatabaseType(), connectionType, log, TAG);
+	}
 
-
+	@Override
     protected File getDatabaseLocation()
     {
     	return new File(FILE_LOCATION);
@@ -95,15 +81,23 @@ public class SQLiteDatabaseSupport extends DatabaseSupportBase
 	@Override
 	protected ConnectionSource getConnectionSourceForType(String databaseName, Properties properties) throws SQLException
     {
+		JdbcDataSource jdbcDataSource = new JdbcDataSource();
+		String url = null;
         switch(connectionType)
-	        {
+	    {
 	        case file:
-	            return new JdbcConnectionSource("jdbc:sqlite:" + FILE_LOCATION  + "/" + databaseName);
-	        case pooled:
-	            return new JdbcPooledConnectionSource("jdbc:sqlite:" + FILE_LOCATION  + "/" + databaseName); 
+	    		url = "jdbc:h2:" + FILE_LOCATION  + "/" + databaseName;
+	    		jdbcDataSource.setURL(url);
+	            return new DataSourceConnectionSource(jdbcDataSource, url);
+	        case pooled: // TODO - Add H2 Connection Pool
+	            return new JdbcPooledConnectionSource("jdbc:h2:" + FILE_LOCATION  + "/" + databaseName); 
 	        case memory: 
 	        default:
-	            return new JdbcConnectionSource(IN_MEMORY_PATH /*+ databaseName*/);
-	        }
+	    		url = IN_MEMORY_PATH + databaseName;
+	    		jdbcDataSource.setURL(url);
+	            return new DataSourceConnectionSource(jdbcDataSource, url);
+	    }
     }
+    
+
 }

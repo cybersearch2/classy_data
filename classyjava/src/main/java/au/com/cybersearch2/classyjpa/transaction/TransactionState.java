@@ -45,6 +45,7 @@ public class TransactionState
     protected DatabaseConnection connection;
     protected Boolean autoCommitAtStart;
     protected Boolean hasSavePoint;
+    protected boolean savedSpecialConnection;
     protected Savepoint savePoint;
     protected String savePointName;
     protected int transactionId;
@@ -101,10 +102,13 @@ public class TransactionState
          * 
          */
     	connection = connectionSource.getReadWriteConnection();
-    	connectionSource.saveSpecialConnection(connection);
+    	savedSpecialConnection = connectionSource.saveSpecialConnection(connection);
     	transactionId = savePointCounter.incrementAndGet();
-        setAutoCommit();
-        setSavePoint();
+    	if (savedSpecialConnection || connectionSource.getDatabaseType().isNestedSavePointsSupported())
+    	{
+            setAutoCommit();
+            setSavePoint();
+    	}
     }
     
     /**
@@ -114,11 +118,11 @@ public class TransactionState
     {
         if (connection != null)
         {
+            if (autoCommitAtStart != null)
+                resetAutoCommit();
             clearSpecialConnection();
             savePoint = null;
             hasSavePoint = null;
-            if (autoCommitAtStart != null)
-                resetAutoCommit();
             connection = null;
     	}
     }
@@ -142,6 +146,22 @@ public class TransactionState
             connection.commit(savePoint);
             if (log.isLoggable(TAG, Level.FINE))
                 log.debug(TAG, "committed savePoint transaction " + savePointName);
+        }
+	    catch (SQLException e) 
+        {
+		    if (hasSavePoint) 
+		    {
+			    try 
+			    {
+			    	doRollback();
+			    } 
+			    catch (SQLException e2) 
+			    {
+				    log.error(TAG, "After commit exception, rolling back to save-point also threw exception", e);
+				    // we continue to throw the commit exception
+			    }
+		    }
+		    throw e;
         }
         finally
         {
@@ -213,7 +233,7 @@ public class TransactionState
         savePoint = connection.setSavePoint(savePointName);
         if (log.isLoggable(TAG, Level.FINE))
             log.debug(TAG, "Started savePoint transaction " + savePointName);
-        hasSavePoint = Boolean.valueOf(true);
+        hasSavePoint = Boolean.TRUE;
     }
  
     /**

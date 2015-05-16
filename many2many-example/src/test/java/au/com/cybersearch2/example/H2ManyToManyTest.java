@@ -15,29 +15,28 @@ package au.com.cybersearch2.example;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classytask.WorkStatus;
 
 
 /**
- * ManyToManyTest
+ * H2ManyToManyTest
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-public class ManyToManyTest
+public class H2ManyToManyTest
 {
-    private static ManyToManyMain manyToManyMain;
+    private static H2ManyToManyMain manyToManyMain;
 
     @Before
     public void setUp() 
     {
         if (manyToManyMain == null)
-            manyToManyMain = new ManyToManyMain();
+            manyToManyMain = new H2ManyToManyMain();
     } 
     
     @Test 
