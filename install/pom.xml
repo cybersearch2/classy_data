@@ -204,7 +204,7 @@
                  <phase>initialize</phase>
                  <configuration>
                    <packaging>jar</packaging>
-                   <file>${basedir}/ormlite-jdbc/ormlite-jdbc.jar</file>
+                   <file>${basedir}/ormlite-jdbc/ormlite-jdbc-4.49-SNAPSHOT.jar</file>
                    <sources>${basedir}/ormlite-jdbc/ormlite-jdbc-4.49-SNAPSHOT-sources.jar</sources>
                    <javaDoc>${basedir}/ormlite-jdbc/ormlite-jdbc-4.49-SNAPSHOT-javadoc.jar</javaDoc>
                    <generatePom>false</generatePom>
