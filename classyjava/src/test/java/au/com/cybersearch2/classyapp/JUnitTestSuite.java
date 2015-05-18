@@ -18,14 +18,10 @@ package au.com.cybersearch2.classyapp;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import au.com.cybersearch2.classybean.BeanMapTest;
-import au.com.cybersearch2.classybean.BeanUtilTest;
 import au.com.cybersearch2.classydb.DatabaseAdminImplTest;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWorkTest;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupportTest;
 import au.com.cybersearch2.classydb.SQLiteSupportTest;
-import au.com.cybersearch2.classyinject.DI_Test;
-import au.com.cybersearch2.classyinject.ObjectGraphManagerTest;
 import au.com.cybersearch2.classyjpa.JpaIntegrationTest;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerImplTest;
 import au.com.cybersearch2.classyjpa.entity.ObjectMonitorTest;
@@ -52,11 +48,7 @@ import au.com.cybersearch2.classynode.NodeTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    BeanMapTest.class,
-    BeanUtilTest.class,
     SQLiteSupportTest.class,
-    DI_Test.class,
-    ObjectGraphManagerTest.class,
     JpaIntegrationTest.class,
     OrmDaoHelperTest.class,
     OrmDaoHelperFactoryTest.class,

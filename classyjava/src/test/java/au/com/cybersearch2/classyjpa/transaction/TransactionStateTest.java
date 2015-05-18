@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
+import com.j256.ormlite.db.DatabaseType;
 
 import java.sql.SQLException;
 import java.sql.Savepoint;
@@ -51,8 +52,32 @@ public class TransactionStateTest
     @Test
     public void test_begin() throws Exception
     {
+        int transactionId = TransactionState.savePointCounter.get() + 1;
+        String savepointName = "ORMLITE" + transactionId;
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
+        when(connection.isAutoCommit()).thenReturn(true);
+        Savepoint savePoint = mock(Savepoint.class);
+        when(connection.setSavePoint(isA(String.class))).thenReturn(savePoint);
+        when(savePoint.getSavepointName()).thenReturn(savepointName);
+        TransactionState transactionState = new TransactionState(connectionSource);
+        verify(connectionSource).saveSpecialConnection(connection);
+        verify(connection).setAutoCommit(false);
+        assertThat(transactionState.transactionId).isEqualTo(transactionId);
+        assertThat(transactionState.hasSavePoint).isTrue();
+        assertThat(transactionState.savePointName).isEqualTo(savepointName);
+    }
+
+    @Test
+    public void test_begin_NestedSavePointsSupported() throws Exception
+    {
+        DatabaseType databaseType = mock(DatabaseType.class);
+        when(databaseType.isNestedSavePointsSupported()).thenReturn(true);
+        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(false);
+        when(connection.isAutoCommitSupported()).thenReturn(true);
+        when(connectionSource.getDatabaseType()).thenReturn(databaseType);
         when(connection.isAutoCommit()).thenReturn(true);
         Savepoint savePoint = mock(Savepoint.class);
         when(connection.setSavePoint(isA(String.class))).thenReturn(savePoint);
@@ -67,7 +92,7 @@ public class TransactionStateTest
     public void test_begin_connection_exception() throws Exception
     {
         SQLException exception = new SQLException("Connection failed");
-        Mockito.doThrow(exception).when(connectionSource).getReadWriteConnection();
+        doThrow(exception).when(connectionSource).getReadWriteConnection();
         try
         {
             new TransactionState(connectionSource);
@@ -121,6 +146,7 @@ public class TransactionStateTest
     {
         SQLException exception = new SQLException("isAutoCommitSupported failed");
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         doThrow(exception).when(connection).isAutoCommitSupported();
         try
         {
@@ -139,6 +165,7 @@ public class TransactionStateTest
     {
         SQLException exception = new SQLException("isAutoCommit failed");
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         doThrow(exception).when(connection).isAutoCommit();
         try
@@ -158,6 +185,7 @@ public class TransactionStateTest
     {
         SQLException exception = new SQLException("setAutoCommit failed");
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true);
         doThrow(exception).when(connection).setAutoCommit(false);;
@@ -178,6 +206,7 @@ public class TransactionStateTest
     {
         SQLException exception = new SQLException("setSavePoint failed");
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true);
         doThrow(exception).when(connection).setSavePoint(isA(String.class));
@@ -198,19 +227,77 @@ public class TransactionStateTest
     @Test
     public void test_commit() throws Exception
     {
+        int transactionId = TransactionState.savePointCounter.get() + 1;
+        String savepointName = "ORMLITE" + transactionId;
         when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true, false);
         Savepoint savePoint = mock(Savepoint.class);
-        when(connection.setSavePoint(isA(String.class))).thenReturn(savePoint);
+        when(connection.setSavePoint(savepointName)).thenReturn(savePoint);
         when(savePoint.getSavepointName()).thenReturn("mySavePoint");
         TransactionState transactionState = new TransactionState(connectionSource);
         verify(connectionSource).saveSpecialConnection(connection);
         verify(connection).setAutoCommit(false);
-        when(savePoint.getSavepointName()).thenReturn("mySavePoint");
+        when(savePoint.getSavepointName()).thenReturn(savepointName);
         transactionState.doCommit();
         verify(connection).commit(savePoint);
-        //assertThat(transactionState.autoCommitAtStart).isNull();
+        assertThat(transactionState.hasSavePoint).isNull();
+        assertThat(transactionState.savePoint).isNull();
+        assertThat(transactionState.connection).isNull();
+    }
+
+    @Test
+    public void test_rollback() throws Exception
+    {
+        int transactionId = TransactionState.savePointCounter.get() + 1;
+        String savepointName = "ORMLITE" + transactionId;
+        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
+        when(connection.isAutoCommitSupported()).thenReturn(true);
+        when(connection.isAutoCommit()).thenReturn(true, false);
+        Savepoint savePoint = mock(Savepoint.class);
+        when(connection.setSavePoint(savepointName)).thenReturn(savePoint);
+        when(savePoint.getSavepointName()).thenReturn("mySavePoint");
+        TransactionState transactionState = new TransactionState(connectionSource);
+        verify(connectionSource).saveSpecialConnection(connection);
+        verify(connection).setAutoCommit(false);
+        when(savePoint.getSavepointName()).thenReturn(savepointName);
+        transactionState.doRollback();
+        verify(connection).rollback(savePoint);
+        assertThat(transactionState.hasSavePoint).isNull();
+        assertThat(transactionState.savePoint).isNull();
+        assertThat(transactionState.connection).isNull();
+    }
+
+    @Test
+    public void test_commit_rollback() throws Exception
+    {
+        SQLException exception = new SQLException("doCommit failed");
+        int transactionId = TransactionState.savePointCounter.get() + 1;
+        String savepointName = "ORMLITE" + transactionId;
+        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
+        when(connection.isAutoCommitSupported()).thenReturn(true);
+        when(connection.isAutoCommit()).thenReturn(true, false);
+        Savepoint savePoint = mock(Savepoint.class);
+        when(connection.setSavePoint(savepointName)).thenReturn(savePoint);
+        when(savePoint.getSavepointName()).thenReturn(savepointName);
+        TransactionState transactionState = new TransactionState(connectionSource);
+        verify(connectionSource).saveSpecialConnection(connection);
+        verify(connection).setAutoCommit(false);
+        when(savePoint.getSavepointName()).thenReturn("mySavePoint");
+        doThrow(exception).when(connection).commit(savePoint);
+        try
+        {
+            transactionState.doCommit();
+            failBecauseExceptionWasNotThrown(SQLException.class);
+        }
+        catch(SQLException e)
+        {
+            assertThat(e.getMessage()).contains("doCommit failed");
+        }
+        verify(connection).rollback(savePoint);
         assertThat(transactionState.hasSavePoint).isNull();
         assertThat(transactionState.savePoint).isNull();
         assertThat(transactionState.connection).isNull();

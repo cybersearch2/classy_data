@@ -49,12 +49,17 @@
   </developers>
   <modules>
     <module>classyjava</module>
+    <module>classyutils</module>
     <module>many2many-example</module>
     <module>hello-two-dbs-example</module>
     <!-- Comment out next two modules for Java-only development -->
     <module>classyandroid</module>
     <module>android-tests</module>
   </modules>
+  <dependencyManagement>
+    <dependencies>
+    </dependencies>
+  </dependencyManagement>
   <build>
 		<finalName>${project.artifactId}</finalName>
         <plugins>
@@ -91,6 +96,26 @@
                     <target>1.6</target>
                 </configuration>
               </plugin>
+       <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-jar-plugin</artifactId>
+           <version>2.5</version>
+       </plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-source-plugin</artifactId>
+           <version>2.4</version>
+       </plugin>       
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-javadoc-plugin</artifactId>
+         <version>2.9.1</version>
+       </plugin>
+       <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.17</version>
+        </plugin>
         <plugin>
           <groupId>com.jayway.maven.plugins.android.generation2</groupId>
           <artifactId>android-maven-plugin</artifactId>

@@ -1,15 +1,12 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
     <version>1.0.6</version>
   </parent>
-  <artifactId>classyjava</artifactId>
-  <name>classyjava</name>
-  <description>Portable lightweight Java Persistence API for persisting objects to SQL databases.</description>
+  <artifactId>classyutils</artifactId>
+  <name>classyutils</name>
   <url>http://cybersearch2.com.au</url>
   <licenses>
      <license>
@@ -78,7 +75,7 @@
            </execution>
         </executions>
         <configuration>
-          <doctitle><![CDATA[<h1>ClassyTools API - Java Library</h1>]]></doctitle>
+          <doctitle><![CDATA[<h1>ClassyTools API - Utils Library</h1>]]></doctitle>
           <windowtitle>ClassyTools API - Java Library</windowtitle> 
           <links>
            <link>https://square.github.io/dagger/javadoc/</link>
@@ -101,12 +98,7 @@
       <artifactId>maven-processor-plugin</artifactId>
       <version>3.1.0-beta1</version>
       <optional>true</optional>
-    </dependency>   
-    <dependency>
-      <groupId>au.com.cybersearch2</groupId>
-      <artifactId>classyutils</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+    </dependency>    
     <dependency>
       <groupId>com.squareup.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
@@ -132,12 +124,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <version>3.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-util</artifactId>
       <version>1.2.5</version>
@@ -156,38 +142,19 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <!--
-    <dependency>
       <groupId>com.googlecode.openbeans</groupId>
       <artifactId>openbeans</artifactId>
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>persistence-api</artifactId>
-      <version>2.0</version>
-    </dependency>
-    -->
-    <dependency>
-      <groupId>com.j256.ormlite</groupId>
-      <artifactId>ormlite-core</artifactId>
-      <version>${ormlite.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.j256.ormlite</groupId>
-      <artifactId>ormlite-jdbc</artifactId>
-      <version>${ormlite.version}</version>
-     </dependency>
-     <!--
-    <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
       <version>1</version>
+    </dependency>
+     <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>2.0</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
@@ -204,7 +171,6 @@
       <artifactId>dagger</artifactId>
       <version>${dagger.version}</version>
     </dependency>
-    -->
   </dependencies>
   <profiles>
     <profile>
@@ -223,16 +189,11 @@
                   <includeScope>runtime</includeScope>
 	              <includeArtifactIds>
 	                commons-logging,
-                    commons-collections,
-                    sqlite-jdbc,
                     openbeans,
-                    persistence-api,
                     javax.inject,
                     commons-beanutils,
                     kxml2,
                     dagger,
-                    ormlite-core,
-                    ormlite-jdbc
 	              </includeArtifactIds>
 	              <excludeArtifactIds>
 	              	maven-core,

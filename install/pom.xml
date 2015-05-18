@@ -61,6 +61,91 @@
 	        <id>java</id>
 	        <build>
 	            <plugins>
+		  <plugin>
+		    <groupId>com.googlecode.maven-download-plugin</groupId>
+		    <artifactId>download-maven-plugin</artifactId>
+		    <version>1.2.1</version>
+		    <executions>
+		        <execution>
+		            <id>download-ormlite-core</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-core-4.49-SNAPSHOT.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-core</outputDirectory>
+		                <md5>29f0c73a213d2c86a5b458629aaea771</md5>
+		            </configuration>
+		        </execution>
+		        <execution>
+		            <id>download-ormlite-core-sources</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-core-4.49-SNAPSHOT-sources.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-core</outputDirectory>
+		                <md5>d69b984807deec5f40767754772f9a8c</md5>
+		            </configuration>
+		        </execution>
+		        <execution>
+		            <id>download-ormlite-core-docs</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-core-4.49-SNAPSHOT-javadoc.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-core</outputDirectory>
+		                <md5>6913c9ede1c75bfc4a0cadd0d2835f07</md5>
+		            </configuration>
+		        </execution>
+		        <execution>
+		            <id>download-ormlite-jdbc</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-jdbc-4.49-SNAPSHOT.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-jdbc</outputDirectory>
+		                <md5>daeda03b1decd2ef5ccd083c45c3aad6</md5>
+		            </configuration>
+		        </execution>
+		        <execution>
+		            <id>download-ormlite-jdbc-sources</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-jdbc-4.49-SNAPSHOT-sources.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-jdbc</outputDirectory>
+		                <md5>fd0dedb013111f612b92d1e8fd0972d4</md5>
+		            </configuration>
+		        </execution>
+		        <execution>
+		            <id>download-ormlite-jdbc-docs</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-jdbc-4.49-SNAPSHOT-javadoc.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-core</outputDirectory>
+		                <md5>8ead82b2be93f15f70b8ae502032316e</md5>
+		            </configuration>
+		        </execution>
+  		    </executions>
+		  </plugin>
           <plugin>
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-install-plugin</artifactId>
@@ -104,7 +189,9 @@
                  <phase>initialize</phase>
                  <configuration>
                    <packaging>jar</packaging>
-                   <file>${basedir}/ormlite-core/ormlite-core.jar</file>
+                   <file>${basedir}/ormlite-core/ormlite-core-4.49-SNAPSHOT.jar</file>
+                   <sources>${basedir}/ormlite-core/ormlite-core-4.49-SNAPSHOT-sources.jar</sources>
+                   <javaDoc>${basedir}/ormlite-core/ormlite-core-4.49-SNAPSHOT-javadoc.jar</javaDoc>
                    <generatePom>false</generatePom>
                    <pomFile>${basedir}/ormlite-core/pom.xml</pomFile>
                  </configuration>
@@ -118,6 +205,8 @@
                  <configuration>
                    <packaging>jar</packaging>
                    <file>${basedir}/ormlite-jdbc/ormlite-jdbc.jar</file>
+                   <sources>${basedir}/ormlite-jdbc/ormlite-jdbc-4.49-SNAPSHOT-sources.jar</sources>
+                   <javaDoc>${basedir}/ormlite-jdbc/ormlite-jdbc-4.49-SNAPSHOT-javadoc.jar</javaDoc>
                    <generatePom>false</generatePom>
                    <pomFile>${basedir}/ormlite-jdbc/pom.xml</pomFile>
                  </configuration>
@@ -131,6 +220,52 @@
 	        <id>android</id>
 	        <build>
 	            <plugins>
+		  <plugin>
+		    <groupId>com.googlecode.maven-download-plugin</groupId>
+		    <artifactId>download-maven-plugin</artifactId>
+		    <version>1.2.1</version>
+		    <executions>
+		        <execution>
+		            <id>download-ormlite-android</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-android-4.49-SNAPSHOT.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-android</outputDirectory>
+		                <md5>772cf1beca1fc2a1fc88ad623b0b4c05</md5>
+		            </configuration>
+		        </execution>
+		        <execution>
+		            <id>download-ormlite-android-sources</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-android-4.49-SNAPSHOT-sources.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-android</outputDirectory>
+		                <md5>9a286c8c84b25020395d8a4538d68384</md5>
+		            </configuration>
+		        </execution>
+		        <execution>
+		            <id>download-ormlite-android-docs</id>
+		            <phase>initialize</phase>
+		            <goals>
+		                <goal>wget</goal>
+		            </goals>
+		            <configuration>
+		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-android-4.49-SNAPSHOT-javadoc.jar</url>
+		                <unpack>false</unpack>
+		                <outputDirectory>${basedir}/ormlite-android</outputDirectory>
+		                <md5>ccc53c7a3a8b0822f7be1779cbb6d410</md5>
+		            </configuration>
+		        </execution>
+  		    </executions>
+		  </plugin>
           <plugin>
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-install-plugin</artifactId>
@@ -144,7 +279,9 @@
                  <phase>initialize</phase>
                  <configuration>
                    <packaging>jar</packaging>
-                   <file>${basedir}/ormlite-android/ormlite-android.jar</file>
+                   <file>${basedir}/ormlite-android/ormlite-android-4.49-SNAPSHOT.jar</file>
+                   <sources>${basedir}/ormlite-android/ormlite-android-4.49-SNAPSHOT-sources.jar</sources>
+                   <javaDoc>${basedir}/ormlite-android/ormlite-android-4.49-SNAPSHOT-javadoc.jar</javaDoc>
                    <generatePom>false</generatePom>
                    <pomFile>${basedir}/ormlite-android/pom.xml</pomFile>
                  </configuration>
@@ -241,6 +378,28 @@
             	<skip>true</skip>
             </configuration>
 		</plugin>
+        <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>2.6.1</version>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>${basedir}/ormlite-core</directory>
+                  <includes><include>ormlite*.jar</include></includes>
+                </fileset>
+                <fileset>
+                  <directory>${basedir}/ormlite-jdbc</directory>
+                  <includes><include>ormlite*.jar</include></includes>
+                </fileset>
+                <fileset>
+                  <directory>${basedir}/ormlite-android</directory>
+                  <includes><include>ormlite*.jar</include></includes>
+                </fileset>
+             </filesets>
+           </configuration>
+         </plugin>
+      </plugins>
       </plugins>
       <pluginManagement>
       	<plugins>
