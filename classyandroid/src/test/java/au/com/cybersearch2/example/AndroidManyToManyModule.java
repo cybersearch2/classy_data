@@ -42,6 +42,7 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
  * 23 Sep 2014
  */
 @Module(injects = { 
+		AndroidManyToMany.class,
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
@@ -78,4 +79,10 @@ public class AndroidManyToManyModule implements ApplicationModule
     {
         return new PersistenceFactory(new AndroidDatabaseSupport());
     }
+    
+    @Provides @Singleton PersistenceContext providePersistenceContext()
+    {
+        return new PersistenceContext();
+    }
+
 }
