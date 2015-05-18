@@ -43,6 +43,7 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
  * 23 Sep 2014
  */
 @Module(injects = { 
+		H2ManyToManyMain.class,
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
@@ -67,13 +68,8 @@ public class H2ManyToManyModule implements ApplicationModule
         return new PersistenceFactory(new H2DatabaseSupport(ConnectionType.file));
     }
 
-    /**
-     * Test ManyToMany association
-     * @param args Not used
-     */
-	public static void main(String[] args)
-	{
-        new H2ManyToManyMain().runApplication();
-	}
-	
+    @Provides @Singleton PersistenceContext providesPersistenceContext()
+    {
+    	return new PersistenceContext();
+    }
 }

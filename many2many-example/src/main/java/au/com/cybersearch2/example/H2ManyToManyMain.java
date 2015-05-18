@@ -62,6 +62,16 @@ public class H2ManyToManyMain extends ManyToManyMain
 		super();
 	}
 
+    /**
+     * Test ManyToMany association
+     * @param args Not used
+     */
+	public static void main(String[] args)
+	{
+        new H2ManyToManyMain().runApplication();
+	}
+	
+
 	/**
 	 * Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object.
 	 * Override to run with different database and/or platform. 

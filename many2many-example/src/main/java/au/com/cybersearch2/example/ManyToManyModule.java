@@ -36,6 +36,7 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
  * 23 Sep 2014
  */
 @Module(injects = { 
+		ManyToManyMain.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
         PersistenceContext.class,
@@ -53,4 +54,8 @@ public class ManyToManyModule implements ApplicationModule
         return new PersistenceFactory(new SQLiteDatabaseSupport(ConnectionType.memory));
     }
 
+    @Provides @Singleton PersistenceContext providesPersistenceContext()
+    {
+    	return new PersistenceContext();
+    }
 }

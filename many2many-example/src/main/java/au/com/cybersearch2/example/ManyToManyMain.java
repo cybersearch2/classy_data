@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
@@ -56,7 +58,8 @@ public class ManyToManyMain
     /** Now it's a bit warmer thank goodness. */
     Post post2;
     /** Factory object to create "manytomany" Persistence Unit implementation */
-    protected PersistenceContext persistenceContext;
+    @Inject
+    PersistenceContext persistenceContext;
 
     /**
      * Create ManyToManyMain object
@@ -66,7 +69,7 @@ public class ManyToManyMain
     {
         // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
         createObjectGraph();
-        persistenceContext = new PersistenceContext();
+        DI.inject(this);
         persistenceContext.initializeAllDatabases();
         // Note that the table for each entity class will be created in the following step (assuming database is in memory).
         // To populate these tables, call setUp().
