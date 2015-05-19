@@ -99,6 +99,19 @@ Classy Tools v1.0.6
 4. Revised support library artifacts to align with Android Support Libraries
 5. Fixed Executable class in classyjava so returns FAIL status if not FINISHED
 6. Fixed PersistenceLoader in classyandroid to return correct status on completion
+_______________________________________________________________________________________________________________________
+
+Classy Tools v1.0.7
+
+1. Fix Support Library v4 artfact in android-tests pom
+2. Remove Lifecycle-mapping installation
+3. Add H2DatabaseSupport and refactor common code into new base class
+4. Sync TransactionState with OrmLite TransactionManager
+5. Add H2 ManyToMany example
+6. Factor out classyutils module to support eXPL install without OrmLite dependency
+7. Download Ormlite jars using wget plugin
+ 
+______________________________________________________________________________________________________________________
 ______________________________________________________________________________________________________________________
 
 Classy Apps v1.0.2
@@ -153,5 +166,14 @@ Classy Apps v1.0.6
 2. Update android.support.version to 22.1.1
 3. Revised support library artifacts to align with Android Support Libraries
 4. Updated ClassyFy integration tests to work in API 22 runtime environment. All working in Eclipse, but 2 fail in Maven - not worth persuing.
+_______________________________________________________________________________________________________________________
+
+Classy Apps v1.0.7
+1.  Update Maven Android plugin version to 4.2.1
+2. Upgrade Gradle project Support Library version to 21.1+
+3. Fix android-maven-plugin Lifecycle-mapping error which disabled m2e-android plugin
+4. Move android-maven-plugin config to classy_apps pom
+5. Remove classyandroid test-jar dependency from classyfy pom
+
 ______________________________________________________________________________________________________________________
 
