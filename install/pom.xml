@@ -140,10 +140,23 @@
 		            <configuration>
 		                <url>http://ormlite.com/releases/4.49-SNAPSHOT/ormlite-jdbc-4.49-SNAPSHOT-javadoc.jar</url>
 		                <unpack>false</unpack>
-		                <outputDirectory>${basedir}/ormlite-core</outputDirectory>
+		                <outputDirectory>${basedir}/ormlite-jdbc</outputDirectory>
 		                <md5>8ead82b2be93f15f70b8ae502032316e</md5>
 		            </configuration>
 		        </execution>
+                <execution>
+                    <id>download-googlecode-openbeans</id>
+                    <phase>initialize</phase>
+                    <goals>
+                        <goal>wget</goal>
+                    </goals>
+                    <configuration>
+                        <url>https://openbeans.googlecode.com/files/openbeans-1.0.jar</url>
+                        <unpack>false</unpack>
+                        <outputDirectory>${basedir}</outputDirectory>
+                        <md5>08aa65f915e526b02431e54b95eb74c8</md5>
+                    </configuration>
+                </execution>
   		    </executions>
 		  </plugin>
           <plugin>
@@ -151,21 +164,6 @@
            <artifactId>maven-install-plugin</artifactId>
            <version>2.5.1</version>
            <executions>
-              <execution>
-                 <id>persistence-api</id>
-                 <goals>
-                    <goal>install-file</goal>
-                 </goals>
-                 <phase>initialize</phase>
-                 <configuration>
-                   <groupId>javax.persistence</groupId>
-                   <artifactId>persistence-api</artifactId>
-                   <version>2.0</version>
-                   <packaging>jar</packaging>
-                   <file>${basedir}/persistence-api-2.0.jar</file>
-                   <generatePom>true</generatePom>
-                 </configuration>
-              </execution>
               <execution>
                  <id>openbeans</id>
                  <goals>
