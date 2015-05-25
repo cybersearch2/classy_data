@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.persist;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
@@ -35,7 +34,6 @@ import au.com.cybersearch2.classylog.Log;
 
 import com.j256.ormlite.db.DatabaseType;
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.support.DatabaseConnection;
 
 /**
  * PersistenceAdminImpl
