@@ -5,7 +5,7 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.7-SNAPSHOT</version>
   </parent>
   <artifactId>classyandroid</artifactId>
   <name>classyandroid</name>
@@ -91,6 +91,14 @@
     </plugins>
   </build>
   <dependencies>
+    <!-- Robolectric dependency is overridden by incompatible version
+         but source could not be found -->
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm</artifactId>
+      <version>5.0.1</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>classyjava</artifactId>
@@ -102,7 +110,7 @@
         <exclusion>
            <groupId>net.sf.kxml</groupId>
            <artifactId>kxml2</artifactId>
-        </exclusion>
+        </exclusion>  
       </exclusions>
       <version>${project.version}</version>
      </dependency>
@@ -128,13 +136,11 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert-core</artifactId>
-      <version>2.0M10</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -151,7 +157,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -184,7 +189,7 @@
          <groupId>org.apache.maven</groupId>
          <artifactId>maven-ant-tasks</artifactId>
         </exclusion>
-      </exclusions>
+       </exclusions>
        <scope>test</scope>
     </dependency>  
     <dependency>
@@ -211,7 +216,6 @@
       <groupId>com.squareup.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
       <version>${dagger.version}</version>
-     <optional>true</optional>
     </dependency>
   </dependencies>
 </project>

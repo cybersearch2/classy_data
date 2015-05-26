@@ -32,7 +32,6 @@ public abstract class Executable
     /**
      * Wait for task completion. The caller thread may block
      * if task is executed asynchronously 
-     * @param exe Executable object returned upon starting task
      * @throws InterruptedException Should not happen
      */
     public WorkStatus waitForTask() throws InterruptedException

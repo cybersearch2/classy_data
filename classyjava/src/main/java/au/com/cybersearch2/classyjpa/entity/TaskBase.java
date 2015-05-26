@@ -36,7 +36,7 @@ public class TaskBase extends WorkerTask<Boolean>
 
     /**
      * Constructor
-     * @param persistenceWork Object containing work to be performed
+     * @param persistenceTask Object containing work to be performed
      */
     public TaskBase(PersistenceTaskImpl persistenceTask)
     {
