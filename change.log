@@ -111,6 +111,11 @@ Classy Tools v1.0.7
 6. Factor out classyutils module to support eXPL install without OrmLite dependency
 7. Download Ormlite jars using wget plugin
  
+_______________________________________________________________________________________________________________________
+
+Classy Tools v1.0.8-SNAPSHOT
+Introduce Maven Release support, with snapshot versioning and SCM and Distribution Management activation.
+Only releases will be pushed to Github in future.
 ______________________________________________________________________________________________________________________
 ______________________________________________________________________________________________________________________
 
@@ -175,5 +180,11 @@ Classy Apps v1.0.7
 4. Move android-maven-plugin config to classy_apps pom
 5. Remove classyandroid test-jar dependency from classyfy pom
 
+_______________________________________________________________________________________________________________________
+
+Classy Apps v1.0.8-SNAPSHOT
+Introduce Maven Release support, with snapshot versioning and SCM and Distribution Management activation.
+Also added Tele-Genious Android Application as production APK pilot. This will be developed into an eXPL sample application. 
+Only releases will be pushed to Github in future.
 ______________________________________________________________________________________________________________________
 
