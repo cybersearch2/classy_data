@@ -80,10 +80,6 @@
       <type>test-jar</type>
      </dependency>
     <dependency>
-      <groupId>org.bsc.maven</groupId>
-      <artifactId>maven-processor-plugin</artifactId>
-    </dependency>    
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
      </dependency>  

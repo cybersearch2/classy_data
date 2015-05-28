@@ -87,11 +87,6 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>org.bsc.maven</groupId>
-      <artifactId>maven-processor-plugin</artifactId>
-      <optional>true</optional>
-    </dependency>    
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>

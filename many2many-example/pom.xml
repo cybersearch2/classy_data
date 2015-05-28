@@ -67,10 +67,6 @@
       <type>test-jar</type>
     </dependency>
     <dependency>
-      <groupId>org.bsc.maven</groupId>
-      <artifactId>maven-processor-plugin</artifactId>
-    </dependency>    
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>  
@@ -91,7 +87,7 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>${h2-version}</version>
+      <version>${h2.version}</version>
     </dependency>
     <dependency>
       <groupId>com.squareup.dagger</groupId>
