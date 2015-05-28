@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.7</version>
   </parent>
    <artifactId>many2many-example</artifactId>
   <name>many2many-example</name>
@@ -49,7 +48,7 @@
         </executions>
         <configuration>
           <doctitle><![CDATA[<h1>ClassyTools API - >Many to many example</h1>]]></doctitle>
-          <windowtitle>ClassyTools API - >Many to many example</windowtitle> 
+          <windowtitle>ClassyTools API - &gt;Many to many example</windowtitle> 
         </configuration>
       </plugin>
     </plugins>
