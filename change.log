@@ -1,3 +1,80 @@
+Classy Tools v1.0.8
+
+1. Maven Release configured for Jenkins implementation
+2. Change log order reversed.
+
+Classy Tools v1.0.8-SNAPSHOT
+
+Introduce Maven Release support, with snapshot versioning and SCM and Distribution Management activation.
+Only releases will be pushed to Github in future.
+______________________________________________________________________________________________________________________
+Classy Tools v1.0.7
+
+1. Fix Support Library v4 artfact in android-tests pom
+2. Remove Lifecycle-mapping installation
+3. Add H2DatabaseSupport and refactor common code into new base class
+4. Sync TransactionState with OrmLite TransactionManager
+5. Add H2 ManyToMany example
+6. Factor out classyutils module to support eXPL install without OrmLite dependency
+7. Download Ormlite jars using wget plugin
+ 
+_______________________________________________________________________________________________________________________
+Classy Tools v1.0.6
+
+1. Update android.sdk.version to 5.1.1 (API 22)
+2. Update android.support.version to 22.1.1
+3. Added new "android-tests" module for Support Library tests
+4. Revised support library artifacts to align with Android Support Libraries
+5. Fixed Executable class in classyjava so returns FAIL status if not FINISHED
+6. Fixed PersistenceLoader in classyandroid to return correct status on completion
+_______________________________________________________________________________________________________________________
+Classy Tools v1.0.5
+
+1. Hello Two Dbs example minor revision to simplify it
+2. Change PersistenceLoader so onPostExecute() runs on caller thread
+3. Remove Eclipse generated project files from reposistory
+4. Remove from poms dependencies which are no longer required
+5. End "classic" Eclipse support by removing setup-eclipse install script files and profiles.  
+6. Update Maven Android plugin version to 4.2.0
+7. Reverse android.support.version to 21.0.1
+8. Reverse android.platform.version to 21, android.sdk.version to 5.0.1_r2 
+
+_______________________________________________________________________________________________________________________
+Classy Tools v1.0.4
+
+1. Update Robolectric to 3.0.rc-2 (some trivial code changes required and install additions)
+2. Update android.sdk.version to 5.1.1 (API 22)
+3. Update android.support.version to 22.0.0
+4. Move Google Map API 18.3 dependency for Robolectric to "google-apis" profile for optional deployment.
+
+_______________________________________________________________________________________________________________________
+Classy Tools v1.0.3
+
+1. Update included OrmLite library jars to pre-v1.49 release (03/15 build)
+2. Enhance PersistenceContainer class to support synchronous operation.
+
+Default is run persistence task in background thread but will now run in caller's thread
+if new constructor "async" flag is set false or ConnectionSource with single connection detected  eg.
+default OrmLite JdbcConnectionSource. The executeTask() return Executable object now has
+waitForTask() method which should always be used for synchrous call to hide how
+the PersistenceContainer is behaving.
+
+3. Create new PersistenceContext class.
+
+This is to hide PersistenceFactory dependency injection from all the classes dependent on it.
+This solves annotation processing link error generated when compiling the ClassyFy Android app.
+PersistenceContext has 2 methods to dynamically update the configuration of a persistence unit
+to support database up/down-grade. See HelloTwoDbsUpgradeTest in hello-two-dbs-example project.
+
+4. Create new PersistenceLoader class.
+
+This replaces LoaderPersistenceContainer and LoaderTaskImpl in a refactor to take advantage
+of PersistenceContainer's new synchronous cabability.
+
+5. Fix bug in database upgrade code.
+
+It was not updating database version except for version 0 to 1 upgrade.
+_______________________________________________________________________________________________________________________
 Classy Tools v1.0.2
 
 1. Refactor database classes in classydb package to provide consistency between Java and Android database management. 
@@ -40,151 +117,4 @@ Note: initializeAllDatabases() method is sychronous and will propgate any Runtim
 * Existing test and sample code updated to call new method
 
 _______________________________________________________________________________________________________________________
-
-Classy Tools v1.0.3
-
-1. Update included OrmLite library jars to pre-v1.49 release (03/15 build)
-2. Enhance PersistenceContainer class to support synchronous operation.
-
-Default is run persistence task in background thread but will now run in caller's thread
-if new constructor "async" flag is set false or ConnectionSource with single connection detected  eg.
-default OrmLite JdbcConnectionSource. The executeTask() return Executable object now has
-waitForTask() method which should always be used for synchrous call to hide how
-the PersistenceContainer is behaving.
-
-3. Create new PersistenceContext class.
-
-This is to hide PersistenceFactory dependency injection from all the classes dependent on it.
-This solves annotation processing link error generated when compiling the ClassyFy Android app.
-PersistenceContext has 2 methods to dynamically update the configuration of a persistence unit
-to support database up/down-grade. See HelloTwoDbsUpgradeTest in hello-two-dbs-example project.
-
-4. Create new PersistenceLoader class.
-
-This replaces LoaderPersistenceContainer and LoaderTaskImpl in a refactor to take advantage
-of PersistenceContainer's new synchronous cabability.
-
-5. Fix bug in database upgrade code.
-
-It was not updating database version except for version 0 to 1 upgrade.
 _______________________________________________________________________________________________________________________
-
-Classy Tools v1.0.4
-
-1. Update Robolectric to 3.0.rc-2 (some trivial code changes required and install additions)
-2. Update android.sdk.version to 5.1.1 (API 22)
-3. Update android.support.version to 22.0.0
-4. Move Google Map API 18.3 dependency for Robolectric to "google-apis" profile for optional deployment.
-
-_______________________________________________________________________________________________________________________
-
-Classy Tools v1.0.5
-
-1. Hello Two Dbs example minor revision to simplify it
-2. Change PersistenceLoader so onPostExecute() runs on caller thread
-3. Remove Eclipse generated project files from reposistory
-4. Remove from poms dependencies which are no longer required
-5. End "classic" Eclipse support by removing setup-eclipse install script files and profiles.  
-6. Update Maven Android plugin version to 4.2.0
-7. Reverse android.support.version to 21.0.1
-8. Reverse android.platform.version to 21, android.sdk.version to 5.0.1_r2 
-
-_______________________________________________________________________________________________________________________
-
-Classy Tools v1.0.6
-
-1. Update android.sdk.version to 5.1.1 (API 22)
-2. Update android.support.version to 22.1.1
-3. Added new "android-tests" module for Support Library tests
-4. Revised support library artifacts to align with Android Support Libraries
-5. Fixed Executable class in classyjava so returns FAIL status if not FINISHED
-6. Fixed PersistenceLoader in classyandroid to return correct status on completion
-_______________________________________________________________________________________________________________________
-
-Classy Tools v1.0.7
-
-1. Fix Support Library v4 artfact in android-tests pom
-2. Remove Lifecycle-mapping installation
-3. Add H2DatabaseSupport and refactor common code into new base class
-4. Sync TransactionState with OrmLite TransactionManager
-5. Add H2 ManyToMany example
-6. Factor out classyutils module to support eXPL install without OrmLite dependency
-7. Download Ormlite jars using wget plugin
- 
-_______________________________________________________________________________________________________________________
-
-Classy Tools v1.0.8-SNAPSHOT
-Introduce Maven Release support, with snapshot versioning and SCM and Distribution Management activation.
-Only releases will be pushed to Github in future.
-______________________________________________________________________________________________________________________
-______________________________________________________________________________________________________________________
-
-Classy Apps v1.0.2
-
-1. Added Android HelloTwoDs sample applications 
-
-* android-hello-two-dbs demonstrates support for 2 databases provided by persistence.xml configuration.
-* android-hello-two-dbs also demonstrates layering on a Java database implemention using just a dependency configuration change
-* android-hello-two-dbs-v2 has a revised database schema and support for a version upgrade
-* android-hello-two-dbs-v2 Unit test demonstrates database upgrade in a single session.
-
-2. Updated ClassyFy StartUp class to use PersistenceFactory initializeAllDatabases() (point 6 above)
-
-3. Changed ClassyFy AlfrescoFilePlanLoader class and DataLoader interface because of Classy Tools changes
-_______________________________________________________________________________________________________________________
-Classy Apps v1.0.3
-
-1. Upgrade Classy Tools to v1.0.3.
-2. ClassyFy app MainActivity uses new PersistenceLoader class (see Classy Tools v1.0.3 change 4)
-3. Add new "db-upgrade" sample application to replace previous upgrade unit test in android-hello-two-dbs-v2
-
-_______________________________________________________________________________________________________________________
-Classy Apps v1.0.4
-
-1. Update Robolectric to 3.0.rc-2 (some trivial code changes required)
-2. Update android.sdk.version to 5.1.1 (API 22)
-3. Update android.support.version to 22.0.0
-5. Change to API 21 for all Android apps for highest Robolectric API supported
-
-_______________________________________________________________________________________________________________________
-
-Classy Apps v1.0.5
-
-1.  Add Gradle folder containing zipped Android Studio project for all sample applications
-1.  Android Hello Two Dbs synched with Gradle version
-2.  Change "classic" Eclipse install script files and profiles to install Android Dependencies and pre-configured .classpath. 
-    This is a work-around for m2e-android Non Runtime Container not working.  
-3.  Remove Eclipse generated project files from reposistory
-4.  Remove from poms dependencies which are no longer required
-5.  Update Maven Android plugin version to 4.2.0
-6.  Reverse android.support.version to 21.0.1
-7.  Reverse android.platform.version to 21, android.sdk.version to 5.0.1_r2 
-8.  Change Support Library apklib to aar.
-9.  Update as_compatibility-v7-appcompat pom so initialization and clean up is perform only as an "eclipse" profile.
-10. Add m2e Lifecycle mapping jar to local repository install
-11. Replace ClassyTestRunner with RobolectricTestRunner as the latter now reads the AndroidManifests in target/unpackedlibs
-_______________________________________________________________________________________________________________________
-
-Classy Apps v1.0.6
-
-1. Update android.sdk.version to 5.1.1 (API 22)
-2. Update android.support.version to 22.1.1
-3. Revised support library artifacts to align with Android Support Libraries
-4. Updated ClassyFy integration tests to work in API 22 runtime environment. All working in Eclipse, but 2 fail in Maven - not worth persuing.
-_______________________________________________________________________________________________________________________
-
-Classy Apps v1.0.7
-1.  Update Maven Android plugin version to 4.2.1
-2. Upgrade Gradle project Support Library version to 21.1+
-3. Fix android-maven-plugin Lifecycle-mapping error which disabled m2e-android plugin
-4. Move android-maven-plugin config to classy_apps pom
-5. Remove classyandroid test-jar dependency from classyfy pom
-
-_______________________________________________________________________________________________________________________
-
-Classy Apps v1.0.8-SNAPSHOT
-Introduce Maven Release support, with snapshot versioning and SCM and Distribution Management activation.
-Also added Tele-Genious Android Application as production APK pilot. This will be developed into an eXPL sample application. 
-Only releases will be pushed to Github in future.
-______________________________________________________________________________________________________________________
-

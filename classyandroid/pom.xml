@@ -187,8 +187,7 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-ant-tasks</artifactId>
-      <version>2.1.3</version>
-     <!-- This artefact is a kind of jar-with-dependencies already,
+      <!-- This artefact is a kind of jar-with-dependencies already,
           we don't need any of its dependencies -->
       <exclusions>
          <exclusion>
@@ -201,7 +200,6 @@
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
-      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>

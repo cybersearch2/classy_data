@@ -77,7 +77,7 @@
       <artifactId>classyjava</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
-     </dependency>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

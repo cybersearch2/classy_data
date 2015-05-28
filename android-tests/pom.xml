@@ -39,20 +39,6 @@
     <robolectric.api.level>21</robolectric.api.level>
   </properties>
   <dependencies>
-    <!-- Robolectric dependency is overridden by incompatible version
-         but source could not be found -->
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-      <version>5.0.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- Junit here to solve Hamcrest dependency issue  -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>android</groupId>
       <artifactId>android</artifactId>
@@ -64,12 +50,13 @@
       <artifactId>support-v4</artifactId>
       <version>${android.support.version}</version>
     </dependency>  
+    <!-- Junit here to solve Hamcrest dependency issue  -->
     <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-     <dependency>
+    <dependency>
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>classyjava</artifactId>
       <version>${project.version}</version>
@@ -134,11 +121,15 @@
       <artifactId>ormlite-android</artifactId>
       <version>${ormlite.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
     <!-- Robolectric Dependencies -->
     <dependency>
         <groupId>org.robolectric</groupId>
         <artifactId>shadows-core</artifactId>
-        <version>3.0-rc2 </version>
         <scope>test</scope>
     </dependency> 
     <!-- Exclude Support Library as already have android.support:compatibility-v4 above -->
@@ -161,7 +152,6 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-ant-tasks</artifactId>
-      <version>2.1.3</version>
      <!-- This artefact is a kind of jar-with-dependencies already,
           we don't need any of its dependencies -->
       <exclusions>
@@ -175,7 +165,6 @@
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
-      <version>1.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
