@@ -21,8 +21,8 @@
     <h2.version>1.2.128</h2.version>
     <release.repo.id>artifactory</release.repo.id>
     <release.repo.url>http://microserver/artifactory/libs-release-local</release.repo.url>
-    <snapshot.repo.id>artifactory//libs-snapshot-local</snapshot.repo.id>
-    <snapshot.repo.url>http://microserver/artifactory</snapshot.repo.url>
+    <snapshot.repo.id>artifactory</snapshot.repo.id>
+    <snapshot.repo.url>http://microserver/artifactory/libs-snapshot-local</snapshot.repo.url>
  </properties>
  <url>http://cybersearch2.com.au</url>
  <licenses>
