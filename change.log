@@ -1,9 +1,16 @@
+______________________________________________________________________________________________________________________
+Classy Tools v1.10.0
+
+1. Release built on Jenkins
+2. Repo config error fixed on parent pom
+
+______________________________________________________________________________________________________________________
 Classy Tools v1.0.9
 
 1. Maven Release configured for Jenkins implementation
 2. Change log order reversed.
-
-Classy Tools v1.0.8-SNAPSHOT
+______________________________________________________________________________________________________________________
+Classy Tools v1.0.8
 
 Introduce Maven Release support, with snapshot versioning and SCM and Distribution Management activation.
 Only releases will be pushed to Github in future.
