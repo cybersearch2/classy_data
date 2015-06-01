@@ -3,7 +3,7 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_tools</artifactId>
-    <version>1.10-SNAPSHOT</version>
+    <version>1.11-SNAPSHOT</version>
   </parent>
   <artifactId>install</artifactId>
   <packaging>pom</packaging>
@@ -276,7 +276,6 @@
                    <file>${basedir}/ormlite-android/ormlite-android-4.49-SNAPSHOT.jar</file>
                    <sources>${basedir}/ormlite-android/ormlite-android-4.49-SNAPSHOT-sources.jar</sources>
                    <javaDoc>${basedir}/ormlite-android/ormlite-android-4.49-SNAPSHOT-javadoc.jar</javaDoc>
-                   <generatePom>false</generatePom>
                    <pomFile>${basedir}/ormlite-android/pom.xml</pomFile>
                  </configuration>
               </execution> 

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>au.com.cybersearch2</groupId>
   <artifactId>classy_tools</artifactId>
-  <version>1.10-SNAPSHOT</version>
+  <version>1.11-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Classy Tools Parent</name>
   <description>JPA lite for Android - uses OrmLite and Dagger</description>
@@ -69,6 +69,7 @@
     <module>classyutils</module>
     <module>many2many-example</module>
     <module>hello-two-dbs-example</module>
+    <module>install</module>
     <!-- Comment out next two modules for Java-only development -->
     <module>classyandroid</module>
     <module>android-tests</module>
