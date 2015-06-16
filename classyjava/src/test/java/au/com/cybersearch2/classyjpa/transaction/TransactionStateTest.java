@@ -17,7 +17,6 @@ package au.com.cybersearch2.classyjpa.transaction;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;

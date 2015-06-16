@@ -20,8 +20,6 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.Loader.OnLoadCompleteListener;
 import au.com.cybersearch2.classyapp.ApplicationContext;
-import au.com.cybersearch2.classylog.JavaLogger;
-import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
 import au.com.cybersearch2.classytask.WorkTracker;
@@ -113,8 +111,8 @@ public class PersistenceLoader
 
     }
 	
-    private static final String TAG = "PersistenceLoader";
-    private Log log = JavaLogger.getLogger(TAG);
+    //private static final String TAG = "PersistenceLoader";
+    //private Log log = JavaLogger.getLogger(TAG);
 
     /** Flag to indicate user transaction. If false, then only transaction method supported is setRollbackOnly() */
     protected volatile boolean isUserTransactionMode;

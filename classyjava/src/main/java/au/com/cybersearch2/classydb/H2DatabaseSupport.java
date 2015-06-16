@@ -26,7 +26,6 @@ import org.h2.jdbcx.JdbcDataSource;
 
 import com.j256.ormlite.db.H2DatabaseType;
 import com.j256.ormlite.jdbc.DataSourceConnectionSource;
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 

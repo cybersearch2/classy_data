@@ -14,8 +14,8 @@
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
     <android.sdk.version>5.1.1_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
-    <android.support.version>22.1.1</android.support.version>
-    <robolectric.version>3.0-rc2</robolectric.version>
+    <android.support.version>22.2</android.support.version>
+    <robolectric.version>3.0-rc3</robolectric.version>
     <ormlite.version>4.49-SNAPSHOT</ormlite.version>
     <dagger.version>1.2.2</dagger.version>
     <h2.version>1.2.128</h2.version>
@@ -149,7 +149,7 @@
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>shadows-core</artifactId>
-          <version>3.0-rc2 </version>
+          <version>3.0-rc3</version>
         </dependency> 
         <dependency>
           <groupId>org.apache.maven</groupId>
