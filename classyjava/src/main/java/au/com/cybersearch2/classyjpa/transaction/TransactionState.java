@@ -136,7 +136,8 @@ public class TransactionState
         // Perform check for release state. 
         if (!isValid() || connection.isAutoCommit())
         {
-            if (log.isLoggable(TAG, Level.WARNING))
+            if (log.isLoggable(TAG, Level.WARNING) &&
+                (savedSpecialConnection || connectionSource.getDatabaseType().isNestedSavePointsSupported()))
                 log.warn(TAG, "doCommit() called while invalid");
             return;
         }
@@ -198,16 +199,16 @@ public class TransactionState
      * Check for release state
      * @return boolean true for is valid
      */
-    private boolean isValid()
+    protected boolean isValid()
     {
-        return (connection != null) && (hasSavePoint != null) && (autoCommitAtStart != null); 
+        return (connection != null) && (hasSavePoint != null) && (autoCommitAtStart != null);
     }
 
     /**
      * Turn off auto commit
      * @throws SQLException
      */
-    private void setAutoCommit() throws SQLException
+    protected void setAutoCommit() throws SQLException
     {
         if (connection.isAutoCommitSupported()) 
         {
@@ -227,7 +228,7 @@ public class TransactionState
      * Store save point
      * @throws SQLException
      */
-    private void setSavePoint() throws SQLException
+    protected void setSavePoint() throws SQLException
     {
     	savePointName = SAVE_POINT_PREFIX + transactionId;
         savePoint = connection.setSavePoint(savePointName);
@@ -239,7 +240,7 @@ public class TransactionState
     /**
      * Restore auto commit if required
      */
-    private void resetAutoCommit()
+    protected void resetAutoCommit()
     {
         // try to restore if we are in auto-commit mode
         if (autoCommitAtStart) 
@@ -263,7 +264,7 @@ public class TransactionState
     /**
      * Clear arrangement to use a single connection for the transaction
      */
-    private void clearSpecialConnection()
+    protected void clearSpecialConnection()
     {
         connectionSource.clearSpecialConnection(connection);
         try

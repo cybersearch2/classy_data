@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for support loaders.
  */
 @RunWith(TestRunnerWithManifest.class)
-public class ShadowLoaderTest {
+public class SupportLoaderTest {
   private Loader<String> loader;
   private boolean onForceLoadCalled;
 

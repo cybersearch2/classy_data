@@ -10,7 +10,7 @@ import org.robolectric.util.TestRunnerWithManifest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(TestRunnerWithManifest.class)
-public class ShadowCursorLoaderTest {
+public class CursorLoaderTest {
   @Test
   public void testGetters() {
     Uri uri = Uri.parse("http://robolectric.org");

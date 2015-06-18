@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example.v2;
 
+import java.util.Date;
 import java.util.Random;
 
 /**
@@ -28,18 +29,23 @@ public class QuoteSource
 	static String[] QUOTES =
 	{
 		"To be or not to be",
+		"All the world's a stage",
 		"I come to bury Caesar",
 		"Beware the ides of March",
 		"A rose by any other name",
-		"Once more into the breech",
-		"Romeo, Romeo where for art thou",
+		"Once more into the breach",
+		"All that glisters is not gold",
+		"Romeo, Romeo wherefore art thou",
 		"Write once, run everywhere",
-		"A standard is the starting point for doing things differently"
+		"The lady doth protest too much, methinks",
+		"If music be the food of love, play on",
+		"Now is the winter of our discontent",
+		"Parting is such sweet sorrow"
 	};
 	
 	static String getQuote()
 	{
-		Random rand = new Random();
+		Random rand = new Random(new Date().getTime());
 		return QUOTES[rand.nextInt(QUOTES.length)];
 	}
 }
