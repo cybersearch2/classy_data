@@ -1,11 +1,14 @@
 Classy Tools v1.11
-1. Update android.support.version to 22.2 and robolectric.version to 3.0-rc3
+
+1. Update to Android Support v22.2
+2. Remove spurious commit warning for nested transactions
+3. Update Two Dbs example QuoteSource to fix typo and add more quotes
+4. Add classyanndroid BackgroundTask - a basic AsyncTaskLoader implementation
 ______________________________________________________________________________________________________________________
 Classy Tools v1.0.10
 
 1. Release built on Jenkins
 2. Repo config error fixed on parent pom
-
 ______________________________________________________________________________________________________________________
 Classy Tools v1.0.9
 
