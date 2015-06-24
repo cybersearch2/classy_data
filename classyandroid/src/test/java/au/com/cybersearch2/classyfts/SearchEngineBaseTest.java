@@ -36,6 +36,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.CancellationSignal;
 import android.provider.BaseColumns;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ApplicationLocale;
@@ -82,6 +83,14 @@ public class SearchEngineBaseTest
             return null;
         }
 
+        @Override
+        public Cursor query(Uri uri, String[] projection, String selection,
+                String[] selectionArgs, String sortOrder,
+                CancellationSignal cancellationSignal)
+        {
+            return null;
+        }
+        
         @Override
         public Uri insert(Uri uri, ContentValues values)
         {
@@ -130,6 +139,7 @@ public class SearchEngineBaseTest
             newUriMatcher.addURI(PROVIDER_AUTHORITY, LEX + "/" + SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", LEXICAL_REFRESH_SHORTCUT);
             return newUriMatcher;
         }
+
     }
 
     @Module(injects = { 

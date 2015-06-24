@@ -18,6 +18,7 @@ package au.com.cybersearch2.classyapp;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.CancellationSignal;
 
 /**
  * PrimaryContentProvider
@@ -51,6 +52,17 @@ public interface PrimaryContentProvider
              String selection,
              String[] selectionArgs, 
              String sortOrder);
+
+     /**
+      * Perform query with given SQL search parameters
+      * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String, android.os.CancellationSignal)
+      */
+     Cursor query(Uri uri, 
+             String[] projection, 
+             String selection,
+             String[] selectionArgs, 
+             String sortOrder,
+             CancellationSignal cancellationSignal);
      
      /**
       * Insert content

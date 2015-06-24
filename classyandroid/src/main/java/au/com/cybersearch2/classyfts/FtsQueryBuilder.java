@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.CancellationSignal;
 import android.util.Log;
 
 /**
@@ -46,6 +47,8 @@ public class FtsQueryBuilder extends SQLiteQueryBuilder
     String searchTerm;
     /** Optional maximum number of results to return, or unlimited if zero */
     int limit;
+    /** CancellationSignal */
+    CancellationSignal cancellationSignal;
 
     /**
      * Create an FtsQueryBuilder object 
@@ -168,6 +171,24 @@ public class FtsQueryBuilder extends SQLiteQueryBuilder
     }
 
     /**
+     * Set cancelationSignal
+     * @param cancellationSignal
+     */
+    public void setCancellationSignal(CancellationSignal cancellationSignal)
+    {
+        this.cancellationSignal = cancellationSignal;
+    }
+
+    /**
+     * Returns cancellation signal
+     * @return
+     */
+    public CancellationSignal getCancellationSignal()
+    {
+        return cancellationSignal;
+    }
+
+    /**
      * Perform a query by combining all current settings and the
      * information passed into this method.
      * @param sqLiteDatabase The database to query on
@@ -176,7 +197,16 @@ public class FtsQueryBuilder extends SQLiteQueryBuilder
     protected Cursor doQuery(SQLiteDatabase sqLiteDatabase)
     {
         if (limit > 0)
-            return query(sqLiteDatabase, projection, selection, selectionArgs, null, null, sortOrder, Integer.toString(limit));
-        return query(sqLiteDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+            return query(sqLiteDatabase, projection, selection, selectionArgs, null, null, sortOrder, Integer.toString(limit), cancellationSignal);
+        return query(sqLiteDatabase, projection, selection, selectionArgs, null, null, sortOrder, null, cancellationSignal);
+    }
+
+    /**
+     * Throw exception if cancellation notification receieved
+     */
+    public void throwIfCanceled()
+    {
+        if (cancellationSignal != null)
+            cancellationSignal.throwIfCanceled();
     }
 }

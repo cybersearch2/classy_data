@@ -128,6 +128,8 @@ public abstract class SearchEngineBase implements PrimaryContentProvider
         if ((qb.queryType == LEXICAL_SEARCH_SUGGEST) && isFtsAvailable)
         {    
             Cursor cursor = doLexicalSearch(qb.searchTerm, qb.uri);
+            // Allow cancellation, if notified
+            qb.throwIfCanceled();
             if (cursor != null)
                 return cursor;
             // Fall back to slow text search

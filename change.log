@@ -7,6 +7,7 @@ Classy Tools v1.11
 5. Add start tracker to classyandroid SearchEngineBase
 6. Add unit tests for FtsQueryBuilder and SearchEngineBase and update AndroidTestSuite
 7. Move UriMatcher creation from ClassyFySearchEngine to SearchEngineBase
+8. Add CancellationSignal support to SearchEngineBase
 
 ______________________________________________________________________________________________________________________
 Classy Tools v1.0.10
