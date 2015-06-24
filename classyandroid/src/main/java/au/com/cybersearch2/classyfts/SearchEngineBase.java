@@ -16,6 +16,7 @@
 package au.com.cybersearch2.classyfts;
 
 import android.app.SearchManager;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
@@ -23,11 +24,9 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ApplicationLocale;
-import au.com.cybersearch2.classyfts.FtsEngine;
+import au.com.cybersearch2.classyapp.PrimaryContentProvider;
 import au.com.cybersearch2.classyfts.FtsQuery;
 import au.com.cybersearch2.classyfts.FtsSearch;
-import au.com.cybersearch2.classyfts.FtsEngine.FtsStatus;
-import au.com.cybersearch2.classytask.UserTask;
 
 /**
  * SearchEngineBase
@@ -35,8 +34,9 @@ import au.com.cybersearch2.classytask.UserTask;
  * @author Andrew Bowley
  * 12/07/2014
  */
-public abstract class SearchEngineBase
+public abstract class SearchEngineBase implements PrimaryContentProvider
 {
+       
     public static final String TAG = "SearchEngine";
     /** Keyword in search URI indicates use FTS for search suggestions */
     public static final String LEX = "lex";
@@ -51,7 +51,9 @@ public abstract class SearchEngineBase
     protected static final int LEXICAL_REFRESH_SHORTCUT = 4;
     /** UriMatcher ID for content provider query */
     protected static final int PROVIDER_TYPE = 5;
-    
+
+    /** Provider Authority - application-specific */
+    protected String providerAuthority;
     /** The fast text search query engine */
     protected FtsQuery ftsQuery;
     /** Flag to indicate FTS is supported and available */
@@ -60,14 +62,20 @@ public abstract class SearchEngineBase
     protected ApplicationContext applicationContext;
     /** Android Application Locale */
     protected ApplicationLocale  applicationLocale;
+    /** Map to pair Uri to content type */
+    protected final UriMatcher uriMatcher;
+    
 
     /**
      * Create SearchEngineBase object
      */
-    public SearchEngineBase()
+    public SearchEngineBase(String providerAuthority)
     {
+        this.providerAuthority = providerAuthority;
+        uriMatcher = createUriMatcher();
         applicationContext = new ApplicationContext();
         applicationLocale = new ApplicationLocale();
+
         // Install FtsQuery place holder until flag isFtsAvailable is set true
         ftsQuery = new FtsQuery(){
 
@@ -78,11 +86,15 @@ public abstract class SearchEngineBase
     }
 
     /**
-     * Handle dictionary creation event
-     * @param sqLiteOpenHelper The open helper for the source database which is to be accessed using FTS
+     * Set FtsQuery to replace default once database initialization is complete
+     * @param ftsQuery
      */
-    public abstract void onCreate(SQLiteOpenHelper sqLiteOpenHelper);
-
+    public void setFtsQuery(FtsQuery ftsQuery)
+    {
+        this.ftsQuery = ftsQuery;
+        isFtsAvailable = true;
+    }
+    
     /**
      * Returns MIME type for suggestions data  
      * @param queryType UriMatcher value
@@ -152,6 +164,12 @@ public abstract class SearchEngineBase
         return cursor;
     }
 
+    /**
+     * Returns results of query to retrieve suggestions from Fast Text Search database
+     * @param searchTerm Term to search on
+     * @param limit Maximum number of results
+     * @return Cursor object
+     */
     protected Cursor getSuggestions(String searchTerm, int limit) 
     {
         searchTerm = searchTerm.toLowerCase(applicationLocale.getLocale());
@@ -167,35 +185,12 @@ public abstract class SearchEngineBase
         FtsSearch ftsSearch = new FtsSearch(ftsQuery);
         return ftsSearch.getWordMatches(searchTerm, columns, limit);
     }
-    
-    protected String getSearchSuggestPath(int searchableResourceId)
-    {
-        return applicationContext.getDocumentAttribute(searchableResourceId, "searchSuggestPath");
-    }
-
-    protected void startFtsEngine(final FtsEngine ftsEngine)
-    {
-        UserTask<Void,FtsStatus> initTask = new UserTask<Void,FtsStatus>()
-        {
-            @Override
-            public FtsStatus doInBackground()
-            {    
-                return ftsEngine.initialize();
-            }
-            
-            @Override
-            public void onPostExecute(FtsStatus status)
-            {
-                if (status == FtsStatus.Loaded)
-                {
-                    isFtsAvailable = true;
-                    ftsQuery = ftsEngine;
-                }
-            }
-        };
-        initTask.execute();
-    }
-
+   
+    /**
+     * Returns limit value from Uri or 0 if absent or invalid
+     * @param uri Uri
+     * @return Limit value
+     */
     public static int getLimitFromUri(Uri uri)
     {
         String limitText = uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT);
@@ -212,4 +207,33 @@ public abstract class SearchEngineBase
         }
         return 0;
     }
+    
+    /**
+     * Returns container to map Uri to type
+     * @return UriMatcher object
+     */
+    protected UriMatcher createUriMatcher() 
+    {
+        // Allocate the UriMatcher object where a URI ending is 'all_nodes' will correspond to a request for all nodes, 
+        // and 'all_nodes' with a trailing '/[rowID]' will represent a single all_nodes row
+
+        UriMatcher newUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        // to get suggestions...
+        newUriMatcher.addURI(providerAuthority, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH_SUGGEST);
+        newUriMatcher.addURI(providerAuthority, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH_SUGGEST);
+        newUriMatcher.addURI(providerAuthority, LEX + "/" + SearchManager.SUGGEST_URI_PATH_QUERY, LEXICAL_SEARCH_SUGGEST);
+        newUriMatcher.addURI(providerAuthority, LEX + "/" + SearchManager.SUGGEST_URI_PATH_QUERY + "/*", LEXICAL_SEARCH_SUGGEST);
+        /* The following are unused in this implementation, but if we include
+         * {@link SearchManager#SUGGEST_COLUMN_SHORTCUT_ID} as a column in our suggestions table, we
+         * could expect to receive refresh queries when a shortcutted suggestion is displayed in
+         * Quick Search Box, in which case, the following Uris would be provided and we
+         * would return a cursor with a single item representing the refreshed suggestion data.
+         */
+        newUriMatcher.addURI(providerAuthority, SearchManager.SUGGEST_URI_PATH_SHORTCUT, REFRESH_SHORTCUT);
+        newUriMatcher.addURI(providerAuthority, SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", REFRESH_SHORTCUT);
+        newUriMatcher.addURI(providerAuthority, LEX + "/" + SearchManager.SUGGEST_URI_PATH_SHORTCUT, LEXICAL_REFRESH_SHORTCUT);
+        newUriMatcher.addURI(providerAuthority, LEX + "/" + SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", LEXICAL_REFRESH_SHORTCUT);
+        return newUriMatcher;
+    }
+
 }

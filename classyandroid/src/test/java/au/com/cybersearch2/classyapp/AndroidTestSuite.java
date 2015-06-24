@@ -20,8 +20,13 @@ import org.junit.runners.Suite;
 
 import au.com.cybersearch2.classydb.AndroidConnectionSourceFactoryTest;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupportTest;
+import au.com.cybersearch2.classydb.OpenEventHandlerTest;
 import au.com.cybersearch2.classyfts.FtsEngineTest;
+import au.com.cybersearch2.classyfts.FtsQueryBuilderTest;
+import au.com.cybersearch2.classyfts.SearchEngineBaseTest;
 import au.com.cybersearch2.classyjpa.AndroidJpaIntegrationTest;
+import au.com.cybersearch2.example.HelloTwoDbsTest;
+import au.com.cybersearch2.example.v2.HelloTwoDbsUpgradeTest;
 
 /**
  * AndroidTestSuite
@@ -30,10 +35,16 @@ import au.com.cybersearch2.classyjpa.AndroidJpaIntegrationTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+    RoboTest.class,
+    FtsQueryBuilderTest.class,
     FtsEngineTest.class,
+    SearchEngineBaseTest.class,
     AndroidJpaIntegrationTest.class,
     AndroidConnectionSourceFactoryTest.class,
-    AndroidDatabaseSupportTest.class
+    AndroidDatabaseSupportTest.class,
+    OpenEventHandlerTest.class,
+    HelloTwoDbsTest.class,
+    HelloTwoDbsUpgradeTest.class
 })
 public class AndroidTestSuite
 {

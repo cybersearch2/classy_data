@@ -92,11 +92,8 @@ public class FtsQueryBuilder extends SQLiteQueryBuilder
         if ((queryType == SearchEngineBase.LEXICAL_SEARCH_SUGGEST) || 
             (queryType == SearchEngineBase.SEARCH_SUGGEST))          
         {
-            if (searchTerm.length() == 0)
-            {
-                if (uri.getPathSegments().size() > 1)
-                    searchTerm = uri.getPathSegments().get(1);
-            }
+            if ((searchTerm.length() == 0) && (uri.getPathSegments().size() > 1))
+                searchTerm = uri.getPathSegments().get(1);
         }
     }
     
@@ -160,7 +157,16 @@ public class FtsQueryBuilder extends SQLiteQueryBuilder
     public String getSearchTerm() {
         return searchTerm;
     }
-    
+  
+    /**
+     * Returns limit
+     * @return int
+     */
+    public int getLimit()
+    {
+        return limit;
+    }
+
     /**
      * Perform a query by combining all current settings and the
      * information passed into this method.
