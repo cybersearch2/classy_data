@@ -98,9 +98,9 @@ public class PersistenceContainerTest
         }
         
         @Override
-        public void doInBackground(EntityManagerLite entityManager) 
+        public void doTask(EntityManagerLite entityManager) 
         {
-            super.doInBackground(entityManager);
+            super.doTask(entityManager);
             entityManager.persist(entity);
         }
     }
@@ -115,9 +115,9 @@ public class PersistenceContainerTest
         }
         
         @Override
-        public void doInBackground(EntityManagerLite entityManager) 
+        public void doTask(EntityManagerLite entityManager) 
         {
-            super.doInBackground(entityManager);
+            super.doTask(entityManager);
             entityManager.setFlushMode(FlushModeType.AUTO);
         }
     }

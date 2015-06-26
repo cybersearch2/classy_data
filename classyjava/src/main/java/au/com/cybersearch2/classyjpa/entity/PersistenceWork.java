@@ -24,14 +24,8 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
  * @author Andrew Bowley
  * 28/06/2014
  */
-public interface PersistenceWork
+public interface PersistenceWork extends PersistenceTask
 {
-    /**
-     * Perform a persistence operation on a background thread. The
-     * @param entityManager Entity manager provided to perform persistence operation(s). Do not call close().
-     */
-    void doInBackground(EntityManagerLite entityManager);
-    
     /**
      * Runs on separate thread after successful completion of {@link #doInBackground(EntityManagerLite entityManager)}.
      * @param success True if PersistenceWork completed successfully, otherwise false

@@ -79,7 +79,7 @@ public class UsersByPostTask implements PersistenceWork
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void doInBackground(EntityManagerLite entityManager) 
+    public void doTask(EntityManagerLite entityManager) 
     {
         entityManager.merge(user1);
         entityManager.merge(user2);

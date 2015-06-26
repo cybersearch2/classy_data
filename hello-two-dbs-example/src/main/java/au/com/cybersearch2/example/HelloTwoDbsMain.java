@@ -192,7 +192,7 @@ public class HelloTwoDbsMain
         PersistenceWork todo = new PersistenceWork(){
 
             @Override
-            public void doInBackground(EntityManagerLite entityManager)
+            public void doTask(EntityManagerLite entityManager)
             {
             	persistenceTask.doTask(entityManager);
                 // Database updates commited upon exit

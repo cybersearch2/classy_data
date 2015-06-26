@@ -15,7 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import au.com.cybersearch2.classyjpa.entity.InProcessPersistenceContainer;
+import au.com.cybersearch2.classyjpa.EntityManagerLite;
+import au.com.cybersearch2.classyjpa.entity.JavaPersistenceContext;
+import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
+import au.com.cybersearch2.classyjpa.entity.JavaPersistenceContext.EntityManagerProvider;
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classytask.Executable;
 
 import com.j256.ormlite.support.ConnectionSource;
 
@@ -32,8 +39,10 @@ import com.j256.ormlite.support.ConnectionSource;
  * 24/06/2014
  * @see InProcessPersistenceContainer
  */
-public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer implements OpenHelperCallbacks
+public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
 {
+    protected DatabaseAdmin databaseAdmin;
+    protected PersistenceAdmin persistenceAdmin;
     
     /**
      * Create ClassyOpenHelperCallbacks object
@@ -41,7 +50,9 @@ public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer imple
      */
     public OpenHelperCallbacksImpl(String puName)
     {
-    	super(puName);
+        PersistenceContext persistenceContext = new PersistenceContext();
+        databaseAdmin = persistenceContext.getDatabaseAdmin(puName);
+        persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
     }
 
     /**
@@ -87,4 +98,42 @@ public class OpenHelperCallbacksImpl extends InProcessPersistenceContainer imple
     	databaseAdmin.onUpgrade(connectionSource, oldVersion, newVersion);
     }
 
+    /**
+     * Execute persistence work in same thread as caller
+     * @param connectionSource Open ConnectionSource object
+     * @param persistenceTask Object specifying unit of work
+     * @return Executable object track task status
+     */
+    protected Executable doWork(final ConnectionSource connectionSource, final PersistenceTask persistenceTask)
+    {
+        // Persistence work required for JavaPersistenceContext, but only doTask() is relevant
+        // as work is performed on caller's thread
+        PersistenceWork persistenceWork = new PersistenceWork(){
+
+            @Override
+            public void doTask(EntityManagerLite entityManager)
+            {
+                persistenceTask.doTask(entityManager);
+            }
+
+            @Override
+            public void onPostExecute(boolean success)
+            {
+            }
+
+            @Override
+            public void onRollback(Throwable rollbackException)
+            {
+            }
+        };
+        JavaPersistenceContext jpaContext = new JavaPersistenceContext(persistenceWork, new EntityManagerProvider(){
+
+            @Override
+            public EntityManagerLite entityManagerInstance()
+            {
+                return persistenceAdmin.createEntityManager(connectionSource);
+            }
+        }); 
+        return jpaContext.executeInProcess();
+    }
 }

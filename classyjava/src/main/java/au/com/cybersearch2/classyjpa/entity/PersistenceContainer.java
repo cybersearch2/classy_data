@@ -15,16 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.entity;
 
-import com.j256.ormlite.support.ConnectionSource;
-
+import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
+import au.com.cybersearch2.classyjpa.entity.JavaPersistenceContext.EntityManagerProvider;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.transaction.TransactionInfo;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
-import au.com.cybersearch2.classytask.WorkStatus;
 
 /**
  * PersistenceContainer
@@ -45,11 +43,10 @@ public class PersistenceContainer
     protected EntityManagerLiteFactory entityManagerFactory;
     /** Flag set if executes asynchronously (default = false if only single connection ) */
     protected boolean async;
-    protected ConnectionSource connectionSource;
-    
+    /** Persistence Unit name */
     protected String puName;
-    /** Object which provides access to full persistence implementation */
-    protected PersistenceContext persistenceContext;
+    /** Persistence unit administration */
+    protected PersistenceAdmin persistenceAdmin;
 
     /**
      * Create PersistenceContainer object 
@@ -68,9 +65,8 @@ public class PersistenceContainer
     public PersistenceContainer(String puName, boolean async)
     {
         this.puName = puName;
-        persistenceContext = new PersistenceContext();
         /** Reference Persistence Unit specified by name to extract EntityManagerFactory object */
-        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
+        PersistenceAdmin persistenceAdmin = new PersistenceContext().getPersistenceAdmin(puName);
         if (async && persistenceAdmin.isSingleConnection())
         	async = false;
         this.async = async;
@@ -91,50 +87,36 @@ public class PersistenceContainer
      * @param persistenceWork Object specifying unit of work
      * @return Executable. 
      */
-    public Executable executeTask(final PersistenceWork persistenceWork)
+    public Executable executeTask(PersistenceWork persistenceWork)
     {
-    	final PersistenceTaskImpl persistenceTask = new PersistenceTaskImpl(persistenceWork, entityManagerFactory);
-    	persistenceTask.getTransactionInfo().setUserTransaction(isUserTransactionMode);
+        JavaPersistenceContext jpaContext = getPersistenceTask(persistenceWork);
         if (!async)
-        {
-        	final Executable exe = new Executable()
-    		{
-    			@Override
-    			public WorkStatus getStatus() 
-    			{
-    				return persistenceTask.status;
-    			}
-    		};
-        	final Boolean[] success =  { Boolean.FALSE };
-    		success[0] = persistenceTask.executeInProcess(exe);
-        	return exe;
-        }
+    		return jpaContext.executeInProcess();
         else
         {
-        	TaskBase  task = new TaskBase(persistenceTask);
+        	TaskBase  task = new TaskBase(jpaContext);
         	task.execute();
         	return task;
         }
     }
 
-    public PersistenceTaskImpl getPersistenceTask(final PersistenceWork persistenceWork)
+    /**
+     * Returns object which creates a persistence context and executes a task in that contex
+     * @param persistenceWork
+     * @return
+     */
+    public JavaPersistenceContext getPersistenceTask(PersistenceWork persistenceWork)
     {
-    	final PersistenceTaskImpl persistenceTask = new PersistenceTaskImpl(persistenceWork, entityManagerFactory);
-    	persistenceTask.getTransactionInfo().setUserTransaction(isUserTransactionMode);
-    	return persistenceTask;
+        JavaPersistenceContext jpaContext = 
+            new JavaPersistenceContext(persistenceWork, new EntityManagerProvider(){
+
+                @Override
+                public EntityManagerLite entityManagerInstance()
+                {
+                    return entityManagerFactory.createEntityManager();
+                }}); 
+        jpaContext.getTransactionInfo().setUserTransaction(isUserTransactionMode);
+    	return jpaContext;
     }
     
-    public PersistenceTaskImpl getPersistenceTask(final PersistenceWork persistenceWork, TransactionInfo transactionInfo)
-    {
-    	final PersistenceTaskImpl persistenceTask = new PersistenceTaskImpl(persistenceWork, entityManagerFactory, transactionInfo);
-    	persistenceTask.getTransactionInfo().setUserTransaction(isUserTransactionMode);
-    	return persistenceTask;
-    }
-
-	public Boolean executeInBackground(PersistenceWork persistenceWork,
-			TransactionInfo transactionInfo) 
-	{
-		getPersistenceTask(persistenceWork, transactionInfo).executeInBackground(); 
-		return null;
-	}
 }

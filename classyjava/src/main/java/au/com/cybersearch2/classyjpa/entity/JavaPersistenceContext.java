@@ -21,7 +21,6 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
 import au.com.cybersearch2.classyjpa.transaction.TransactionInfo;
 import au.com.cybersearch2.classyjpa.transaction.UserTransactionSupport;
 import au.com.cybersearch2.classylog.JavaLogger;
@@ -30,12 +29,19 @@ import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
 
 /**
- * PersistenceTaskImpl
+ * JavaPersistenceContext
+ * Creates a persistence context and executes a task in that context. 
+ * Allows for execution in process (synchronous) as well as in background thread (asynchronous). 
  * @author Andrew Bowley
  * 25 Mar 2015
  */
-public class PersistenceTaskImpl 
+public class JavaPersistenceContext
 {
+    public interface EntityManagerProvider
+    {
+        EntityManagerLite entityManagerInstance();
+    }
+    
     private static final String TAG = "PersistenceTaskImpl";
     private Log log = JavaLogger.getLogger(TAG);
     
@@ -43,42 +49,59 @@ public class PersistenceTaskImpl
     protected TransactionInfo transactionInfo;
     /** Work to be performed */
     protected PersistenceWork persistenceWork;
-    /** JPA EntityManager "lite" factory ie. only API v1 supported. */
-    protected EntityManagerLiteFactory entityManagerFactory;
-    boolean singleConnection;
-    ExecutionException executionException;
-    WorkStatus status;
+    /** JPA EntityManager "lite" provider hides special case where a reserved ConnectionSource must be employed */
+    protected EntityManagerProvider entityManagerProvider;
+    /** Unexpected RunTimeException caught in process execution */
+    protected ExecutionException executionException;
+    /** Execution status - final state will be FINISHED or FAILED */
+    protected WorkStatus status;
 
-    public PersistenceTaskImpl(PersistenceWork persistenceWork, EntityManagerLiteFactory entityManagerFactory)
+    /**
+     * Construct JavaPersistenceContext object
+     * @param persistenceWork Work to be performed in Java Persistence context
+     * @param entityManagerFactory EntityManager factory
+     */
+    public JavaPersistenceContext(PersistenceWork persistenceWork, EntityManagerProvider entityManagerProvider)
     {
-    	this(persistenceWork,  entityManagerFactory,new TransactionInfo());
-    }
-    public PersistenceTaskImpl(PersistenceWork persistenceWork, EntityManagerLiteFactory entityManagerFactory, TransactionInfo transactionInfo)
-    {
-
-    	this.persistenceWork = persistenceWork;
-    	this.entityManagerFactory = entityManagerFactory;
-        this.transactionInfo = transactionInfo;
+        this.persistenceWork = persistenceWork;
+        this.entityManagerProvider = entityManagerProvider;
+        this.transactionInfo = new TransactionInfo();
         status = WorkStatus.PENDING;
     }
-    
+
+    /**
+     * Returns transaction information
+     * @return TransactionInfo object
+     */
     public TransactionInfo getTransactionInfo()
     {
     	return transactionInfo;
     }
-    
+ 
+    /**
+     * Returns execution status
+     * @return WorkStatus object
+     */
     public WorkStatus getWorkStatus()
     {
     	return status;
     }
-    
-    public Boolean doInBackground() 
+ 
+    /**
+     * Execute task in process 
+     * @param exe Executable
+     * @return
+     */
+    public Executable executeInProcess()
     {
-        return executeInBackground();
-    }
-    
-    Boolean executeInProcess(final Executable exe)
-    {
+        final Executable exe = new Executable()
+        {
+            @Override
+            public WorkStatus getStatus() 
+            {
+                return status;
+            }
+        };
     	final Boolean[] success = { Boolean.FALSE };
     	Runnable completeTaskRunnable = new Runnable(){
 
@@ -94,18 +117,11 @@ public class PersistenceTaskImpl
 				{
 					exe.notifyAll();
 				}
-				if (singleConnection)
-				{
-					synchronized(persistenceWork)
-					{
-						persistenceWork.notifyAll();
-					}
-				}
 			}
 		};
 		try
 		{
-    	    success[0] = executeInBackground();
+    	    success[0] = doTask();
     	    completeTaskRunnable.run(); 
 		}
 		catch (RuntimeException e)
@@ -120,58 +136,21 @@ public class PersistenceTaskImpl
 		}
 		if (executionException != null)
 			throw (RuntimeException)executionException.getCause();
-       return success[0];
+       return exe;
     }
     
     /**
-     * Process signalled result after task has run
-     * @param success Boolean TRUE or FALSE or null if task cancelled before result available
-     */
-    public void onPostExecute(Boolean success) 
-    {
-        // Check for uncaught exception causing background thread to abort
-        if (executionException != null)
-        {
-            EntityTransaction transaction = transactionInfo.getTransaction();
-            // Rollback transaction, if active
-            if ((transaction != null) && transaction.isActive())
-                transaction.rollback();
-            // If rollback exception not already captured, set the uncaught exception as the rollback cause
-            if (transactionInfo.getRollbackException() == null)
-                transactionInfo.setRollbackException(executionException.getCause());
-
-        }
-        // Complete work based on final outcome: success/failure/rollback
-        Throwable rollbackException = transactionInfo.getRollbackException();
-        if ((rollbackException != null) || (success == null))
-            success = Boolean.FALSE;
-        if (rollbackException != null)
-        {
-            persistenceWork.onRollback(rollbackException);
-            log.error(TAG, "Persistence container rolled back transaction", rollbackException);
-        }
-        else
-            persistenceWork.onPostExecute(success);
-        // Set final work status FINISHED/FAILED
-        if (success)
-            status = WorkStatus.FINISHED;
-        else
-            status = WorkStatus.FAILED;
-    }
-
-
-    /**
-     * Execute persistence work in background thread
+     * Execute persistence work. 
      * @param persistenceWork Object specifying unit of work
      * @param transactionInfo Enclosing transaction and associated information
      * @return Boolean result - TRUE = success, FALSE = failure/rollback 
      *          or null if exception thrown on transaction begin() called.
      */
-    protected Boolean executeInBackground()
+    public Boolean doTask()
     {
          // Use UserTransactionSupport interface to safely set user transaction mode
         UserTransactionSupport userTransactionSupport = null;
-        EntityManagerLite entityManager = entityManagerFactory.createEntityManager();
+        EntityManagerLite entityManager = entityManagerProvider.entityManagerInstance();
         if (entityManager instanceof UserTransactionSupport)
         {
             userTransactionSupport = (UserTransactionSupport)entityManager;
@@ -207,7 +186,7 @@ public class PersistenceTaskImpl
         boolean setRollbackOnly = false;
         try
         {
-            persistenceWork.doInBackground(entityManager);
+            persistenceWork.doTask(entityManager);
             success = true;
         }
         catch (PersistenceException e)
@@ -234,6 +213,41 @@ public class PersistenceTaskImpl
         return success && !setRollbackOnly;
     }
  
+    /**
+     * Process signalled result after task has run
+     * @param success Boolean TRUE or FALSE or null if task cancelled before result available
+     */
+    public void onPostExecute(Boolean success) 
+    {
+        // Check for uncaught exception causing background thread to abort
+        if (executionException != null)
+        {
+            EntityTransaction transaction = transactionInfo.getTransaction();
+            // Rollback transaction, if active
+            if ((transaction != null) && transaction.isActive())
+                transaction.rollback();
+            // If rollback exception not already captured, set the uncaught exception as the rollback cause
+            if (transactionInfo.getRollbackException() == null)
+                transactionInfo.setRollbackException(executionException.getCause());
+
+        }
+        // Complete work based on final outcome: success/failure/rollback
+        Throwable rollbackException = transactionInfo.getRollbackException();
+        if ((rollbackException != null) || (success == null))
+            success = Boolean.FALSE;
+        if (rollbackException != null)
+        {
+            persistenceWork.onRollback(rollbackException);
+            log.error(TAG, "Persistence container rolled back transaction", rollbackException);
+        }
+        else
+            persistenceWork.onPostExecute(success);
+        // Set final work status FINISHED/FAILED
+        if (success)
+            status = WorkStatus.FINISHED;
+        else
+            status = WorkStatus.FAILED;
+    }
     /**
      * Resolve outcome of persistence work given all relevant parameters. 
      * Includes Commit/rollback by calling EntityManager close(), unless unexpected exception has occurred.

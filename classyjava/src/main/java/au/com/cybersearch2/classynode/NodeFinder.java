@@ -29,43 +29,58 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 
 /**
- * NodeFinder
+- * NodeFinder
  * Abstract persistence work overrides doInBackground() to perform find node by primary key.
  * Sub class to override onPostExecute() and onRollback() 
  * @author Andrew Bowley
  * 05/09/2014
  */
-public abstract class NodeFinder implements PersistenceWork
+public class NodeFinder implements PersistenceWork
 {
+    public interface Callback
+    {
+        /**
+         * Handle node found in caller's thread
+         * @param node Node returned by search is a graph fragment containing all found node ancestors and immediate children
+         */
+        void onNodeFound(Node node);
+        /**
+         * Handle node not found in caller's thread. Check if getRollbackException returns non-null in case of failure.
+         * @param nodeId Node identity
+         */
+        void onNodeNotFound(int nodeId);
+        /**
+         * Handle rollback
+         * @param nodeId Node identity
+         * @param rollbackException Exception which caused rollback
+         */
+        void onRollback(int nodeId, Throwable rollbackException);
+    }
+
+    /** Callback to handle completion in caller's thread */
+    protected Callback callback;
+    
     /** Primary key to search on */
     protected int nodeId;
-    /** Node returned by search is a graph fragment containing all found node ancestors and immediate children */
+    /**  Node returned by successful search */
     protected Node node;
     
     /**
      * Create NodeFinder object
      * @param nodeId Primary key to search on
      */
-    public NodeFinder(int nodeId)
+    public NodeFinder(int nodeId, Callback callback)
     {
         this.nodeId = nodeId;
+        this.callback = callback;
     }
 
-    /**
-     * Returns graph fragment containing all found node ancestors and immediate children
-     * @return Node
-     */
-    Node getNode()
-    {
-        return node;
-    }
-    
     /**
      * Find node by primary key on background thread
      * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#doInBackground(au.com.cybersearch2.classyjpa.EntityManagerLite)
      */
     @Override
-    public void doInBackground(EntityManagerLite entityManager) 
+    public void doTask(EntityManagerLite entityManager) 
     {
         NodeEntity nodeEntity = entityManager.find(NodeEntity.class, nodeId);
 
@@ -86,5 +101,20 @@ public abstract class NodeFinder implements PersistenceWork
         {
             throw new PersistenceException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void onPostExecute(boolean success)
+    {
+        if (success)
+            callback.onNodeFound(node);
+        else
+            callback.onNodeNotFound(nodeId);
+    }
+
+    @Override
+    public void onRollback(Throwable rollbackException)
+    {
+        callback.onRollback(nodeId, rollbackException);
     }
 }

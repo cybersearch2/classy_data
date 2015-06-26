@@ -32,15 +32,15 @@ public class TaskBase extends WorkerTask<Boolean>
     //private Log log = JavaLogger.getLogger(TAG);
     
     /** Task to be performed */
-    protected PersistenceTaskImpl persistenceTask;
+    protected JavaPersistenceContext persistenceContext;
 
     /**
      * Constructor
-     * @param persistenceTask Object containing work to be performed
+     * @param persistenceContext Object which creates a persistence context and executes a task in that context
      */
-    public TaskBase(PersistenceTaskImpl persistenceTask)
+    public TaskBase(JavaPersistenceContext persistenceContext)
     {
-        this.persistenceTask = persistenceTask;
+        this.persistenceContext = persistenceContext;
     }
  
     /**
@@ -62,9 +62,9 @@ public class TaskBase extends WorkerTask<Boolean>
     @Override
     public void onPostExecute(Boolean success) 
     {
-    	persistenceTask.setExecutionException(getExecutionException());
-    	persistenceTask.onPostExecute(success);
-    	status = persistenceTask.getWorkStatus();
+        persistenceContext.setExecutionException(getExecutionException());
+        persistenceContext.onPostExecute(success);
+    	status = persistenceContext.getWorkStatus();
     }
 
     /**
@@ -75,7 +75,7 @@ public class TaskBase extends WorkerTask<Boolean>
     @Override
     public void onCancelled(Boolean success) 
     {
-    	persistenceTask.onPostExecute(success);
+        persistenceContext.onPostExecute(success);
         notifyTaskCompleted();
     }
 
@@ -85,7 +85,7 @@ public class TaskBase extends WorkerTask<Boolean>
      */
     public TransactionInfo getTransactionInfo()
     {
-        return persistenceTask.getTransactionInfo();
+        return persistenceContext.getTransactionInfo();
     }
  
     /**
@@ -99,9 +99,13 @@ public class TaskBase extends WorkerTask<Boolean>
         }
     }
 
+    /**
+     * doInBackground
+     * @see au.com.cybersearch2.classytask.WorkerTask#doInBackground()
+     */
 	@Override
 	public Boolean doInBackground() 
 	{
-		return persistenceTask.doInBackground();
+		return persistenceContext.doTask();
 	}
 }

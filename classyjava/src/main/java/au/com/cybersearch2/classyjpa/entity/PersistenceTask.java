@@ -18,12 +18,16 @@ package au.com.cybersearch2.classyjpa.entity;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 
 /**
- * PersistenceTask executes in PersistenceWork backgroundTask
+ * PersistenceTask performs Java Persistence operations in a container
  * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork
  * @author Andrew Bowley
  * 20 Nov 2014
  */
 public interface PersistenceTask 
 {
+    /**
+     * Perform a persistence operation. Execute on a background thread if multiple connections on a DataSource are allowed.
+     * @param entityManager Entity manager provided to perform persistence operation(s). Do not call close().
+     */
 	void doTask(EntityManagerLite entityManager);
 }

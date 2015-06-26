@@ -47,7 +47,7 @@ public class TestPersistenceWork implements PersistenceWork
     }
     
     @Override
-    public void doInBackground(EntityManagerLite entityManager) 
+    public void doTask(EntityManagerLite entityManager) 
     {
         transcript.add("background task");
         if (doInBackgroundCallback != null)

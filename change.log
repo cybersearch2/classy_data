@@ -1,13 +1,16 @@
 Classy Tools v1.11
 
-1. Update to Android Support v22.2
-2. Remove spurious commit warning for nested transactions
-3. Update Two Dbs example QuoteSource to fix typo and add more quotes
-4. Add classyandroid BackgroundTask - a basic AsyncTaskLoader implementation
-5. Add start tracker to classyandroid SearchEngineBase
-6. Add unit tests for FtsQueryBuilder and SearchEngineBase and update AndroidTestSuite
-7. Move UriMatcher creation from ClassyFySearchEngine to SearchEngineBase
-8. Add CancellationSignal support to SearchEngineBase
+ 1. Update to Android Support v22.2
+ 2. Remove spurious commit warning for nested transactions
+ 3. Update Two Dbs example QuoteSource to fix typo and add more quotes
+ 4. Add classyandroid BackgroundTask - a basic AsyncTaskLoader implementation
+ 5. Add start tracker to classyandroid SearchEngineBase
+ 6. Add unit tests for FtsQueryBuilder and SearchEngineBase and update AndroidTestSuite
+ 7. Move UriMatcher creation from ClassyFySearchEngine to SearchEngineBase
+ 8. Add CancellationSignal support to SearchEngineBase
+ 9. Removed doInBackground() from interface PersistenceWork which now extends PersistenceTask
+10. Changed PersistenceTaskImpl to JavaPersistenceContext and cleaned up code
+11. Removed InProcessPersistenceContainer and refactored OpenHelperCallbacksImpl to use JavaPersistenceContext
 
 ______________________________________________________________________________________________________________________
 Classy Tools v1.0.10

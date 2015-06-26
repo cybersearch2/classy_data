@@ -16,10 +16,9 @@
 package au.com.cybersearch2.classyjpa.entity;
 
 import android.content.Context;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.content.Loader.OnLoadCompleteListener;
 import au.com.cybersearch2.classyapp.ApplicationContext;
+import au.com.cybersearch2.classytask.BackgroundTask;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
 import au.com.cybersearch2.classytask.WorkTracker;
@@ -32,10 +31,10 @@ import au.com.cybersearch2.classytask.WorkTracker;
  */
 public class PersistenceLoader
 {
-	class LoaderImpl extends AsyncTaskLoader<Boolean> implements OnLoadCompleteListener<Boolean>
+	class LoaderImpl extends BackgroundTask
 	{
 	    /** Persistence task */
-	    protected PersistenceTaskImpl persistenceTask;
+	    protected JavaPersistenceContext persistenceTask;
 	    /** Object to track work status and notify completion */
 	    protected WorkTracker workTracker;
 	    /** Persistence unit object to perform persistence work */
@@ -50,8 +49,6 @@ public class PersistenceLoader
 	        	persistenceContainer.setUserTransactionMode(true);
 	        persistenceTask = persistenceContainer.getPersistenceTask(persistenceWork);
 	        workTracker = new WorkTracker();
-	        // Register self as onLoadCompleteListener
-	        registerListener(1, this);
 	    }
 	    
 	    /**
@@ -62,24 +59,9 @@ public class PersistenceLoader
 	    @Override
 	    public Boolean loadInBackground() 
 	    {
-	        Boolean success =  persistenceTask.doInBackground();
+	        Boolean success =  persistenceTask.doTask();
 	        workTracker.setStatus(success ? WorkStatus.RUNNING : WorkStatus.FAILED);
 	        return success;
-	    }
-
-	    /**
-	     * Starts an asynchronous load of the Loader's data. When the result
-	     * is ready the callbacks will be called on the process's main thread.
-	     * If a previous load has been completed and is still valid
-	     * the result may be passed to the callbacks immediately.
-	     * The loader will monitor the source of
-	     * the data set and may deliver future callbacks if the source changes.
-	     * <p>Must be called from the process's main thread.
-	     */
-	    @Override
-	    protected void onStartLoading() 
-	    {
-	        forceLoad();
 	    }
 
 	    /**
