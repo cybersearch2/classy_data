@@ -24,6 +24,7 @@ import au.com.cybersearch2.classydb.SQLiteDatabaseSupportTest;
 import au.com.cybersearch2.classydb.SQLiteSupportTest;
 import au.com.cybersearch2.classyjpa.JpaIntegrationTest;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerImplTest;
+import au.com.cybersearch2.classyjpa.entity.JavaPersistenceContextTest;
 import au.com.cybersearch2.classyjpa.entity.ObjectMonitorTest;
 import au.com.cybersearch2.classyjpa.entity.OrmDaoHelperFactoryTest;
 import au.com.cybersearch2.classyjpa.entity.OrmDaoHelperTest;
@@ -60,6 +61,7 @@ import au.com.cybersearch2.classynode.NodeTest;
     DatabaseAdminImplTest.class,
     NativeScriptDatabaseWorkTest.class,
     PersistenceDaoTest.class,
+    JavaPersistenceContextTest.class,
     PersistenceContainerTest.class,
     SingleConnectPersistenceContainerTest.class,
     SQLiteDatabaseSupportTest.class,

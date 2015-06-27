@@ -113,10 +113,18 @@ public class JavaPersistenceContext
 					status = WorkStatus.FAILED;
 				else
 				    status = success[0] ? WorkStatus.FINISHED : WorkStatus.FAILED;
-				synchronized(exe)
-				{
-					exe.notifyAll();
-				}
+				// Notify owner of persistence work
+				// when running in separate thread
+				if (executionException != null)
+				    synchronized(persistenceWork)
+				    {
+				        persistenceWork.notifyAll();
+				    }
+				else
+	                synchronized(exe)
+	                {
+	                    exe.notifyAll();
+	                }
 			}
 		};
 		try
@@ -148,6 +156,7 @@ public class JavaPersistenceContext
      */
     public Boolean doTask()
     {
+        status = WorkStatus.RUNNING;
          // Use UserTransactionSupport interface to safely set user transaction mode
         UserTransactionSupport userTransactionSupport = null;
         EntityManagerLite entityManager = entityManagerProvider.entityManagerInstance();
@@ -170,7 +179,8 @@ public class JavaPersistenceContext
         else
             try
             {   // Use container managed transaction. User can only request rollback.
-                userTransactionSupport.setUserTransaction(false);
+                if (userTransactionSupport != null)
+                    userTransactionSupport.setUserTransaction(false);
                  // The container manages the transaction, so begin before work starts
                 transaction.begin();
             }

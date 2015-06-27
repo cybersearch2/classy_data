@@ -26,7 +26,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import javax.inject.Singleton;
 import javax.persistence.EntityExistsException;
-import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceException;
 
@@ -120,50 +119,6 @@ public class PersistenceContainerTest
             super.doTask(entityManager);
             entityManager.setFlushMode(FlushModeType.AUTO);
         }
-    }
-
-    class TestTransaction implements EntityTransaction
-    {
-        boolean rollbackOnly;
-        boolean isActive;
-        
-   
-        @Override
-        public void begin() {
-            transaction.begin();
-            isActive = true;
-        }
-
-        @Override
-        public void commit() {
-            if (rollbackOnly)
-                transaction.rollback();
-            else
-                transaction.commit();
-            isActive = false;
-        }
-
-        @Override
-        public boolean getRollbackOnly() {
-            return rollbackOnly;
-        }
-
-        @Override
-        public boolean isActive() {
-            return isActive;
-        }
-
-        @Override
-        public void rollback() {
-            transaction.rollback();
-            isActive = false;
-        }
-
-        @Override
-        public void setRollbackOnly() {
-            rollbackOnly = true;
-        }
-        
     }
 
     private EntityManagerImpl entityManager;

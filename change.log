@@ -11,6 +11,7 @@ Classy Tools v1.11
  9. Removed doInBackground() from interface PersistenceWork which now extends PersistenceTask
 10. Changed PersistenceTaskImpl to JavaPersistenceContext and cleaned up code
 11. Removed InProcessPersistenceContainer and refactored OpenHelperCallbacksImpl to use JavaPersistenceContext
+12. Added JavaPersistenceContext unit test
 
 ______________________________________________________________________________________________________________________
 Classy Tools v1.0.10

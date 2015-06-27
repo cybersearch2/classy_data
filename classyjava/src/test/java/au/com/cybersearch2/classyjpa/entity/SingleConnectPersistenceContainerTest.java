@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.entity;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -22,41 +24,37 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import javax.inject.Singleton;
 import javax.persistence.EntityExistsException;
-import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import com.j256.ormlite.support.ConnectionSource;
-
-import dagger.Module;
-import dagger.Provides;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
-import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestEntityManagerFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classytask.Executable;
-import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
+import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.WorkStatus;
 import au.com.cybersearch2.classytask.WorkerRunnable;
 import au.com.cybersearch2.classyutil.Transcript;
+
+import com.j256.ormlite.support.ConnectionSource;
+
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * PersistenceContainerTest
@@ -122,50 +120,6 @@ public class SingleConnectPersistenceContainerTest
             super.doTask(entityManager);
             entityManager.setFlushMode(FlushModeType.AUTO);
         }
-    }
-
-    class TestTransaction implements EntityTransaction
-    {
-        boolean rollbackOnly;
-        boolean isActive;
-        
-   
-        @Override
-        public void begin() {
-            transaction.begin();
-            isActive = true;
-        }
-
-        @Override
-        public void commit() {
-            if (rollbackOnly)
-                transaction.rollback();
-            else
-                transaction.commit();
-            isActive = false;
-        }
-
-        @Override
-        public boolean getRollbackOnly() {
-            return rollbackOnly;
-        }
-
-        @Override
-        public boolean isActive() {
-            return isActive;
-        }
-
-        @Override
-        public void rollback() {
-            transaction.rollback();
-            isActive = false;
-        }
-
-        @Override
-        public void setRollbackOnly() {
-            rollbackOnly = true;
-        }
-        
     }
 
     private EntityManagerImpl entityManager;
@@ -362,7 +316,7 @@ public class SingleConnectPersistenceContainerTest
     public void test_persist_UnsupportedOperationException() throws InterruptedException
     {
         UnsupportedOperationException exception = new UnsupportedOperationException("FlushModeType.AUTO not supported");
-        Mockito.doThrow(exception).when(entityManager).setFlushMode(FlushModeType.AUTO);
+        doThrow(exception).when(entityManager).setFlushMode(FlushModeType.AUTO);
         do_persist_exception(exception, new FlushModeWork(transcript));
     }
     
