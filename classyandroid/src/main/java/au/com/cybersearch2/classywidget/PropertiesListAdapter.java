@@ -45,11 +45,20 @@ public class PropertiesListAdapter extends BaseAdapter
     {
         String name;
         String value;
-        
+        // For getItemId()
+        Long id;
+ 
         public Value(String name, String value)
+        {
+            // Id = -1 means default to position
+            this(name, value, -1);
+        }
+        
+        public Value(String name, String value, long id)
         {
             this.name = name;
             this.value = value;
+            this.id = id;
         }
 
         public String getName() {
@@ -58,6 +67,10 @@ public class PropertiesListAdapter extends BaseAdapter
 
         public String getValue() {
             return value;
+        }
+        
+        public long getId() {
+            return id;
         }
     }
     
@@ -132,12 +145,12 @@ public class PropertiesListAdapter extends BaseAdapter
     public Object getItem(int position) 
     {
         if ((position < 0) || (position >= propertiesList.size() ))
-            return new Value("","");
+            return new Value("","", 0);
         return propertiesList.get(position);
     }
 
     /**
-     * Returns item identity 
+     * Returns item identity. Defaults to position +1 if none supplied 
      * @param position - zero-based list index 
      * @return long
      * @see android.widget.Adapter#getItemId(int)
@@ -145,7 +158,9 @@ public class PropertiesListAdapter extends BaseAdapter
     @Override
     public long getItemId(int position) 
     {
-        return position + 1;
+        validatePosition(position);
+        long id = propertiesList.get(position).getId();
+        return id == -1 ? (long)position + 1 : id; 
     }
 
     /**
@@ -161,13 +176,18 @@ public class PropertiesListAdapter extends BaseAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent) 
     {
-        if ((position < 0) || (position >= propertiesList.size() ))
-            throw new IllegalStateException("Couldn't move to position " + position);
+        validatePosition(position);
         View view = convertView;
         if (view == null) 
             view = newView(parent);
         bindView(view, propertiesList.get(position));
         return view;
+    }
+
+    protected void validatePosition(int position)
+    {
+        if ((position < 0) || (position >= propertiesList.size() ))
+            throw new IllegalStateException("Couldn't move to position " + position);
     }
 
     /**

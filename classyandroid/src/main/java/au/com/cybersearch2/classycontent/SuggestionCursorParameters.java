@@ -29,6 +29,7 @@ public class SuggestionCursorParameters
 {
     /** Key used for Bundle search query text */
     public final static String QUERY_TEXT_KEY = "QUERY_TEXT_KEY";
+    protected final static String NO_QUERY = "";
 
     /** The URI, using the content:// scheme, for the content to retrieve. */
     final protected Uri uri;
@@ -40,6 +41,7 @@ public class SuggestionCursorParameters
     final protected String[] selectionArgs;
     /** How to order the rows, formatted as an SQL ORDER BY clause (excluding the ORDER BY itself).*/
     protected String sortOrder;
+    
 
     /**
      * Create a SuggestionCursorParameters object
@@ -49,17 +51,27 @@ public class SuggestionCursorParameters
      */
     public SuggestionCursorParameters(Bundle bundle, Uri uri, int limit)
     {
-        this.uri = uri;
-        String query = "";
-        if (bundle != null) // Extract the search query from the arguments
-            query = bundle.getString(QUERY_TEXT_KEY);
+        this(getQuery(bundle), uri, limit);
+    }
+    
+    /**
+     * Create a SuggestionCursorParameters object
+     * @param query Qsuery text
+     * @param uri The URI, using the content:// scheme, for the content to retrieve 
+     * @param limit The maximum number of items to retrieve or unlimited if zero
+     */
+    public SuggestionCursorParameters(String query, Uri uri, int limit)
+    {
+        if (query == null)
+            query = NO_QUERY;
+        // Append limit query parameter to uri, if not 0
+        this.uri = limit == 0 ? 
+                    uri :
+                    uri.buildUpon().appendQueryParameter(
+                SearchManager.SUGGEST_PARAMETER_LIMIT, String.valueOf(limit)).build();
         // Construct the new query in the form a a Cursor Loader
         selection = "word MATCH ?";
         selectionArgs = new String[] { query };
-        // Append limit query parameter
-        if (limit > 0)
-            uri = uri.buildUpon().appendQueryParameter(
-                SearchManager.SUGGEST_PARAMETER_LIMIT, String.valueOf(limit)).build();
     }
 
     /**
@@ -119,4 +131,22 @@ public class SuggestionCursorParameters
     public String[] getSelectionArgs() {
         return selectionArgs;
     }
+    
+    /**
+     * Extract query from suggestion bundle
+     * @param bundle Bundle created by SearchManager to pass the query text
+     * @return String
+     */
+    public static String getQuery(Bundle bundle)
+    {
+        // Extract the search query term from the bundle
+        String query = null;
+        if (bundle != null)
+            query = bundle.getString(QUERY_TEXT_KEY);
+        if (query == null)
+            query = NO_QUERY;
+        return query;
+    }
+    
+
 }
