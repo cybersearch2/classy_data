@@ -35,53 +35,16 @@ import android.widget.TextView;
  */
 public class PropertiesListAdapter extends BaseAdapter
 {
-    /**
-     * Value
-     * A name, value pair container. Each pair is displayed using a 2-line layout in the displayed list.
-     * @author Andrew Bowley
-     * 03/07/2014
-     */
-    public static class Value
-    {
-        String name;
-        String value;
-        // For getItemId()
-        Long id;
- 
-        public Value(String name, String value)
-        {
-            // Id = -1 means default to position
-            this(name, value, -1);
-        }
-        
-        public Value(String name, String value, long id)
-        {
-            this.name = name;
-            this.value = value;
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getValue() {
-            return value;
-        }
-        
-        public long getId() {
-            return id;
-        }
-    }
-    
     /** Resource IDs used to bind an existing view to a value */
     protected static final int[]  uiBindTo = { android.R.id.text1, android.R.id.text2 };
     /** The underlying list implementation */
-    protected List<Value> propertiesList;
+    protected List<ListItem> propertiesList;
     /** Resource identifier of a layout file that defines the views */
     protected int layout;
     /** Inflater used to create a new view when required */
     protected LayoutInflater inflater;
+    /** Flag set if list has only a single line */
+    protected boolean singleLine;
 
     /**
      * Create new, empty PropertiesListAdapter
@@ -98,19 +61,33 @@ public class PropertiesListAdapter extends BaseAdapter
      * @param data Value collection. 
      * The underlying properties list is populated with this data, retaining collection order.
      */
-    public PropertiesListAdapter(Context context, Collection<Value> data)
+    public PropertiesListAdapter(Context context, Collection<ListItem> data)
     {
-        propertiesList = new ArrayList<Value>(data);
+        propertiesList = new ArrayList<ListItem>(data);
         layout = android.R.layout.simple_list_item_2;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
  
+    public boolean isSingleLine()
+    {
+        return singleLine;
+    }
+
+    public void setSingleLine(boolean singleLine)
+    {
+        this.singleLine = singleLine;
+        if (singleLine)
+            layout = android.R.layout.simple_list_item_1;
+        else
+            layout = android.R.layout.simple_list_item_2;
+    }
+
     /**
      * Change the properties list to be viewed
      * 
      * @param data Collection containing values to be viewed
      */
-    public void changeData(Collection<Value> data) 
+    public void changeData(Collection<ListItem> data) 
     {
         if ((data == null) || (data.size() == 0))
         {
@@ -119,7 +96,7 @@ public class PropertiesListAdapter extends BaseAdapter
             notifyDataSetInvalidated();
             return;
         }
-        propertiesList = new ArrayList<Value>(data);
+        propertiesList = new ArrayList<ListItem>(data);
         // Notify the observers data set changed
         notifyDataSetChanged();
     }
@@ -145,7 +122,7 @@ public class PropertiesListAdapter extends BaseAdapter
     public Object getItem(int position) 
     {
         if ((position < 0) || (position >= propertiesList.size() ))
-            return new Value("","", 0);
+            return new ListItem("","", 0);
         return propertiesList.get(position);
     }
 
@@ -215,15 +192,17 @@ public class PropertiesListAdapter extends BaseAdapter
      * @param viewToBind Existing view, returned earlier by newView
      * @param data Value object containing the data.
      */
-   protected void bindView(View viewToBind, Value data)
+   protected void bindView(View viewToBind, ListItem data)
    {
-
-       for (int i = 0; i < 2; i++) 
+       int lineCount = singleLine ? 1 : 2;
+       for (int i = 0; i < lineCount; i++) 
        {
            final View itemView = viewToBind.findViewById(uiBindTo[i]);
            if (itemView != null)
            {
-               String text = (i == 0) ? data.name : data.value;
+               String text = data.value;
+               if (!singleLine && (i == 0))
+                   text = data.name;
                if (text == null) 
                    text = "";
                if (itemView instanceof TextView) 
@@ -245,7 +224,7 @@ public class PropertiesListAdapter extends BaseAdapter
     * Utility method to create an empty list
     * @return Value List
     */
-   private static List<Value> getEmptyValueList()
+   private static List<ListItem> getEmptyValueList()
    {
        return Collections.emptyList();
    }

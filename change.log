@@ -15,6 +15,7 @@ Classy Tools v1.11
 13. NodeFinder in classyjava changed to use a callback to handle task completion
 14. Remove classyandroid CursorAdapterParameters and SearchCursorLoader
 15. Add constructor to SuggestionCursorParameters with query text in place of bundle
+16. Replace PropertiesListAdapter.Value with Parcelable ListItem
 
 ______________________________________________________________________________________________________________________
 Classy Tools v1.0.10
