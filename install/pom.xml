@@ -19,6 +19,7 @@
     <url>https://github.com/j256/ormlite-core</url>
     <connection>scm:git:ssh://git@github.com/andrew-bowley/classy-tools.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/andrew-bowley/classy-tools.git</developerConnection>
+    <tag>HEAD</tag>
   </scm>
   <repositories>
   <!-- For Robolectric shadows-core API 16 to 19 -->
@@ -416,7 +417,7 @@
       								</goals>
       							</pluginExecutionFilter>
       							<action>
-      								<ignore></ignore>
+      								<ignore />
       							</action>
       						</pluginExecution>
       					</pluginExecutions>
@@ -444,7 +445,7 @@
           <artifactId>shadows-core</artifactId>
           <scope>test</scope>
        </dependency> 
-      <!---->
+      
   <!-- For Robolectric shadows-core API 16 to 19, use snapshots, which are updated regularly. -->
       <!-- API 19 Kit Kat
         <dependency>
