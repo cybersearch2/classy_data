@@ -53,7 +53,7 @@ import au.com.cybersearch2.classynode.Node;
 import au.com.cybersearch2.classynode.NodeEntity;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
-import au.com.cybersearch2.classyutil.Transcript;
+import org.robolectric.util.Transcript;
 import dagger.Module;
 
 /**
