@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>au.com.cybersearch2</groupId>
   <artifactId>classy_tools</artifactId>
-  <version>1.11-SNAPSHOT</version>
+  <version>1.12-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Classy Tools Parent</name>
   <description>JPA lite for Android - uses OrmLite and Dagger</description>
@@ -14,7 +14,7 @@
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
     <android.sdk.version>5.1.1_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
-    <android.support.version>22.2</android.support.version>
+    <android.support.version>22.2.1</android.support.version>
     <robolectric.version>3.0-rc2</robolectric.version>
     <ormlite.version>4.49-SNAPSHOT</ormlite.version>
     <dagger.version>1.2.2</dagger.version>

@@ -1,3 +1,9 @@
+Classy Tools v1.12
+1. Fix classyutils WorkerTask duplicate call to postResult()
+2. Remove android-tests module
+3. Update to Android Support v22.2.1
+4. Add source jars to build for sample projects
+
 Classy Tools v1.11
 
  1. Update to Android Support v22.2

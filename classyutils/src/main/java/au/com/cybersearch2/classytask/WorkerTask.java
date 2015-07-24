@@ -154,7 +154,7 @@ public abstract class WorkerTask<Result> extends Executable implements ThreadMes
              * @see java.util.concurrent.Callable#call()
              */
             public Result call() throws Exception {
-                return postResult(doInBackground());
+                return doInBackground();
             }});
         // The FutureTask implementation - overrides abstract method done()
         future = createFutureTask(worker); // future executes in execute() method
