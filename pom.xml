@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>au.com.cybersearch2</groupId>
   <artifactId>classy_tools</artifactId>
-  <version>1.12</version>
+  <version>1.13-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Classy Tools Parent</name>
   <description>JPA lite for Android - uses OrmLite and Dagger</description>
@@ -36,7 +36,7 @@
 	<url>https://github.com/andrew-bowley/classy_tools</url>
 	<connection>scm:git:ssh://git@github.com/andrew-bowley/classy_tools.git</connection>
     <developerConnection>scm:git:ssh://git@gitserver:/opt/git/classy_tools.git</developerConnection>
-    <tag>classy_tools-1.12</tag>
+    <tag>HEAD</tag>
   </scm>
   <distributionManagement>
     <repository>
