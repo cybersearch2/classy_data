@@ -70,9 +70,8 @@
     <module>many2many-example</module>
     <module>hello-two-dbs-example</module>
     <module>install</module>
-    <!-- Comment out next two modules for Java-only development -->
+    <!-- Comment out next module for Java-only development -->
     <module>classyandroid</module>
-    <module>android-tests</module>
   </modules>
   <dependencyManagement>
     <dependencies>
