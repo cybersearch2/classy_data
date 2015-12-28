@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
@@ -69,7 +70,7 @@ public class PersistenceLoaderTest
 		      @Override protected void done() {
 		        try {
 		          final D result = get();
-		          ShadowLooper.getUiThreadScheduler().post(new Runnable() {
+		          Robolectric.getForegroundThreadScheduler().post(new Runnable() {
 		            @Override public void run() {
 		              realLoader.deliverResult(result);
 		            }
@@ -83,7 +84,7 @@ public class PersistenceLoaderTest
 
 		  @Implementation
 		  public void onForceLoad() {
-		    ShadowApplication.getInstance().getBackgroundScheduler().post(new Runnable() {
+		      Robolectric.getBackgroundThreadScheduler().post(new Runnable() {
 		      @Override
 		      public void run() {
 		        future.run();
@@ -111,8 +112,8 @@ public class PersistenceLoaderTest
 	    testUserTransLoaderTask.setUserTransactionMode(true);
         persistenceContext = new PersistenceContext();
     	initializeDatabase();
-        ShadowLooper.getUiThreadScheduler().pause();
-        ShadowApplication.getInstance().getBackgroundScheduler().pause();
+    	Robolectric.getForegroundThreadScheduler().pause();
+        Robolectric.getBackgroundThreadScheduler().pause();
     }
 
     @After
@@ -151,9 +152,9 @@ public class PersistenceLoaderTest
 
         final PersistenceWork persistenceWork = new TestPersistenceWork(transcript);
         Executable exe = testLoaderTask.execute("classyfy", persistenceWork);
-        ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        Robolectric.getBackgroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("background task");
-        ShadowLooper.getUiThreadScheduler().runOneTask();
+        Robolectric.getForegroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
     }
@@ -174,9 +175,9 @@ public class PersistenceLoaderTest
                         return false;
                     }});
         Executable exe = testLoaderTask.execute("classyfy", persistenceWork);
-        ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        Robolectric.getBackgroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("background task");
-        ShadowLooper.getUiThreadScheduler().runOneTask();
+        Robolectric.getForegroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("onPostExecute false");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
     }
@@ -197,9 +198,9 @@ public class PersistenceLoaderTest
                         throw persistException;
                     }});
         Executable exe = testLoaderTask.execute("classyfy", persistenceWork);
-        ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        Robolectric.getBackgroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("background task");
-        ShadowLooper.getUiThreadScheduler().runOneTask();
+        Robolectric.getForegroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("onRollback " + persistException.toString());
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
     }
@@ -224,7 +225,7 @@ public class PersistenceLoaderTest
         testLoaderTask.execute("classyfy", persistenceWork);
         try
         {
-        	ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+            Robolectric.getBackgroundThreadScheduler().runOneTask();
         	failBecauseExceptionWasNotThrown(RuntimeException.class);
         }
         catch (RuntimeException e)
@@ -251,9 +252,9 @@ public class PersistenceLoaderTest
                         return entityManager.getTransaction() instanceof EntityTransactionImpl;
                     }});
         Executable exe = testUserTransLoaderTask.execute("classyfy", persistenceWork);
-        ShadowApplication.getInstance().getBackgroundScheduler().runOneTask();
+        Robolectric.getBackgroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("background task");
-        ShadowLooper.getUiThreadScheduler().runOneTask();
+        Robolectric.getForegroundThreadScheduler().runOneTask();
         transcript.assertEventsSoFar("onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
     }

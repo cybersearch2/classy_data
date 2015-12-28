@@ -21,7 +21,7 @@ public class ClassyTestRunner extends RobolectricTestRunner
      * @see org.robolectric.RobolectricTestRunner#createAppManifest(org.robolectric.res.FsFile, org.robolectric.res.FsFile, org.robolectric.res.FsFile)
      */
     @Override 
-    protected AndroidManifest createAppManifest(FsFile manifestFile, FsFile resDir, FsFile assetsDir) 
+    protected AndroidManifest createAppManifest(FsFile manifestFile, FsFile resDir, FsFile assetsDir, String packageName) 
     {
         return new MavenAndroidManifest(Fs.newFile(new File(".")));
     }

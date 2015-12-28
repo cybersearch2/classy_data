@@ -12,10 +12,10 @@
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
     <android.platform.version>23</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>6.0.0_r1</android.sdk.version>
+    <android.sdk.version>6.0.0_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
-    <android.support.version>22.2.1</android.support.version>
-    <robolectric.version>3.0-rc2</robolectric.version>
+    <android.support.version>23.1.1</android.support.version>
+    <robolectric.version>3.0</robolectric.version>
     <ormlite.version>4.49-SNAPSHOT</ormlite.version>
     <dagger.version>1.2.2</dagger.version>
     <h2.version>1.2.128</h2.version>
@@ -148,7 +148,7 @@
         <dependency>
           <groupId>org.robolectric</groupId>
           <artifactId>shadows-core</artifactId>
-          <version>3.0-rc2</version>
+          <version>3.0</version>
         </dependency> 
         <dependency>
           <groupId>org.apache.maven</groupId>
