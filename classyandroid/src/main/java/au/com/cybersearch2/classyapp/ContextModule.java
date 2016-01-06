@@ -18,6 +18,7 @@ package au.com.cybersearch2.classyapp;
 import javax.inject.Singleton;
 
 import android.content.Context;
+import au.com.cybersearch2.classyinject.DependencyProvider;
 import dagger.Module;
 import dagger.Provides;
 
@@ -27,8 +28,8 @@ import dagger.Provides;
  * @author Andrew Bowley
  * 07/07/2014
  */
-@Module(injects = { ApplicationContext.class } )
-public class ContextModule
+@Module(/*injects = { ApplicationContext.class } */)
+public class ContextModule implements DependencyProvider<ApplicationContext>
 {
     Context context;
     

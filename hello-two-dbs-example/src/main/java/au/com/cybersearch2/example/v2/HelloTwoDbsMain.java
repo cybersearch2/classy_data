@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.inject.Singleton;
+
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
@@ -12,10 +17,12 @@ import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.example.QueryForAllGenerator;
+import dagger.Component;
 
 /**
  * Version 2 of HelloTwoDbsMain introduces a new "quote" field to both SimpleData and ComplexData entities.
@@ -23,6 +30,17 @@ import au.com.cybersearch2.example.QueryForAllGenerator;
  */
 public class HelloTwoDbsMain 
 {
+    @Singleton
+    @Component(modules = HelloTwoDbsModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(HelloTwoDbsMain helloTwoDbsMain);
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+    }
+ 
     static public final String TAG = "HelloTwoDbsMain";
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
@@ -35,8 +53,6 @@ public class HelloTwoDbsMain
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
 	protected static boolean applicationInitialized;
 
-    /** Dependency injection data object */
-    private HelloTwoDbsModule helloTwoDbsModule;
     private static HelloTwoDbsMain singleton;
     
     /** Factory object to create "simple" and "complex" Persistence Unit implementations */
@@ -225,9 +241,12 @@ public class HelloTwoDbsMain
 	 */
 	protected void createObjectGraph()
 	{
-        // 
-        helloTwoDbsModule = new HelloTwoDbsModule();
-        new DI(helloTwoDbsModule).validate();
+        ApplicationComponent component = 
+                DaggerHelloTwoDbsMain_ApplicationComponent.builder()
+                .helloTwoDbsModule(new HelloTwoDbsModule())
+                .build();
+        // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
+        DI.getInstance(component).validate();
 	}
 	
 	/**

@@ -57,6 +57,7 @@ import au.com.cybersearch2.classyjpa.transaction.TransactionCallable;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 
@@ -70,9 +71,9 @@ import dagger.Provides;
  */
 public class EntityManagerImplTest
 {
-    @Module(injects = { 
+    @Module(/*injects = { 
             PersistenceContext.class,
-            NativeScriptDatabaseWork.class })
+            NativeScriptDatabaseWork.class }*/)
     class ClassyEntityManagerTestModule implements ApplicationModule
     {
         @Provides ResourceEnvironment provideResourceEnvironment()
@@ -88,6 +89,15 @@ public class EntityManagerImplTest
             return persistenceFactory;
         }
     }
+
+    @Singleton
+    @Component(modules = ClassyEntityManagerTestModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext persistenceContext);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+    }
+
 
     private ConnectionSource connectionSource;
     private Map<String,OrmDaoHelperFactory<?,?>> helperFactoryMap;
@@ -107,7 +117,11 @@ public class EntityManagerImplTest
     @Before
     public void setUp() throws Exception 
     {
-        new DI(new ClassyEntityManagerTestModule());
+        ApplicationComponent component = 
+                DaggerEntityManagerImplTest_ApplicationComponent.builder()
+                .classyEntityManagerTestModule(new ClassyEntityManagerTestModule())
+                .build();
+        DI.getInstance(component);
         connectionSource = mock(ConnectionSource.class);
         helperFactoryMap = mock(Map.class);
         @SuppressWarnings("rawtypes")

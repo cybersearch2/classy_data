@@ -15,8 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyinject;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 import au.com.cybersearch2.classylog.*;
@@ -36,26 +34,6 @@ public class DI
     /** Implementation delegated to an ObjectGraphManager instance */ 
     protected ObjectGraphManager objectGraphManager; 
 
-    /**
-     * Construct DI singleton object. 
-     * If Android, then an Application object should be created to call this constructor when onCreate() is called.
-     * @param applicationModule The @Module annotated object defining all permanent bindings
-     * @param modules Option additional @Module annotated objects required to make the resulting graph complete.
-     */
-    public DI(ApplicationModule applicationModule, Object... modules)
-    {
-        if (applicationModule == null)
-            throw new IllegalArgumentException("Parameter \"applicationModule\" is null");
-        List<Object> moduleList = new ArrayList<Object>();
-        moduleList.add(applicationModule);
-        for (Object module: modules)
-            moduleList.add(module);
-        objectGraphManager = createObjectGraphManager(moduleList);
-        if (log.isLoggable(TAG, Level.INFO))
-           log.info(TAG, "Application object graph created.");
-        singleton = this;
-        moduleList.clear();
-    }
 
     /** 
      * Returns DI singleton instance
@@ -70,10 +48,26 @@ public class DI
     }
 
     /**
+     * Construct DI singleton object. 
+     * If Android, then an Application object should be created to call this constructor when onCreate() is called.
+     * @param applicationModule The @Module annotated object defining all permanent bindings
+     * @param modules Option additional @Module annotated objects required to make the resulting graph complete.
+     */
+    public static DI getInstance(ApplicationModule applicationModule, Object... modules)
+    {
+        synchronized(DI.class)
+        {
+            if (singleton == null)
+                singleton = new DI();
+            singleton.createObjectGraphManager(applicationModule, modules);
+        }
+        return singleton;
+    }
+
+    /**
      * Inject an object from the Object Graph
      * @param injectee Object containing one or more @Inject annotated class members
      */
-    @SuppressWarnings("unchecked")
     public static <T> void inject(T injectee)
     {
         if (injectee == null)
@@ -82,31 +76,19 @@ public class DI
     }
 
     /**
-     * Add @Module annotated objects to current ObjectGraph using plus() method
-     * @param modules Object array
-     */
-    public static void add(Object... modules)
-    {
-        if ((modules == null) || (modules.length == 0))
-            throw new IllegalArgumentException("Parameter \"modules\" is null or empty");
-        getInstance().objectGraphManager.add(modules);
-    }
-
-    /**
      * Inject an object from the Object Graph and transient plus ObjectGraph 
      * @param module DependencyProvider of inject generic type - an @Module annotated object which defines the plus ObjectGraph
      * @param injectee Object containing one or more @Inject annotated class members
      */
-    @SuppressWarnings("unchecked")
     public static <T>  void inject(DependencyProvider<T> module, T injectee)
     {
         if (module == null)
             throw new IllegalArgumentException("Parameter \"module\" is null");
         if (injectee == null)
             throw new IllegalArgumentException("Parameter \"injectee\" is null");
-        getInstance().objectGraphManager.inject(injectee, module);
+        getInstance().objectGraphManager.inject(module, injectee);
     }
- 
+    
     /**
      * Validate the ObjectGraph
      */
@@ -115,15 +97,23 @@ public class DI
         objectGraphManager.validate();
     }
 
-    /**
-     * Returns ObjectGraphManager delegate
-     * @param moduleList List of @Module annotated objects required to make the resulting graph complete
-     * @return ObjectGraphManager
-     */
-    protected ObjectGraphManager createObjectGraphManager(List<Object> moduleList)
+    private DI()
     {
-        return new ObjectGraphManager(moduleList);
+        objectGraphManager = new ObjectGraphManager(new ApplicationModule(){});
     }
-    
 
+    /**
+     * Construct DI singleton object. 
+     * If Android, then an Application object should be created to call this constructor when onCreate() is called.
+     * @param applicationModule The @Module annotated object defining all permanent bindings
+     * @param modules Option additional @Module annotated objects required to make the resulting graph complete.
+     */
+    private void createObjectGraphManager(ApplicationModule applicationModule, Object... modules)
+    {
+        if (applicationModule == null)
+            throw new IllegalArgumentException("Parameter \"applicationModule\" is null");
+        objectGraphManager = new ObjectGraphManager(applicationModule, modules);
+        if (log.isLoggable(TAG, Level.INFO))
+           log.info(TAG, "Application object graph created.");
+    }
 }

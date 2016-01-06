@@ -15,10 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example.v2;
 
-import au.com.cybersearch2.classyapp.ContextModule;
+import javax.inject.Singleton;
+
+import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.example.AndroidHelloTwoDbsModule;
+import dagger.Component;
 
 /**
  * AndroidHelloTwoDbs
@@ -27,12 +35,27 @@ import au.com.cybersearch2.example.AndroidHelloTwoDbsModule;
  */
 public class AndroidHelloTwoDbs extends HelloTwoDbsMain 
 {
+    @Singleton
+    @Component(modules = AndroidHelloTwoDbsModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext persistenceContext);
+        void inject(AndroidHelloTwoDbs helloTwoDbsMain);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        void inject(ApplicationContext applicationContext);
+    }
 
     @Override
     protected void createObjectGraph()
     {
-        // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        new DI(new AndroidHelloTwoDbsModule(), new ContextModule(TestRoboApplication.getTestInstance())).validate();
+        ApplicationComponent component = 
+                DaggerAndroidHelloTwoDbs_ApplicationComponent.builder()
+                .androidHelloTwoDbsModule(new AndroidHelloTwoDbsModule(TestRoboApplication.getTestInstance()))
+                .build();
+       // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
+        DI.getInstance(component).validate();
     }
 
 }

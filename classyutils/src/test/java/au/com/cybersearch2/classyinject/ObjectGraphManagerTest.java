@@ -15,253 +15,120 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyinject;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.fest.assertions.api.Assertions.assertThat;
 
-import javax.inject.Inject;
+import java.util.Date;
 
-import org.junit.Before;
+import javax.inject.Singleton;
+
 import org.junit.Test;
 
+import dagger.Component;
 import dagger.Module;
-import dagger.ObjectGraph;
 import dagger.Provides;
-import static org.mockito.Mockito.*;
-import static org.fest.assertions.api.Assertions.*;
+import dagger.Subcomponent;
 
 /**
  * ObjectGraphManagerTest
- * @author Andrew Bowley
- * 05/06/2014
+ * 
+ * @author Andrew Bowley 05/06/2014
  */
 public class ObjectGraphManagerTest
 {
-    static ObjectGraph objectGraph;
-    static ObjectGraph objectGraph2;
-    static List<Object> moduleList;
-    static DependencyProvider<ObjectGraphManagerTest> dependencyProvider;
- 
     @Module
-    static class TestModule
+    public class SubTransientAppModule implements DependencyProvider<ScopedActivity>
     {
-        
-    }
-    @Module(injects = Injectee.class)
-    static class TestModule2 implements DependencyProvider<Injectee>
-    {
-        @Provides
-        Object provideObject() 
+        @Provides Date provideDate()
         {
-            return new Object();
+            return new Date();
         }
     }
 
-    static class Injectee
+    @Singleton
+    @Component(modules = TestModule.class)  
+    public interface TransientAppComponent extends ApplicationModule
     {
-        @Inject Object object;
-        
-        Object get()
-        {
-            return object;
-        }
-    }
-    
-    static class TestObjectGraphManager extends ObjectGraphManager
-    {
-        public TestObjectGraphManager(List<Object> moduleList)
-        {
-            super(moduleList);
-            
-        }
-
-        // Override ObjectGraph create method to inject mock
-        @Override
-        protected ObjectGraph createObjectGraph(List<Object> moduleList)
-        {
-            ObjectGraphManagerTest.moduleList = moduleList;
-            return objectGraph; 
-        }
-        
+        TransAppSubComponent plus(SubTransientAppModule subAppModule);
     }
 
-    @Before
-    public void setUp() throws Exception 
+    @Singleton // <- not @PerActivity
+    @Subcomponent(modules = SubTransientAppModule.class)
+    public interface TransAppSubComponent
     {
-        if (objectGraph == null)
-            objectGraph = mock(ObjectGraph.class);
-        if (objectGraph2 == null)
-            objectGraph2 = mock(ObjectGraph.class);
-    }
-    
-    @Test 
-    public void test_constructor()
-    {
-        TestModule firstModule = new TestModule();
-        moduleList = new ArrayList<Object>();
-        moduleList.add(firstModule);
-        ObjectGraphManager objectGraphManager = new TestObjectGraphManager(moduleList);
-        assertThat(objectGraphManager.mainObjectGraph).isEqualTo(objectGraph);
-        assertThat(moduleList.size()).isEqualTo(1);
-        assertThat(moduleList.get(0)).isEqualTo(firstModule);
+        void inject(ScopedActivity scopedActivity);
     }
 
     @Test 
-    public void test_constructor_extra_module()
-    {
-        TestModule firstModule = new TestModule();
-        TestModule2 testModule2 = new TestModule2();
-        List<Object> classList = new ArrayList<Object>();
-        classList.add(testModule2 );
-        classList.add(firstModule);
-       moduleList = null;
-        ObjectGraphManager objectGraphManager = new TestObjectGraphManager(classList);
-        assertThat(objectGraphManager.mainObjectGraph).isEqualTo(objectGraph);
-        assertThat(moduleList.size()).isEqualTo(2);
-        assertThat(moduleList.get(0)).isEqualTo(testModule2);
-        assertThat(moduleList.get(1)).isEqualTo(firstModule);
-    }
-    
-    @Test 
-    public void test_constructor_null_classList()
-    {
-        try
-        {
-            new ObjectGraphManager(null);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch(IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter \"moduleList\" is null");
-        }
-        
-    }
-
-    @Test 
-    public void test_constructor_empty_classList()
-    {
-        try
-        {
-            new ObjectGraphManager(new ArrayList<Object>());
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch(IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter \"moduleList\" is empty");
-        }
-        
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Test
-    public void test_inject()
-    {
-        ObjectGraphManager objectGraphManager = createTestObjectGraphManager();
+    public void test_inject() 
+    { 
+        int magicValue = 20160101;
+        TestModule firstModule = new TestModule(magicValue);
+        ApplicationComponent component = DaggerApplicationComponent.builder()
+            .testModule(firstModule)
+            .build();
+        ObjectGraphManager objectGraphManager = new ObjectGraphManager(component);
         Injectee injectee = new Injectee();
         objectGraphManager.inject(injectee);
-        verify(objectGraphManager.mainObjectGraph).inject(injectee);
+        assertThat(injectee.getMagicNumber()).isEqualTo(magicValue);
     }
-
-    
-    @SuppressWarnings("unchecked")
+ 
     @Test
-    public void test_inject_with_module()
+    public void test_subComponentInject()
     {
-        ObjectGraphManager objectGraphManager = createTestObjectGraphManager();
-        TestModule2 testModule2 = new TestModule2();
-        when(objectGraphManager.mainObjectGraph.plus(testModule2)).thenReturn(objectGraph2);
-        Injectee injectee = new Injectee();
-        objectGraphManager.inject(injectee, testModule2);
-        verify(objectGraph2).inject(injectee);
-    }
-
-    @Test
-    public void test_add()
-    {
-        ObjectGraphManager objectGraphManager = createTestObjectGraphManager();
-        TestModule2 testModule2 = new TestModule2();
-        when(objectGraphManager.mainObjectGraph.plus(testModule2)).thenReturn(objectGraph2);
-        objectGraphManager.add(testModule2);
-        assertThat(objectGraphManager.mainObjectGraph).isEqualTo(objectGraph2);
+        int magicValue = 20160101;
+        TestModule firstModule = new TestModule(magicValue);
+        Date testDate = new Date();
+        SubAppModule subAppModule = new SubAppModule(testDate);
+        ApplicationComponent component = DaggerApplicationComponent.builder()
+                .testModule(firstModule)
+                .build();
+        ObjectGraphManager objectGraphManager = new ObjectGraphManager(component);
+        ScopedActivity scopedActivity = new ScopedActivity();
+        objectGraphManager.inject(subAppModule, scopedActivity);
+        assertThat(scopedActivity.getCreated()).isEqualTo(testDate);
+        ScopedActivity scopedActivity2 = new ScopedActivity();
+        objectGraphManager.inject(subAppModule, scopedActivity2);
+        assertThat(scopedActivity2.getCreated()).isEqualTo(testDate);
+        
     }
     
-    @SuppressWarnings("unchecked")
     @Test
-    public void test_inject__more_than_one_module()
+    public void test_moduleInject()
     {
-        Injectee injectee = new Injectee();
-        TestModule2 module1 = new TestModule2();
-        TestModule2 module2 = new TestModule2();
-       try
-        {
-            createTestObjectGraphManager().inject(injectee, module1, module2);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch(IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("inject() method only supports one or zero modules");
-        }
-        
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void test_inject_null_injectee()
-    {
-        try
-        {
-            createTestObjectGraphManager().inject(null);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch(IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter injectee is null");
-        }
-        
+        int magicValue = 20160101;
+        TestModule firstModule = new TestModule(magicValue);
+        Date testDate = new Date();
+        SubAppModule subAppModule = new SubAppModule(testDate);
+        ApplicationComponent component = DaggerApplicationComponent.builder()
+                .testModule(firstModule)
+                .build();
+        ObjectGraphManager objectGraphManager = new ObjectGraphManager(component, subAppModule);
+        ScopedActivity scopedActivity = new ScopedActivity();
+        objectGraphManager.inject(scopedActivity);
+        assertThat(scopedActivity.getCreated()).isEqualTo(testDate);
+        ScopedActivity scopedActivity2 = new ScopedActivity();
+        objectGraphManager.inject(scopedActivity2);
+        assertThat(scopedActivity2.getCreated()).isEqualTo(testDate);
     }
 
     @Test
-    public void test_add_null_modules()
+    public void test_transientModuleInject() throws InterruptedException
     {
-        try
-        {
-            createTestObjectGraphManager().add((Object[])null);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch(IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter \"modules\" is null");
-        }
-        
+        int magicValue = 20160101;
+        TestModule firstModule = new TestModule(magicValue);
+        SubTransientAppModule subAppModule = new SubTransientAppModule();
+        TransientAppComponent component = DaggerObjectGraphManagerTest_TransientAppComponent.builder()
+                .testModule(firstModule)
+                .build();
+        ObjectGraphManager objectGraphManager = new ObjectGraphManager(component, subAppModule);
+        ScopedActivity scopedActivity = new ScopedActivity();
+        objectGraphManager.inject(scopedActivity);
+        Date date1 =  scopedActivity.getCreated();
+        Thread.sleep(1001);
+        ScopedActivity scopedActivity2 = new ScopedActivity();
+        objectGraphManager.inject(scopedActivity2);
+        Date date2 = scopedActivity2.getCreated();
+        assertThat(date1).isNotEqualTo(date2);
     }
 
-    @Test
-    public void test_add_empty_modules()
-    {
-        try
-        {
-            createTestObjectGraphManager().add(new Object[0]);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch(IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter \"modules\" is empty");
-        }
-        
-    }
-
-    @Test
-    public void test_validate()
-    {
-        ObjectGraphManager objectGraphManager = createTestObjectGraphManager();
-        objectGraphManager.validate();
-        verify(objectGraphManager.mainObjectGraph).validate();
-    }
-  
-    private ObjectGraphManager createTestObjectGraphManager()
-    {
-        TestModule firstModule = new TestModule();
-        List<Object> classList = new ArrayList<Object>();
-        classList.add(firstModule);
-        return new TestObjectGraphManager(classList);
-    }
 }

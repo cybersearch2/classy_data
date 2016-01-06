@@ -41,6 +41,7 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 
@@ -51,8 +52,8 @@ import dagger.Provides;
  */
 public class ClassyEntityTransactionTest
 {
-    @Module(injects = { 
-            PersistenceContext.class })
+    @Module(/*injects = { 
+            PersistenceContext.class }*/)
     class ClassyEntityTransactionTestModule implements ApplicationModule
     {
         @Provides @Singleton PersistenceFactory providePersistenceFactory()
@@ -63,6 +64,14 @@ public class ClassyEntityTransactionTest
             return persistenceFactory;
         }
     }
+    
+    @Singleton
+    @Component(modules = ClassyEntityTransactionTestModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext persistenceContext);
+    }
+    
     class CallableBase
     {
         PersistenceException persistenceException;
@@ -133,7 +142,11 @@ public class ClassyEntityTransactionTest
     @Before
     public void setUp()
     {
-        new DI(new ClassyEntityTransactionTestModule());
+        ApplicationComponent component = 
+                DaggerClassyEntityTransactionTest_ApplicationComponent.builder()
+                .classyEntityTransactionTestModule(new ClassyEntityTransactionTestModule())
+                .build();
+        DI.getInstance(component);
         connectionSource = mock(ConnectionSource.class);
     }
     

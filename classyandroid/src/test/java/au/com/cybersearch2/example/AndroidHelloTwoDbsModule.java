@@ -21,39 +21,41 @@ import java.util.Locale;
 
 import javax.inject.Singleton;
 
+import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
-import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
-import au.com.cybersearch2.classytask.WorkerRunnable;
 
 /**
  * AndroidHelloTwoDbsModule
  * @author Andrew Bowley
  * 24 Apr 2015
  */
-@Module(injects = { 
+@Module(/*injects = { 
 		AndroidHelloTwoDbs.class,
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
         PersistenceContext.class,
         DatabaseAdminImpl.class
-        })
+        }*/)
 public class AndroidHelloTwoDbsModule implements ApplicationModule 
 {
 	//ConnectionType CONNECTION_TYPE = ConnectionType.memory;
 	ConnectionType CONNECTION_TYPE = ConnectionType.file;
+	private Context context;
 
+	public AndroidHelloTwoDbsModule(Context context)
+	{
+	    this.context = context;
+	}
+	
 	@Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
         return new TestSystemEnvironment();
@@ -67,8 +69,7 @@ public class AndroidHelloTwoDbsModule implements ApplicationModule
             public InputStream openResource(String resourceName)
                     throws IOException
             {
-                ApplicationContext applicationContext = new ApplicationContext();
-                return applicationContext.getContext().getAssets().open("hello2dbs/" + resourceName);
+                return context.getAssets().open("hello2dbs/" + resourceName);
             }
 
             @Override
@@ -86,5 +87,14 @@ public class AndroidHelloTwoDbsModule implements ApplicationModule
     @Provides @Singleton ConnectionType provideConnectionType()
     {
     	return CONNECTION_TYPE;
+    }
+
+    /**
+     * Returns Android Application Context
+     * @return Context
+     */
+    @Provides @Singleton Context provideContext()
+    {
+        return context;
     }
 }

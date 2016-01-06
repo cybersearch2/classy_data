@@ -25,7 +25,6 @@ package au.com.cybersearch2.classybean;
 
 import com.googlecode.openbeans.*;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -35,10 +34,8 @@ import java.util.*;
  * @author Andrew Bowley
  * 28/05/2014
  */
-public class BeanMap extends AbstractMap<String, Object> implements Serializable
+public class BeanMap extends AbstractMap<String, Object>
 {
-    private static final long serialVersionUID = -4580385280180860257L;
-
     // Maps PropertyDescriptors to property names
     private HashMap<String, PropertyDescriptor> properties;
     // The object being wrapped

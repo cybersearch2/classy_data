@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
@@ -45,11 +46,11 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
  */
 public class DatabaseAdminImplTest
 {
-    @Module(injects = { 
+    @Module(/*injects = { 
             PersistenceContext.class,
             NativeScriptDatabaseWork.class,
             DatabaseAdminImpl.class,
-            TestDatabaseAdminImpl.class})
+            TestDatabaseAdminImpl.class}*/)
     class DatabaseAdminImplTestModule implements ApplicationModule
     {
         @Provides ResourceEnvironment provideResourceEnvironment()
@@ -65,6 +66,18 @@ public class DatabaseAdminImplTest
             return persistenceFactory;
         }
     }
+
+    @Singleton
+    @Component(modules = DatabaseAdminImplTestModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(TestDatabaseAdminImpl testDatabaseAdminImpl);
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+    }
+
 
     public static final String CREATE_SQL_FILENAME = "create.sql";
     public static final String DROP_SQL_FILENAME = "drop.sql";
@@ -82,7 +95,11 @@ public class DatabaseAdminImplTest
         connectionSource = mock(ConnectionSource.class);
         when(persistenceAdmin.getConnectionSource()).thenReturn(connectionSource);
         when(persistenceAdmin.getProperties()).thenReturn(properties);
-        new DI(new DatabaseAdminImplTestModule());
+        ApplicationComponent component = 
+                DaggerDatabaseAdminImplTest_ApplicationComponent.builder()
+                .databaseAdminImplTestModule(new DatabaseAdminImplTestModule())
+                .build();
+        DI.getInstance(component).validate();
     }
 
     @Test

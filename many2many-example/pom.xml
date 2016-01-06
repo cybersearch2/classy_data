@@ -63,6 +63,19 @@
           <windowtitle>ClassyTools API - &gt;Many to many example</windowtitle> 
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+            <configuration>
+              <skip>false</skip> 
+              <filesets>
+                <fileset>
+                  <directory>resources/db</directory>
+                  <includes><include>**/*</include></includes>
+                  <followSymlinks>false</followSymlinks>
+                </fileset>
+              </filesets>
+             </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -101,7 +114,11 @@
       <version>${h2.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.squareup.dagger</groupId>
+      <groupId>javax.annotation</groupId>
+	  <artifactId>jsr250-api</artifactId>
+    </dependency>    
+    <dependency>
+      <groupId>com.google.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
       <version>${dagger.version}</version>
     </dependency>

@@ -48,11 +48,11 @@ import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.WorkStatus;
-import au.com.cybersearch2.classytask.WorkerRunnable;
 import au.com.cybersearch2.classyutil.Transcript;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 
@@ -63,7 +63,7 @@ import dagger.Provides;
  */
 public class SingleConnectPersistenceContainerTest
 {
-    @Module(injects = { PersistenceContext.class, WorkerRunnable.class })
+    @Module(/*injects = { PersistenceContext.class, WorkerRunnable.class }*/)
     public static class PersistenceContainerTestModule implements ApplicationModule
     {
 
@@ -87,6 +87,13 @@ public class SingleConnectPersistenceContainerTest
         }
     }
 
+    @Singleton
+    @Component(modules = PersistenceContainerTestModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext  persistenceContext);
+    }
+    
     class EntityManagerWork extends TestPersistenceWork
     {
         RecordCategory entity;
@@ -131,7 +138,11 @@ public class SingleConnectPersistenceContainerTest
     @Before
     public void setUp() throws Exception 
     {
-        new DI(new PersistenceContainerTestModule());
+        ApplicationComponent component = 
+                DaggerSingleConnectPersistenceContainerTest_ApplicationComponent.builder()
+                .persistenceContainerTestModule(new PersistenceContainerTestModule())
+                .build();
+        DI.getInstance(component);
         transcript = new Transcript();
         testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
         transaction = TestEntityManagerFactory.setEntityManagerInstance();

@@ -15,20 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyapp;
 
-import javax.inject.Singleton;
-
-import dagger.Module;
-import dagger.Provides;
-import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
-import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
-import au.com.cybersearch2.classynode.EntityByNodeIdGenerator;
 import au.com.cybersearch2.classyfy.data.Model;
-import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
-import au.com.cybersearch2.classyfy.data.alfresco.RecordFolder;
-import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classynode.Node;
 
 /**
@@ -38,37 +25,8 @@ import au.com.cybersearch2.classynode.Node;
  */
 public class TestClassyApplication
 {
-    @Module(injects = { 
-            PersistenceContext.class})
-    static class PersistenceModule
-    {
-        @Provides @Singleton PersistenceFactory providePersistenceModule()
-        {
-            return new PersistenceFactory(new SQLiteDatabaseSupport(ConnectionType.memory));
-        }
-    }
-    
     public static final String PU_NAME = "classyfy";
     public static final String DATABASE_NAME = "classyfy.db";
     public static final String CATEGORY_BY_NODE_ID = Node.NODE_BY_PRIMARY_KEY_QUERY + Model.recordCategory.ordinal();
     public static final String FOLDER_BY_NODE_ID = Node.NODE_BY_PRIMARY_KEY_QUERY + Model.recordFolder.ordinal();
-    
-    protected TestClassyApplicationModule applicationModule;
-    protected PersistenceContext persistenceContext;
-    
-    public TestClassyApplication()
-    {
-        applicationModule = new TestClassyApplicationModule();
-    }
-
-    public void onCreate()
-    {
-        new DI(applicationModule).validate();
-        DI.add(new PersistenceModule());
-        persistenceContext = new PersistenceContext();
-        EntityByNodeIdGenerator entityByNodeIdGenerator = new EntityByNodeIdGenerator();
-        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(PU_NAME);
-        persistenceAdmin.addNamedQuery(RecordCategory.class, CATEGORY_BY_NODE_ID, entityByNodeIdGenerator);
-        persistenceAdmin.addNamedQuery(RecordFolder.class, FOLDER_BY_NODE_ID, entityByNodeIdGenerator);
-    }
 }

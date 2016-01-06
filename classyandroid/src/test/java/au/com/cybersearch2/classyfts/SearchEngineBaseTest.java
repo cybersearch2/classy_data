@@ -15,18 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyfts;
 
-import javax.inject.Singleton;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.fest.assertions.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import javax.inject.Singleton;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import dagger.Module;
-import dagger.Provides;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -40,12 +41,14 @@ import android.os.CancellationSignal;
 import android.provider.BaseColumns;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ApplicationLocale;
-import au.com.cybersearch2.classyapp.ContextModule;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
+import dagger.Component;
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * SearchEngineBaseTest
@@ -55,6 +58,40 @@ import au.com.cybersearch2.classyinject.DI;
 @RunWith(RobolectricTestRunner.class)
 public class SearchEngineBaseTest
 {
+    @Module(/*injects = { 
+            ApplicationLocale.class}*/)
+    static class SearchEngineBaseTestModule implements ApplicationModule
+    {
+        private Context context;
+        
+        public SearchEngineBaseTestModule(Context context)
+        {
+            this.context = context;
+        }
+        
+        @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
+        {
+            return new TestResourceEnvironment();
+        }
+
+        /**
+         * Returns Android Application Context
+         * @return Context
+         */
+        @Provides @Singleton Context provideContext()
+        {
+            return context;
+        }
+    }
+    
+    @Singleton
+    @Component(modules = SearchEngineBaseTestModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(ApplicationLocale applicationLocale);
+        void inject(ApplicationContext applicationContext);
+    }
+
     static class TestSearchEngine extends SearchEngineBase
     {
         // Create the constants used to differntiate between the different URI requests
@@ -142,17 +179,6 @@ public class SearchEngineBaseTest
 
     }
 
-    @Module(injects = { 
-            ApplicationLocale.class})
-    static class SearchEngineBaseTestModule implements ApplicationModule
-    {
-        @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
-        {
-            return new TestResourceEnvironment();
-        }
-
-    }
-    
     public static final String PROVIDER_AUTHORITY = "au.com.cybersearch2.classyfy.ClassyFyProvider";
     // The scheme part for this provider's URI
     private static final String SCHEME = "content://";
@@ -169,8 +195,11 @@ public class SearchEngineBaseTest
     public void setUp()
     {
         Context context = TestRoboApplication.getTestInstance();
-        new DI(new SearchEngineBaseTestModule(), new ContextModule(context));
-
+        ApplicationComponent component = 
+                DaggerSearchEngineBaseTest_ApplicationComponent.builder()
+                .searchEngineBaseTestModule(new SearchEngineBaseTestModule(context))
+                .build();
+        DI.getInstance(component);
     }
     
     @Test 

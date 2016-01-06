@@ -15,22 +15,48 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
-import au.com.cybersearch2.classyapp.ContextModule;
+import javax.inject.Singleton;
+
+import android.content.Context;
+import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import dagger.Component;
 
 /**
  * AndroidHelloTwoDbs
  * @author Andrew Bowley
  * 24 Apr 2015
  */
-public class AndroidHelloTwoDbs extends HelloTwoDbsMain {
-
+public class AndroidHelloTwoDbs extends HelloTwoDbsMain 
+{
+    @Singleton
+    @Component(modules = AndroidHelloTwoDbsModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext persistenceContext);
+        void inject(AndroidHelloTwoDbs helloTwoDbsMain);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        void inject(ApplicationContext applicationContext);
+    }
+ 
     @Override
     protected void createObjectGraph()
     {
+        Context context = TestRoboApplication.getTestInstance();
+        ApplicationComponent component = 
+                DaggerAndroidHelloTwoDbs_ApplicationComponent.builder()
+                .androidHelloTwoDbsModule(new AndroidHelloTwoDbsModule(context))
+                .build();
         // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        new DI(new AndroidHelloTwoDbsModule(), new ContextModule(TestRoboApplication.getTestInstance())).validate();
+        DI.getInstance(component).validate();
     }
 
 }

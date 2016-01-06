@@ -52,6 +52,7 @@ import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 
@@ -63,14 +64,21 @@ import dagger.Provides;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidDatabaseSupportTest
 {
-    @Module(injects = { 
-            ApplicationContext.class})
+    @Module(/*injects = { 
+            ApplicationContext.class}*/)
     public class AndroidDatabaseSupportTestModule implements ApplicationModule
     {
         @Provides @Singleton Context provideContext()
         {
             return context;
         }
+    }
+ 
+    @Singleton
+    @Component(modules = AndroidDatabaseSupportTestModule.class)  
+    static interface TestComponent extends ApplicationModule
+    {
+        void inject(ApplicationContext ApplicationContext);
     }
     
     static class QueryParams
@@ -370,7 +378,11 @@ public class AndroidDatabaseSupportTest
         properties = new Properties();
         properties.setProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY, PU_NAME);
         context = mock(Context.class);
-        new DI(new AndroidDatabaseSupportTestModule());
+        TestComponent component =
+                DaggerAndroidDatabaseSupportTest_TestComponent.builder()
+                .androidDatabaseSupportTestModule(new AndroidDatabaseSupportTestModule())
+                .build();
+        DI.getInstance(component);
         sqLiteDatabase = mock(SQLiteDatabase.class);
         sqLiteDatabaseSupport = new TestAndroidDatabaseSupport();
         openHelperConnectionSource = mock(OpenHelperConnectionSource.class);

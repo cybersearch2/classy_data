@@ -21,19 +21,20 @@ import java.util.Locale;
 
 import javax.inject.Singleton;
 
+import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
 import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+//import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+//import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
-import au.com.cybersearch2.classytask.WorkerRunnable;
+//import au.com.cybersearch2.classytask.WorkerRunnable;
 
 /**
  * ManyToManyModule
@@ -41,16 +42,23 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-@Module(injects = { 
+@Module(/*injects = { 
 		AndroidManyToMany.class,
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
         PersistenceContext.class,
         DatabaseAdminImpl.class
-        })
+        }*/)
 public class AndroidManyToManyModule implements ApplicationModule
 {
+    private Context context;
+
+    public AndroidManyToManyModule(Context context)
+    {
+        this.context = context;
+    }
+    
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
         return new TestSystemEnvironment();
@@ -85,4 +93,12 @@ public class AndroidManyToManyModule implements ApplicationModule
         return new PersistenceContext();
     }
 
+    /**
+     * Returns Android Application Context
+     * @return Context
+     */
+    @Provides @Singleton Context provideContext()
+    {
+        return context;
+    }
 }

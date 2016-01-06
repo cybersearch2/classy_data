@@ -3,8 +3,12 @@
  */
 package au.com.cybersearch2.classyjpa.entity;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
+
 import java.util.concurrent.Callable;
 
+import javax.inject.Singleton;
 import javax.persistence.EntityExistsException;
 
 import org.junit.After;
@@ -17,27 +21,26 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.annotation.RealObject;
-import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.util.SimpleFuture;
 import org.robolectric.util.TestRunnerWithManifest;
 import org.robolectric.util.Transcript;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
-import dagger.Module;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.v4.content.AsyncTaskLoader;
-import au.com.cybersearch2.classyapp.ContextModule;
+import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.TestAndroidModule;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
+import dagger.Component;
 
 /**
  * @author andrew
@@ -46,9 +49,15 @@ import au.com.cybersearch2.classytask.WorkStatus;
 @RunWith(TestRunnerWithManifest.class)
 public class PersistenceLoaderTest 
 {
-    @Module(includes = TestAndroidModule.class)
-    static class PersistenceLoaderTestModule implements ApplicationModule
+    @Singleton
+    @Component(modules = TestAndroidModule.class)  
+    static interface TestComponent extends ApplicationModule
     {
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        void inject(ApplicationContext applicationContext);
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
     }
 
 	@Implements(value = SystemClock.class, callThroughByDefault = true)
@@ -140,7 +149,12 @@ public class PersistenceLoaderTest
 	protected Context createObjectGraph()
 	{
 	    Context context = RuntimeEnvironment.application;
-	    new DI(new PersistenceLoaderTestModule(), new ContextModule(context));
+        TestAndroidModule testAndroidModule = new TestAndroidModule(context); 
+        TestComponent component = 
+                DaggerPersistenceLoaderTest_TestComponent.builder()
+                .testAndroidModule(testAndroidModule)
+                .build();
+        DI.getInstance(component);
 	    return context;
 	}
 

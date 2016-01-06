@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.persistence.PersistenceException;
 
 import com.j256.ormlite.support.ConnectionSource;
@@ -14,7 +15,10 @@ import com.j256.ormlite.table.TableUtils;
 import java.util.logging.Level;
 
 import au.com.cybersearch2.classylog.*;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
+import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
@@ -25,7 +29,9 @@ import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.ConnectionSourceFactory;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.Executable;
+import dagger.Component;
 
 /**
  * ORIGINAL COMMENTS:
@@ -44,6 +50,17 @@ import au.com.cybersearch2.classytask.Executable;
  */
 public class HelloTwoDbsMain 
 {
+    @Singleton
+    @Component(modules = HelloTwoDbsModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(HelloTwoDbsMain helloTwoDbsMain);
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+    }
+ 
     static public final String TAG = "HelloTwoDbsMain";
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
@@ -56,8 +73,6 @@ public class HelloTwoDbsMain
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
 
-    /** Dependency injection data object */
-    private HelloTwoDbsModule helloTwoDbsModule;
     private static HelloTwoDbsMain singleton;
     
     /** Factory object to create "simple" and "complex" Persistence Unit implementations */
@@ -233,8 +248,12 @@ public class HelloTwoDbsMain
 	 */
 	protected void createObjectGraph()
 	{
-        helloTwoDbsModule = new HelloTwoDbsModule();
-        new DI(helloTwoDbsModule).validate();
+        ApplicationComponent component = 
+                DaggerHelloTwoDbsMain_ApplicationComponent.builder()
+                .helloTwoDbsModule(new HelloTwoDbsModule())
+                .build();
+        // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
+        DI.getInstance(component).validate();
 	}
 
 	/**

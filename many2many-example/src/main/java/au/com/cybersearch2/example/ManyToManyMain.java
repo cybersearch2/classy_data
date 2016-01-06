@@ -5,13 +5,19 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import dagger.Component;
 
 /**
  * ORIGINAL COMMENTS:
@@ -42,6 +48,17 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
  */
 public class ManyToManyMain 
 {
+    @Singleton
+    @Component(modules = ManyToManyModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(ManyToManyMain manyToManyMain);
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+    }
+
     /** Named query to find all posts staged by a user identified by ID */
     static public final String POSTS_BY_USER = "posts_by_user";
     /** Named query to find all users associated with a post identified by ID */
@@ -267,6 +284,10 @@ public class ManyToManyMain
 	 */
 	protected void createObjectGraph()
 	{
-        new DI(new ManyToManyModule()).validate();
+        ApplicationComponent component = 
+                DaggerManyToManyMain_ApplicationComponent.builder()
+                .manyToManyModule(new ManyToManyModule())
+                .build();
+        DI.getInstance(component).validate();
 	}
 }

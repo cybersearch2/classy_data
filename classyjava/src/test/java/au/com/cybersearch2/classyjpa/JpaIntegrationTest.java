@@ -19,6 +19,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
@@ -28,6 +29,8 @@ import org.junit.Test;
 
 import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classyapp.TestClassyApplicationModule;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classynode.Node;
 import au.com.cybersearch2.classynode.NodeEntity;
@@ -41,6 +44,7 @@ import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork.Callable;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
@@ -50,7 +54,7 @@ import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 
-import dagger.Module;
+import dagger.Component;
 
 /**
  * JpaIntegrationTest
@@ -59,11 +63,16 @@ import dagger.Module;
  */
 public class JpaIntegrationTest
 {
-    @Module(includes = TestClassyApplicationModule.class)
-    static class JpaIntegrationTestModule implements ApplicationModule
+    @Singleton
+    @Component(modules = TestClassyApplicationModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
     {
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
     }
-    
+
     private static final String TOP_TITLE = "Cybersearch2 Records";
     protected PersistenceContainer testContainer;
     protected Transcript transcript;
@@ -94,8 +103,11 @@ public class JpaIntegrationTest
 	 */
 	protected void createObjectGraph()
 	{
-        DI dependencyInjection = new DI(new JpaIntegrationTestModule());
-        dependencyInjection.validate();
+        ApplicationComponent component = 
+                DaggerJpaIntegrationTest_ApplicationComponent.builder()
+                .testClassyApplicationModule(new TestClassyApplicationModule())
+                .build();
+        DI.getInstance(component).validate();
 	}
 
     @Test

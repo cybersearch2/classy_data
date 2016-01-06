@@ -19,6 +19,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
@@ -33,10 +34,12 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 
 import android.content.Context;
-import au.com.cybersearch2.classyapp.ContextModule;
+import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.TestAndroidModule;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyinject.ApplicationModule;
@@ -48,13 +51,15 @@ import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork.Callable;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
 import au.com.cybersearch2.classynode.Node;
 import au.com.cybersearch2.classynode.NodeEntity;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
 import org.robolectric.util.Transcript;
-import dagger.Module;
+
+import dagger.Component;
 
 /**
  * AndroidJpaIntegrationTest
@@ -67,11 +72,17 @@ import dagger.Module;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidJpaIntegrationTest
 {
-    @Module(includes = TestAndroidModule.class)
-    static class AndroidJpaIntegrationTestModule implements ApplicationModule
+    @Singleton
+    @Component(modules = TestAndroidModule.class)  
+    static interface TestComponent extends ApplicationModule
     {
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        void inject(ApplicationContext applicationContext);
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
     }
-    
+
     private static final String TOP_TITLE = "Cybersearch2 Records";
     protected PersistenceContainer testContainer;
     protected Transcript transcript;
@@ -102,7 +113,12 @@ public class AndroidJpaIntegrationTest
 	protected void createObjectGraph()
 	{
 	    Context context = TestRoboApplication.getTestInstance();
-	    new DI(new AndroidJpaIntegrationTestModule(), new ContextModule(context));
+        TestAndroidModule testAndroidModule = new TestAndroidModule(context); 
+        TestComponent component = 
+                DaggerAndroidJpaIntegrationTest_TestComponent.builder()
+                .testAndroidModule(testAndroidModule)
+                .build();
+        DI.getInstance(component);
 	}
 
     protected void initializeDatabase()

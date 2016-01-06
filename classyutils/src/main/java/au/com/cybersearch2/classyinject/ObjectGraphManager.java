@@ -15,9 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyinject;
 
-import java.util.List;
-
-import dagger.ObjectGraph;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ObjectGraphManager
@@ -27,68 +30,214 @@ import dagger.ObjectGraph;
  */
 public class ObjectGraphManager
 {
-    /** ObjectGraph created on application start. This may be superceded if add() is called. */
-    protected ObjectGraph mainObjectGraph;
+    /** Collection of inject Methods belonging to ApplicationModule (Primary global scope component) */
+    protected Map<Class<?>, Method> injectMap;
+    /** Collection of subcomponent factory Methods belonging to ApplicationModule */
+    protected Map<Class<?>, Method> subComponentMap;
+    /** Collection of subcomponents created from additional modules */
+    protected Map<Class<?>, Object> moduleMap;
+    protected ApplicationModule applicationModule;
 
     /**
      * Construct ObjectGraphManager object. Must be a singleton, created on application start.
-     * @param moduleList List of @Module annotated objects required to make the resulting graph complete
+     * @param applicationModule ApplicationModule object for Dagger2 is a @Component annotated
+     *                           class with Singleton scope ie. for life of application.
+     * @param modules Option additional @Module annotated objects required to make the resulting graph complete.
      * @see DI
      */
-    public ObjectGraphManager(List<Object> moduleList)
+    public ObjectGraphManager(ApplicationModule applicationModule, Object... modules)
     {
-        if (moduleList == null)
-            throw new IllegalArgumentException("Parameter \"moduleList\" is null");
-        if (moduleList.isEmpty())
-            throw new IllegalArgumentException("Parameter \"moduleList\" is empty");
-        mainObjectGraph = createObjectGraph(moduleList);
+        this.applicationModule = applicationModule;
+        injectMap = new HashMap<Class<?>, Method>();
+        subComponentMap = new HashMap<Class<?>, Method>();
+        moduleMap = new HashMap<Class<?>, Object>(); 
+        if (applicationModule == null)
+            throw new IllegalArgumentException("Parameter \"applicationModule\" is null");
+        Method[] methods = applicationModule.getClass().getMethods();
+        for (Method method: methods)
+        {
+            if ("inject".equals(method.getName()))
+                //System.out.println(method.getParameterTypes()[0]);
+                injectMap.put(method.getParameterTypes()[0], method);
+            else if (isSubComponentFactory(method))
+            {
+                Class<?> methodClass = method.getParameterTypes()[0];
+                boolean moduleSupplied = false;
+                for (Object module: modules)
+                {
+                    if (methodClass.equals(module.getClass()))
+                    {
+                        moduleMap.put(getGenericClass(module), createSubComponent(method, module));
+                        moduleSupplied = true;
+                        break;
+                    }
+                }
+                if (!moduleSupplied)
+                    subComponentMap.put(methodClass, method);
+            }
+        }
     }
     
+    private Class<?> getGenericClass(Object module)
+    {
+        Type[] types = module.getClass().getGenericInterfaces();
+        for (Type type: types)
+        {
+            ParameterizedType parameterizedType = (ParameterizedType)type;
+            String rawType = parameterizedType.getRawType().toString();
+            if (rawType.endsWith(DependencyProvider.class.getName()))
+            {
+                String genericType = parameterizedType.getActualTypeArguments()[0].toString().split(" ")[1];
+                //System.out.println(.toString());
+                try
+                {
+                    return Class.forName(genericType);
+                }
+                catch (ClassNotFoundException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    private Object createSubComponent(Method method, Object module)
+    {
+        Object subComponent = null;
+        try
+        {
+            subComponent = method.invoke(applicationModule, module);
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
+        {
+            e.printStackTrace();
+        }
+        return subComponent;
+    }
+
+    private boolean isSubComponentFactory(Method method)
+    {
+        Class<?> returnType = method.getReturnType();
+        if (returnType.isPrimitive() || returnType.equals(Void.class))
+            return false;
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length != 1)
+            return false;
+        Type[] types = parameterTypes[0].getGenericInterfaces();
+        for (Type type: types)
+        {
+            String rawType = ((ParameterizedType)type).getRawType().toString();
+            if (rawType.endsWith(DependencyProvider.class.getName()))
+                return true;
+        }
+        return false; 
+    }
+
     /**
      * Inject an object into a new graph containing supplied module and based on mainObjectGraph.
      * @param injectee Object to inject 
-     * @param module DependencyProvider for object class. Optional. If omitted, the mainObjectGraph will be injected.
      */
-    public <T>  void inject(T injectee, DependencyProvider<T>... module)
+    public <T>  void inject(T injectee)
     {
         if (injectee == null)
             throw new IllegalArgumentException("Parameter injectee is null");
-        if (module.length > 1)
-            throw new IllegalArgumentException("inject() method only supports one or zero modules");
-        ObjectGraph graph = (module.length == 0) ? mainObjectGraph : mainObjectGraph.plus((Object[])module);
-        graph.inject(injectee);
+        Method method = injectMap.get(injectee.getClass());
+        if (method == null)
+        {
+            Object subComponent = moduleMap.get(injectee.getClass());
+            injectSubComponent(subComponent, injectee);
+            return;
+        }
+        // TODO - Log errors
+        try
+        {
+            method.invoke(applicationModule, injectee);
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
+        {
+            e.printStackTrace();
+        }
     }
  
-    /**
-     * Add @Module annotated objects to current ObjectGraph using plus() method
-     * @param modules Object array
-     */
-    public void add(Object... modules)
+    private <T> void injectSubComponent(Object subComponent, T injectee)
     {
-        if (modules == null)
-            throw new IllegalArgumentException("Parameter \"modules\" is null");
-        if (modules.length == 0)
-            throw new IllegalArgumentException("Parameter \"modules\" is empty");
-        ObjectGraph newObjectGraph = mainObjectGraph.plus(modules);
-        mainObjectGraph = newObjectGraph;
+        try
+        {
+            Method[] methods = subComponent.getClass().getMethods();
+            for (Method subCompMethod: methods)
+            {
+                if ("inject".equals(subCompMethod.getName()) && injectee.getClass().equals(subCompMethod.getParameterTypes()[0]))
+                {
+                    subCompMethod.setAccessible(true);
+                    subCompMethod.invoke(subComponent, injectee);
+                    return;
+                }
+            }
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
+        {
+            e.printStackTrace();
+        }
     }
-    
+
+    public <T>  void inject(DependencyProvider<T> module, T injectee)
+    {
+        if (module == null)
+            throw new IllegalArgumentException("Parameter \"module\" is null");
+        if (injectee == null)
+            throw new IllegalArgumentException("Parameter \"injectee\" is null");
+        Method method = subComponentMap.get(module.getClass());
+        
+        try
+        {
+            Object subComponent = method.invoke(applicationModule, module);
+            injectSubComponent(subComponent, injectee);
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Validate the ObjectGraph
      */
     public void validate()
     {
-        mainObjectGraph.validate();
-    }
-    
-    /**
-     * Returns ObjectGraph created from specified list of @Module annotated objects
-     * @param moduleList List of @Module annotated objects required to make the resulting graph complete
-     * @return ObjectGraph
-     */
-    protected ObjectGraph createObjectGraph(List<Object> moduleList)
-    {
-        return ObjectGraph.create(moduleList.toArray());
+        // TODO - Implement validate()
     }
     
 }

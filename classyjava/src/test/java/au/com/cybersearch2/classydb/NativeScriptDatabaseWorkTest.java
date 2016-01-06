@@ -32,15 +32,15 @@ import org.junit.Test;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
-import au.com.cybersearch2.classytask.WorkerRunnable;
 
 import com.j256.ormlite.support.DatabaseConnection;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 
@@ -51,11 +51,11 @@ import dagger.Provides;
  */
 public class NativeScriptDatabaseWorkTest
 {
-    @Module(injects = { 
+    @Module(/*injects = { 
             PersistenceContext.class,
             NativeScriptDatabaseWork.class, 
             PersistenceFactory.class,
-            WorkerRunnable.class })
+            WorkerRunnable.class }*/)
     class NativeScriptDatabaseWorkTestModule implements ApplicationModule
     {
         @Provides ResourceEnvironment provideResourceEnvironment()
@@ -77,6 +77,17 @@ public class NativeScriptDatabaseWorkTest
         }
     }
 
+    @Singleton
+    @Component(modules = NativeScriptDatabaseWorkTestModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+    }
+
+
     static final String CREATE_SQL = "create table models ( _id integer primary key autoincrement, name text, _description text);\n";
     public static final String CREATE_SQL_FILENAME = "create.sql";
     public static final String DROP_SQL_FILENAME = "drop.sql";
@@ -91,7 +102,11 @@ public class NativeScriptDatabaseWorkTest
         databaseConnection = mock(DatabaseConnection.class);
         resourceEnvironment = mock(ResourceEnvironment.class);
         persistenceAdmin = mock(PersistenceAdmin.class);
-        new DI(new NativeScriptDatabaseWorkTestModule());
+        ApplicationComponent component = 
+                DaggerNativeScriptDatabaseWorkTest_ApplicationComponent.builder()
+                .nativeScriptDatabaseWorkTestModule(new NativeScriptDatabaseWorkTestModule())
+                .build();
+        DI.getInstance(component).validate();
     }
     
     @Test

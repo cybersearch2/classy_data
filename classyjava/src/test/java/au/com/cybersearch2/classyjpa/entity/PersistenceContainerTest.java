@@ -35,6 +35,7 @@ import org.mockito.Mockito;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
@@ -43,8 +44,8 @@ import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestEntityManagerFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
@@ -62,7 +63,7 @@ import au.com.cybersearch2.classyutil.Transcript;
  */
 public class PersistenceContainerTest
 {
-    @Module(injects = { PersistenceContext.class, WorkerRunnable.class })
+    @Module(/*injects = { PersistenceContext.class, WorkerRunnable.class }*/)
     public static class PersistenceContainerTestModule implements ApplicationModule
     {
 
@@ -85,6 +86,15 @@ public class PersistenceContainerTest
             return new TestSystemEnvironment();
         }
     }
+
+    @Singleton
+    @Component(modules = PersistenceContainerTestModule.class)  
+    static interface ApplicationComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext  persistenceContext);
+        void inject(WorkerRunnable<Boolean> workerRunnable);
+    }
+    
 
     class EntityManagerWork extends TestPersistenceWork
     {
@@ -129,7 +139,11 @@ public class PersistenceContainerTest
     @Before
     public void setUp() throws Exception 
     {
-        new DI(new PersistenceContainerTestModule());
+        ApplicationComponent component = 
+                DaggerPersistenceContainerTest_ApplicationComponent.builder()
+                .persistenceContainerTestModule(new PersistenceContainerTestModule())
+                .build();
+        DI.getInstance(component);
         transcript = new Transcript();
         testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
         transaction = TestEntityManagerFactory.setEntityManagerInstance();

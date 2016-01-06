@@ -21,16 +21,16 @@ import dagger.Module;
 import dagger.Provides;
 import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+//import au.com.cybersearch2.classydb.DatabaseAdminImpl;
 import au.com.cybersearch2.classydb.H2DatabaseSupport;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+//import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
-import au.com.cybersearch2.classytask.WorkerRunnable;
+//import au.com.cybersearch2.classytask.WorkerRunnable;
 
 /**
  * H2ManyToManyModule
@@ -42,14 +42,14 @@ import au.com.cybersearch2.classytask.WorkerRunnable;
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-@Module(injects = { 
+@Module(/*injects = { 
 		H2ManyToManyMain.class,
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
         PersistenceContext.class,
         DatabaseAdminImpl.class
-        })
+        }*/)
 public class H2ManyToManyModule implements ApplicationModule
 {
     @Provides @Singleton ThreadHelper provideSystemEnvironment()

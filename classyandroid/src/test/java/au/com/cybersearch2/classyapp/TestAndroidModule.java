@@ -17,15 +17,16 @@ package au.com.cybersearch2.classyapp;
 
 import javax.inject.Singleton;
 
+import android.content.Context;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+//import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+//import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+//import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
-import au.com.cybersearch2.classytask.WorkerRunnable;
+//import au.com.cybersearch2.classytask.WorkerRunnable;
 import dagger.Module;
 import dagger.Provides;
 
@@ -34,15 +35,22 @@ import dagger.Provides;
  * @author Andrew Bowley
  * 20/06/2014
  */
-@Module(injects = { 
+@Module(/*injects = { 
         WorkerRunnable.class,
         PersistenceFactory.class,
         NativeScriptDatabaseWork.class,
         PersistenceContext.class,
         DatabaseAdminImpl.class
-        })
+        }*/)
 public class TestAndroidModule implements ApplicationModule
 {
+    private Context context;
+
+    public TestAndroidModule(Context context)
+    {
+        this.context = context;
+    }
+    
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
         return new TestSystemEnvironment();
@@ -58,4 +66,12 @@ public class TestAndroidModule implements ApplicationModule
         return new PersistenceFactory(new AndroidDatabaseSupport());
     }
 
+    /**
+     * Returns Android Application Context
+     * @return Context
+     */
+    @Provides @Singleton Context provideContext()
+    {
+        return context;
+    }
 }

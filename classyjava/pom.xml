@@ -143,9 +143,13 @@
       <groupId>com.j256.ormlite</groupId>
       <artifactId>ormlite-jdbc</artifactId>
       <version>${ormlite.version}</version>
-     </dependency>
+    </dependency>
     <dependency>
-      <groupId>com.squareup.dagger</groupId>
+      <groupId>javax.annotation</groupId>
+	  <artifactId>jsr250-api</artifactId>
+    </dependency>    
+    <dependency>
+      <groupId>com.google.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
       <version>${dagger.version}</version>
     </dependency>

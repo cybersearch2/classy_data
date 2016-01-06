@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.Properties;
 
+import javax.inject.Singleton;
 import javax.persistence.PersistenceException;
 
 import org.junit.Before;
@@ -28,10 +29,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
 import android.content.Context;
-import au.com.cybersearch2.classyapp.ContextModule;
+import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
@@ -47,14 +49,16 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidConnectionSourceFactoryTest
 {
-    @Module(injects = PersistenceContext.class)
+    @Module(/*injects = PersistenceContext.class*/)
     static class AndroidConnectionSourceFactoryTestModule implements ApplicationModule
     {
-        DatabaseAdmin databaseAdmin;
-        PersistenceFactory persistenceFactory;
+        private Context context;
+        private DatabaseAdmin databaseAdmin;
+        private PersistenceFactory persistenceFactory;
   
-        public AndroidConnectionSourceFactoryTestModule()
+        public AndroidConnectionSourceFactoryTestModule(Context context)
         {
+            this.context = context;
             persistenceFactory = mock(PersistenceFactory.class);
             Persistence persistence = mock(Persistence.class);
             databaseAdmin = mock(DatabaseAdmin.class);
@@ -62,12 +66,29 @@ public class AndroidConnectionSourceFactoryTest
             when(persistence.getDatabaseAdmin()).thenReturn(databaseAdmin);
         }
         
-        @Provides PersistenceFactory providePersistenceFactory()
+        @Provides  @Singleton PersistenceFactory providePersistenceFactory()
         {
             return persistenceFactory;
         }
+
+        /**
+         * Returns Android Application Context
+         * @return Context
+         */
+        @Provides @Singleton Context provideContext()
+        {
+            return context;
+        }
     }
-    
+ 
+    @Singleton
+    @Component(modules = AndroidConnectionSourceFactoryTestModule.class)  
+    static interface TestComponent extends ApplicationModule
+    {
+        void inject(PersistenceContext persistenceContext);
+        void inject(ApplicationContext applicationContext);
+    }
+ 
     protected AndroidConnectionSourceFactory androidConnectionSourceFactory;
     protected AndroidDatabaseSupport androidDatabaseSupport;
     static AndroidConnectionSourceFactoryTestModule androidConnectionSourceFactoryTestModule;
@@ -83,8 +104,12 @@ public class AndroidConnectionSourceFactoryTest
         {
             //context = TestRoboApplication.getTestInstance();
         	context = mock(Context.class);
-            androidConnectionSourceFactoryTestModule = new AndroidConnectionSourceFactoryTestModule();
-            new DI(androidConnectionSourceFactoryTestModule, new ContextModule(context));
+            androidConnectionSourceFactoryTestModule = new AndroidConnectionSourceFactoryTestModule(context);
+            TestComponent component =
+                DaggerAndroidConnectionSourceFactoryTest_TestComponent.builder()
+                .androidConnectionSourceFactoryTestModule(androidConnectionSourceFactoryTestModule)
+                .build();
+            DI.getInstance(component);
         }
         properties = new Properties();
         properties.setProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY, PU_NAME);

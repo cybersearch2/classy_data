@@ -15,18 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyinject;
 
-import static org.mockito.Mockito.*;
-import static org.fest.assertions.api.Assertions.*;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
-import java.util.List;
+import java.util.Date;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
 import org.junit.Test;
-
-import dagger.Module;
-import dagger.Provides;
 
 /**
  * DI_Test
@@ -35,79 +29,10 @@ import dagger.Provides;
  */
 public class DI_Test
 {
-    @Module(injects = Injectee.class)
-    static class TestModule2 implements DependencyProvider<Injectee>
+  
+    static class DummyComponent implements ApplicationModule
     {
-        @Provides
-        Object provideObject() 
-        {
-            return new Object();
-        }
-    }
-
-    static class Injectee
-    {
-        @Inject Object object;
         
-        Object get()
-        {
-            return object;
-        }
-    }
-    
-    
-    class TestDI extends DI
-    {
-        List<Object> moduleList;
-        int moduleCount;
-        
-        public TestDI(ApplicationModule applicationModule, Object... modules)
-        {
-            super(applicationModule, modules);
-        }
-   
-        @Override
-        protected ObjectGraphManager createObjectGraphManager(List<Object> moduleList)
-        {
-            this.moduleList = moduleList;
-            moduleCount = moduleList.size();
-            return testOjectGraphManager;
-        }
-   }
-
-    ApplicationModule applicationModule;
-    ObjectGraphManager testOjectGraphManager;
-    
- 
-    @Before
-    public void setup()
-    {
-        applicationModule = mock(ApplicationModule.class);
-        testOjectGraphManager = mock(ObjectGraphManager.class);
-    }
-    
-    @Test
-    public void test_constructor()
-    {
-        Object[] testObjects = new Object[2];
-        Object object0 = new Object();
-        Object object1 = new Object();
-        testObjects[0] = object0;
-        testObjects[1] = object1;
-        TestDI testDI = new TestDI(applicationModule, testObjects);
-        assertThat(testDI.moduleCount).isEqualTo(3);
-        assertThat(testDI.moduleList.size()).isEqualTo(0);
-        assertThat(DI.getInstance()).isEqualTo(testDI);
-        DI.singleton = null;
-        try
-        {
-            DI.getInstance();
-            failBecauseExceptionWasNotThrown(IllegalStateException.class);
-        }
-        catch (IllegalStateException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("DI called while not initialized");
-        }
     }
     
     @Test
@@ -115,7 +40,7 @@ public class DI_Test
     {
         try
         {
-            new DI(null);
+            DI.getInstance(null);
             failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
         }
         catch (IllegalArgumentException e)
@@ -124,16 +49,19 @@ public class DI_Test
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void test_inject()
     {
-        new TestDI(applicationModule);
-        Object injectee = new Object();
+        int magicValue = 20160101;
+        TestModule firstModule = new TestModule(magicValue);
+        ApplicationComponent component = DaggerApplicationComponent.builder()
+            .testModule(firstModule)
+            .build();
+        DI.getInstance(component);
+        Injectee injectee = new Injectee();
         DI.inject(injectee);
-        verify(testOjectGraphManager).inject(injectee);
+        assertThat(injectee.getMagicNumber()).isEqualTo(magicValue);
     }
-
     @Test
     public void test_inject_null_injectee()
     {
@@ -148,93 +76,38 @@ public class DI_Test
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    public void test_inject2()
+    public void test_moduleInject()
     {
-        new TestDI(applicationModule);
+        int magicValue = 20160101;
+        TestModule firstModule = new TestModule(magicValue);
+        Date testDate = new Date();
+        SubAppModule subAppModule = new SubAppModule(testDate);
+        ApplicationComponent component = DaggerApplicationComponent.builder()
+                .testModule(firstModule)
+                .build();
+        DI.getInstance(component, subAppModule);
+        ScopedActivity scopedActivity = new ScopedActivity();
+        DI.inject(scopedActivity);
+        assertThat(scopedActivity.getCreated()).isEqualTo(testDate);
         Injectee injectee = new Injectee();
-        TestModule2 module = new TestModule2();
-        DI.inject(module, injectee);
-        verify(testOjectGraphManager).inject(injectee, module);
+        DI.inject(injectee);
+        assertThat(injectee.getMagicNumber()).isEqualTo(magicValue);
     }
 
     @Test
     public void test_inject2_null_injectee()
     {
+        DI.getInstance(new DummyComponent()); 
         try
         {
-            TestModule2 module = new TestModule2();
-            DI.inject(module, null);
+            DI.inject(new DependencyProvider<Injectee>(){}, null);
             failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
         }
         catch (IllegalArgumentException e)
         {
             assertThat(e.getMessage()).isEqualTo("Parameter \"injectee\" is null");
         }
-    }
-
-    @Test
-    public void test_inject2_null_module()
-    {
-        try
-        {
-            DI.inject(null, new Injectee());
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter \"module\" is null");
-        }
-    }
-
-    @Test
-    public void test_add()
-    {
-        Object[] testObjects = new Object[2];
-        Object object0 = new Object();
-        Object object1 = new Object();
-        testObjects[0] = object0;
-        testObjects[1] = object1;
-        new TestDI(applicationModule);
-        DI.add(testObjects);
-        verify(testOjectGraphManager).add(testObjects);
-    }
-
-    @Test
-    public void test_add_null_modules()
-    {
-        try
-        {
-            DI.add((Object[])null);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter \"modules\" is null or empty");
-        }
-    }
-
-    @Test
-    public void test_add_empty_modules()
-    {
-        try
-        {
-            DI.add(new Object[0]);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-        }
-        catch (IllegalArgumentException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Parameter \"modules\" is null or empty");
-        }
-    }
-
-    @Test
-    public void test_validate()
-    {
-        DI testDI = new TestDI(applicationModule);
-        testDI.validate();
-        verify(testOjectGraphManager).validate();
     }
 
 }

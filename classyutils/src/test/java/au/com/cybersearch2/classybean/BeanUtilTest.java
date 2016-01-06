@@ -43,7 +43,7 @@ import au.com.cybersearch2.classyinject.DependencyProvider;
  */
 public class BeanUtilTest
 {
-    @Module(injects = Injectee.class)
+    @Module(/*injects = Injectee.class*/)
     static class TestModule2 implements DependencyProvider<Injectee>
     {
         @Provides

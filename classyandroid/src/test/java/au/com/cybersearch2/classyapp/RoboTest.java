@@ -19,19 +19,24 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 import java.sql.SQLException;
 
+import javax.inject.Singleton;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import android.content.Context;
+import au.com.cybersearch2.classydb.DatabaseAdminImpl;
+import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 
 import com.j256.ormlite.db.SqliteAndroidDatabaseType;
 import com.j256.ormlite.support.ConnectionSource;
 
-import dagger.Module;
+import dagger.Component;
 
 /**
  * RoboTest
@@ -41,16 +46,29 @@ import dagger.Module;
 @RunWith(RobolectricTestRunner.class)
 public class RoboTest
 {
-    @Module(injects = { RoboTest.class }, includes = TestAndroidModule.class)
-    static class RoboTestModule implements ApplicationModule
+    @Singleton
+    @Component(modules = TestAndroidModule.class)  
+    static interface TestComponent extends ApplicationModule
     {
+        void inject(RoboTest roboTest);
+        void inject(DatabaseAdminImpl databaseAdminImpl);
+        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        void inject(ApplicationContext applicationContext);
+        void inject(PersistenceContext persistenceContext);
+        void inject(PersistenceFactory persistenceFactory);
     }
-    
+ 
+
     @Test
     public void test_Robolectric() throws SQLException, InterruptedException
     {
         Context context = TestRoboApplication.getTestInstance();
-        new DI(new RoboTestModule(), new ContextModule(context));
+        TestAndroidModule testAndroidModule = new TestAndroidModule(context); 
+        TestComponent component = 
+                DaggerRoboTest_TestComponent.builder()
+                .testAndroidModule(testAndroidModule)
+                .build();
+        DI.getInstance(component);
         Runnable connectionTask = new Runnable(){
 
 			@Override
