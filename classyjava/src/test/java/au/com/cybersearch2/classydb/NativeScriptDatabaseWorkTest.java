@@ -24,25 +24,12 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import javax.inject.Singleton;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import au.com.cybersearch2.classyapp.ResourceEnvironment;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classytask.ThreadHelper;
-import au.com.cybersearch2.classytask.TestSystemEnvironment;
-
 import com.j256.ormlite.support.DatabaseConnection;
 
-import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
 
 /**
  * NativeScriptDatabaseWorkTest
@@ -51,48 +38,10 @@ import dagger.Provides;
  */
 public class NativeScriptDatabaseWorkTest
 {
-    @Module(/*injects = { 
-            PersistenceContext.class,
-            NativeScriptDatabaseWork.class, 
-            PersistenceFactory.class,
-            WorkerRunnable.class }*/)
-    class NativeScriptDatabaseWorkTestModule implements ApplicationModule
-    {
-        @Provides ResourceEnvironment provideResourceEnvironment()
-        {
-            return resourceEnvironment;
-        }
-        
-        @Provides ThreadHelper provideSystemEnvironment()
-        {
-            return new TestSystemEnvironment();
-        }
-        
-        @Provides @Singleton PersistenceFactory providePersistenceFactory()
-        {
-            PersistenceFactory persistenceFactory = mock(PersistenceFactory.class);
-            DatabaseSupport databaseSupport = mock(DatabaseSupport.class);
-            when(persistenceFactory.getDatabaseSupport()).thenReturn(databaseSupport);
-            return persistenceFactory;
-        }
-    }
-
-    @Singleton
-    @Component(modules = NativeScriptDatabaseWorkTestModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
-    {
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-    }
-
-
     static final String CREATE_SQL = "create table models ( _id integer primary key autoincrement, name text, _description text);\n";
     public static final String CREATE_SQL_FILENAME = "create.sql";
     public static final String DROP_SQL_FILENAME = "drop.sql";
 
-    PersistenceAdmin persistenceAdmin;
     ResourceEnvironment resourceEnvironment;
     DatabaseConnection databaseConnection;
 
@@ -101,18 +50,12 @@ public class NativeScriptDatabaseWorkTest
     {
         databaseConnection = mock(DatabaseConnection.class);
         resourceEnvironment = mock(ResourceEnvironment.class);
-        persistenceAdmin = mock(PersistenceAdmin.class);
-        ApplicationComponent component = 
-                DaggerNativeScriptDatabaseWorkTest_ApplicationComponent.builder()
-                .nativeScriptDatabaseWorkTestModule(new NativeScriptDatabaseWorkTestModule())
-                .build();
-        DI.getInstance(component).validate();
     }
     
     @Test
     public void test_constructor()
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(resourceEnvironment, CREATE_SQL_FILENAME);
         assertThat(databaseWork.resourceEnvironment).isNotNull();
     }
     
@@ -120,7 +63,7 @@ public class NativeScriptDatabaseWorkTest
     public void test_call() throws Exception
     {
         TestByteArrayInputStream bais = new TestByteArrayInputStream(CREATE_SQL.getBytes());
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(resourceEnvironment, CREATE_SQL_FILENAME);
         when(resourceEnvironment.openResource(CREATE_SQL_FILENAME)).thenReturn(bais);
         Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(true);
@@ -131,7 +74,7 @@ public class NativeScriptDatabaseWorkTest
     @Test
     public void test_call_null_filename() throws Exception
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork((String)null);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(resourceEnvironment, (String)null);
         Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(false);
    }
@@ -140,7 +83,7 @@ public class NativeScriptDatabaseWorkTest
     @Test
     public void test_call_empty_filename() throws Exception
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork("");
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(resourceEnvironment, "");
         Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(false);
    }
@@ -148,7 +91,7 @@ public class NativeScriptDatabaseWorkTest
     @Test
     public void test_doInBackground_ioexception_on_open() throws Exception
     {
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(resourceEnvironment, CREATE_SQL_FILENAME);
         doThrow(new IOException("File not found")).when(resourceEnvironment).openResource(CREATE_SQL_FILENAME);
         try
         {
@@ -166,7 +109,7 @@ public class NativeScriptDatabaseWorkTest
     {
         TestByteArrayInputStream bais = new TestByteArrayInputStream(CREATE_SQL.getBytes());
         bais.throwExceptionOnClose = true;
-        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(CREATE_SQL_FILENAME);
+        NativeScriptDatabaseWork databaseWork = new NativeScriptDatabaseWork(resourceEnvironment, CREATE_SQL_FILENAME);
         when(resourceEnvironment.openResource(CREATE_SQL_FILENAME)).thenReturn(bais);
         Boolean result = databaseWork.call(databaseConnection);
         assertThat(result).isEqualTo(true);

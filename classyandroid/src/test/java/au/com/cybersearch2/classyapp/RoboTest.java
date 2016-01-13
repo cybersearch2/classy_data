@@ -17,6 +17,7 @@ package au.com.cybersearch2.classyapp;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.inject.Singleton;
@@ -24,18 +25,14 @@ import javax.inject.Singleton;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-
-import android.content.Context;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.j256.ormlite.db.SqliteAndroidDatabaseType;
 import com.j256.ormlite.support.ConnectionSource;
 
+import android.content.Context;
+import au.com.cybersearch2.classyinject.ApplicationModule;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import dagger.Component;
 
 /**
@@ -50,30 +47,17 @@ public class RoboTest
     @Component(modules = TestAndroidModule.class)  
     static interface TestComponent extends ApplicationModule
     {
-        void inject(RoboTest roboTest);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-        void inject(ApplicationContext applicationContext);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
+        PersistenceContext persistenceContext();
     }
  
-
     @Test
-    public void test_Robolectric() throws SQLException, InterruptedException
+    public void test_Robolectric() throws SQLException, InterruptedException, IOException, XmlPullParserException
     {
-        Context context = TestRoboApplication.getTestInstance();
-        TestAndroidModule testAndroidModule = new TestAndroidModule(context); 
-        TestComponent component = 
-                DaggerRoboTest_TestComponent.builder()
-                .testAndroidModule(testAndroidModule)
-                .build();
-        DI.getInstance(component);
+        final PersistenceContext persistenceContext = createObjectGraph();
         Runnable connectionTask = new Runnable(){
 
 			@Override
 			public void run() {
-		        PersistenceContext persistenceContext = new PersistenceContext();
 		        ConnectionSource connectionSource = persistenceContext.getPersistenceAdmin(TestClassyApplication.PU_NAME).getConnectionSource();
 		        assertThat(connectionSource.getDatabaseType()).isInstanceOf(SqliteAndroidDatabaseType.class);
 		        synchronized(this)
@@ -87,6 +71,24 @@ public class RoboTest
 		{
 			connectionTask.wait();
 		}
+    }
+
+    /**
+     * Set up dependency injection, which creates an ObjectGraph from test configuration object.
+     * Override to run with different database and/or platform. 
+     * @throws XmlPullParserException 
+     * @throws IOException 
+     */
+    protected PersistenceContext createObjectGraph() throws IOException, XmlPullParserException
+    {
+        Context context = TestRoboApplication.getTestInstance();
+        ResourceEnvironment resourceEnvironment = new TestResourceEnvironment();
+        TestAndroidModule testAndroidModule = new TestAndroidModule(context, resourceEnvironment, TestClassyApplication.PU_NAME); 
+        TestComponent component = 
+                DaggerRoboTest_TestComponent.builder()
+                .testAndroidModule(testAndroidModule)
+                .build();
+        return component.persistenceContext();
     }
 
 }

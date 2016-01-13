@@ -15,17 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.PersistenceException;
 
-import au.com.cybersearch2.classyapp.ApplicationContext;
-import au.com.cybersearch2.classybean.BeanException;
-import au.com.cybersearch2.classybean.BeanUtil;
-import au.com.cybersearch2.classyjpa.persist.PersistenceAdminImpl;
-import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
-import au.com.cybersearch2.classylog.JavaLogger;
-import au.com.cybersearch2.classylog.Log;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * AndroidConnectionSourceFactory
@@ -34,22 +31,21 @@ import au.com.cybersearch2.classylog.Log;
  * @author Andrew Bowley
  * 10/07/2014
  */
-public class AndroidConnectionSourceFactory
+public class AndroidConnectionSourceFactory implements ConnectionSourceFactory
 {
-    private static final String TAG = "AndroidConnectionSourceFactory";
-    static Log log = JavaLogger.getLogger(TAG);
+    //private static final String TAG = "AndroidConnectionSourceFactory";
+    //static Log log = JavaLogger.getLogger(TAG);
     /** The owner of this factory **/
-    AndroidDatabaseSupport androidDatabaseSupport;
-    /** Android Application Context */
-    protected ApplicationContext applicationContext;
+    protected Map<String, OpenEventHandler> openEventHandlerMap;
 
     /**
      * Construct an AndroidConnectionSourceFactory instance
      */
-    public AndroidConnectionSourceFactory(AndroidDatabaseSupport androidDatabaseSupport)
+    public AndroidConnectionSourceFactory(OpenEventHandler... openEventHandlerArray)
     {
-    	this.androidDatabaseSupport = androidDatabaseSupport;
-        applicationContext = new ApplicationContext();
+        openEventHandlerMap = new HashMap<String, OpenEventHandler>();
+        for (OpenEventHandler openEventHandler: openEventHandlerArray)
+            openEventHandlerMap.put(openEventHandler.getDatabaseName(), openEventHandler);
     }
 
     /**
@@ -57,46 +53,37 @@ public class AndroidConnectionSourceFactory
      * @param databaseName The name passed in the SQLiteOpenHelper constructor
      * @param properties Properties defined in persistence unit
      */
-    protected OpenHelperConnectionSource createAndroidSQLiteConnection(final String databaseName, Properties properties)
+    @Override
+    public OpenHelperConnectionSource getConnectionSource(final String databaseName, Properties properties)
     {
-        // AndroidSQLiteConnection contains an OpenHelperCallbacks implementation, which can either be 
-        // custom or default
-        OpenHelperCallbacks openHelperCallbacks = null;
-        // Property "open-helper-callbacks-classname"
-        String openHelperCallbacksClassname = properties.getProperty(PersistenceUnitInfoImpl.CUSTOM_OHC_PROPERTY);
-        if (openHelperCallbacksClassname != null)
-        {   // Custom
-            try
-            {
-                openHelperCallbacks = (OpenHelperCallbacks) BeanUtil.newClassInstance(openHelperCallbacksClassname);
-            }
-            catch(BeanException e)
-            {
-                throw new PersistenceException(e.getMessage(), e.getCause());
-            }
-        }
-        else
-        {   
-            // Default implementation requires persistence unit name, which is automatically inserted.
-            // Property "persistence-unit-name" 
-            String puName = properties.getProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY);
-            if (puName == null)
-                throw new PersistenceException("Persistence property \"" + PersistenceUnitInfoImpl.PU_NAME_PROPERTY + "\" not set");
-            openHelperCallbacks = new OpenHelperCallbacksImpl(puName);
-        }
-        int databaseVersion = PersistenceAdminImpl.getDatabaseVersion(properties);
+        OpenEventHandler openEventHandler = openEventHandlerMap.get(databaseName);
+        if (openEventHandler == null)
+            throw new PersistenceException("Database name \"" + databaseName + "\" not configured");
         // The SQLiteOpenHelper onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
-        OpenEventHandler openEventHandler = 
-        		new OpenEventHandler(
-        				openHelperCallbacks,
-        				applicationContext.getContext(), 
-        				databaseName,
-        				databaseVersion);
         // The OpenHelperConnectionSource object is constructed with an SQLiteDatabase object so it can
         // implement get/set dataabase version methods.
         OpenHelperConnectionSource openHelperConnectionSource = 
-        		new OpenHelperConnectionSource(androidDatabaseSupport.getSQLiteDatabase(openEventHandler), openEventHandler);
+        		new OpenHelperConnectionSource(getSQLiteDatabase(openEventHandler), openEventHandler);
         return openHelperConnectionSource;
     }
 
+    /**
+     * Returns writeable SQLiteDatabase object
+     * @param sqLiteOpenHelper SQLiteOpenHelper
+     * @return SQLiteDatabase
+     * @throws PersistenceException
+     */
+    protected SQLiteDatabase getSQLiteDatabase(SQLiteOpenHelper sqLiteOpenHelper)
+    {
+        SQLiteDatabase db = null;
+        try 
+        {
+            db = sqLiteOpenHelper.getWritableDatabase();
+        } 
+        catch (android.database.SQLException e) 
+        {
+            throw new PersistenceException("Error getting a writable database from helper", e);
+        }
+        return db;
+    }
 }

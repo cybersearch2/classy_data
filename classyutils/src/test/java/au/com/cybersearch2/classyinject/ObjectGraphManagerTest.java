@@ -22,6 +22,7 @@ import java.util.Date;
 import javax.inject.Singleton;
 
 import org.junit.Test;
+import org.junit.Ignore;
 
 import dagger.Component;
 import dagger.Module;
@@ -58,6 +59,7 @@ public class ObjectGraphManagerTest
         void inject(ScopedActivity scopedActivity);
     }
 
+    @Ignore
     @Test 
     public void test_inject() 
     { 

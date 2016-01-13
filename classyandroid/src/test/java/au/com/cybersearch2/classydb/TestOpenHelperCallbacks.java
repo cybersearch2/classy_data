@@ -17,6 +17,8 @@ package au.com.cybersearch2.classydb;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+
 /**
  * TestOpenHelperCallbacks
  * @author Andrew Bowley
@@ -51,6 +53,16 @@ public class TestOpenHelperCallbacks implements OpenHelperCallbacks
         TestOpenHelperCallbacks.connectionSource = connectionSource;
         TestOpenHelperCallbacks.oldVersion = oldVersion;
         TestOpenHelperCallbacks.newVersion = newVersion;
+    }
+
+    @Override
+    public void setDatabaseAdmin(DatabaseAdmin databaseAdmin)
+    {
+    }
+
+    @Override
+    public void setPersistenceAdmin(PersistenceAdmin persistenceAdmin)
+    {
     }
 
 }

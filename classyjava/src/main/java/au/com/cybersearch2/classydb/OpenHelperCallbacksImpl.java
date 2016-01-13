@@ -21,8 +21,8 @@ import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.JavaPersistenceContext.EntityManagerProvider;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classytask.Executable;
+
 
 import com.j256.ormlite.support.ConnectionSource;
 
@@ -50,9 +50,16 @@ public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
      */
     public OpenHelperCallbacksImpl(String puName)
     {
-        PersistenceContext persistenceContext = new PersistenceContext();
-        databaseAdmin = persistenceContext.getDatabaseAdmin(puName);
-        persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
+    }
+
+    public void setDatabaseAdmin(DatabaseAdmin databaseAdmin)
+    {
+        this.databaseAdmin = databaseAdmin;
+    }
+
+    public void setPersistenceAdmin(PersistenceAdmin persistenceAdmin)
+    {
+        this.persistenceAdmin = persistenceAdmin;
     }
 
     /**
@@ -70,7 +77,8 @@ public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
     @Override
     public void onCreate(ConnectionSource connectionSource) 
     {
-    	databaseAdmin.onCreate(connectionSource);
+        if (databaseAdmin != null)
+            databaseAdmin.onCreate(connectionSource);
     }
 
     /**
@@ -95,7 +103,8 @@ public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
             int oldVersion,
             int newVersion) 
     {
-    	databaseAdmin.onUpgrade(connectionSource, oldVersion, newVersion);
+        if (databaseAdmin != null)
+    	    databaseAdmin.onUpgrade(connectionSource, oldVersion, newVersion);
     }
 
     /**
@@ -106,6 +115,8 @@ public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
      */
     protected Executable doWork(final ConnectionSource connectionSource, final PersistenceTask persistenceTask)
     {
+        if (persistenceAdmin == null)
+            throw new IllegalStateException(getClass().getName() + " not initialized");
         // Persistence work required for JavaPersistenceContext, but only doTask() is relevant
         // as work is performed on caller's thread
         PersistenceWork persistenceWork = new PersistenceWork(){

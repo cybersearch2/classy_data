@@ -15,15 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyfts;
 
+import java.util.Locale;
+
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
-import au.com.cybersearch2.classyapp.ApplicationContext;
-import au.com.cybersearch2.classyapp.ApplicationLocale;
 import au.com.cybersearch2.classyapp.PrimaryContentProvider;
 import au.com.cybersearch2.classyfts.FtsQuery;
 import au.com.cybersearch2.classyfts.FtsSearch;
@@ -59,9 +60,9 @@ public abstract class SearchEngineBase implements PrimaryContentProvider
     /** Flag to indicate FTS is supported and available */
     protected boolean isFtsAvailable;
     /** Android Application Context */
-    protected ApplicationContext applicationContext;
+    protected Context context;
     /** Android Application Locale */
-    protected ApplicationLocale  applicationLocale;
+    protected Locale  locale;
     /** Map to pair Uri to content type */
     protected final UriMatcher uriMatcher;
     
@@ -69,12 +70,12 @@ public abstract class SearchEngineBase implements PrimaryContentProvider
     /**
      * Create SearchEngineBase object
      */
-    public SearchEngineBase(String providerAuthority)
+    public SearchEngineBase(String providerAuthority, Context context, Locale  locale)
     {
         this.providerAuthority = providerAuthority;
+        this.context = context;
+        this.locale = locale;
         uriMatcher = createUriMatcher();
-        applicationContext = new ApplicationContext();
-        applicationLocale = new ApplicationLocale();
 
         // Install FtsQuery place holder until flag isFtsAvailable is set true
         ftsQuery = new FtsQuery(){
@@ -143,7 +144,7 @@ public abstract class SearchEngineBase implements PrimaryContentProvider
         }
         Cursor cursor = qb.doQuery(sqLiteOpenHelper.getWritableDatabase());
         if (cursor != null)
-            cursor.setNotificationUri(applicationContext.getContentResolver(), qb.uri);
+            cursor.setNotificationUri(context.getContentResolver(), qb.uri);
         return cursor;
     }
 
@@ -154,7 +155,7 @@ public abstract class SearchEngineBase implements PrimaryContentProvider
      */
     protected void notifyChange(Uri uri)
     {
-        applicationContext.getContentResolver().notifyChange(uri, null);
+        context.getContentResolver().notifyChange(uri, null);
     }
 
     protected Cursor doLexicalSearch(String searchTerm, Uri uri) 
@@ -162,7 +163,7 @@ public abstract class SearchEngineBase implements PrimaryContentProvider
         Cursor cursor = getSuggestions(searchTerm, getLimitFromUri(uri));
         if (cursor != null)
             // Register the context ContentResolver to be notified if the cursor result set changes
-            cursor.setNotificationUri(applicationContext.getContentResolver(), uri);
+            cursor.setNotificationUri(context.getContentResolver(), uri);
         return cursor;
     }
 
@@ -174,7 +175,7 @@ public abstract class SearchEngineBase implements PrimaryContentProvider
      */
     protected Cursor getSuggestions(String searchTerm, int limit) 
     {
-        searchTerm = searchTerm.toLowerCase(applicationLocale.getLocale());
+        searchTerm = searchTerm.toLowerCase(locale);
         String[] columns = new String[] 
         {
             BaseColumns._ID,

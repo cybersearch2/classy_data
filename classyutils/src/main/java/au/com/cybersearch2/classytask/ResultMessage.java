@@ -21,35 +21,25 @@ package au.com.cybersearch2.classytask;
  * @author Andrew Bowley
  * 04/09/2014
  */
-public class ResultMessage<Result> 
+public class ResultMessage 
 {
-    protected final Result result;
-    protected final WorkerTask<Result> task;
+    protected final Runnable task;
 
     /**
      * Create ResultMessage object
      * @param task The target of the message
      * @param result Object of generic type "Result" - maybe null in cancel case
      */
-    public ResultMessage(WorkerTask<Result> task, Result result)
+    public ResultMessage(Runnable task)
     {
         this.task = task;
-        this.result = result;
     }
 
     /**
      * Action result - to be executed in caller thread, not background thread
      */
-    public void action()
+    public Runnable getTask()
     {
-        task.finish(result);
-    }
-    
-    /**
-     * Cancel result - to be executed in caller thread, not background thread
-     */
-    public void cancel()
-    {
-        task.onCancelled(result);
+        return task;
     }
 }

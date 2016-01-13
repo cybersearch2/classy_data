@@ -3,6 +3,8 @@
 	<name>classyandroid</name>
 	<comment></comment>
 	<projects>
+		<project>classyjava</project>
+		<project>classyutils</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

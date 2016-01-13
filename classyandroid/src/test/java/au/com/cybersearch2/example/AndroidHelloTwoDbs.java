@@ -15,18 +15,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+
 import javax.inject.Singleton;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.content.Context;
-import au.com.cybersearch2.classyapp.ApplicationContext;
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classytask.Executable;
 import dagger.Component;
+import dagger.Subcomponent;
 
 /**
  * AndroidHelloTwoDbs
@@ -39,24 +46,67 @@ public class AndroidHelloTwoDbs extends HelloTwoDbsMain
     @Component(modules = AndroidHelloTwoDbsModule.class)  
     static interface ApplicationComponent extends ApplicationModule
     {
-        void inject(PersistenceContext persistenceContext);
-        void inject(AndroidHelloTwoDbs helloTwoDbsMain);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-        void inject(ApplicationContext applicationContext);
-    }
- 
-    @Override
-    protected void createObjectGraph()
-    {
-        Context context = TestRoboApplication.getTestInstance();
-        ApplicationComponent component = 
-                DaggerAndroidHelloTwoDbs_ApplicationComponent.builder()
-                .androidHelloTwoDbsModule(new AndroidHelloTwoDbsModule(context))
-                .build();
-        // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        DI.getInstance(component).validate();
+        PersistenceContext persistenceContext();
+        ConnectionType connectionType();
+        PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
     }
 
+    @Singleton
+    @Subcomponent(modules = PersistenceWorkModule.class)
+    static interface PersistenceWorkSubcontext
+    {
+        Executable executable();
+    }
+
+    public AndroidHelloTwoDbs() throws IOException, XmlPullParserException
+    {
+        final Context context = TestRoboApplication.getTestInstance();
+        resourceEnvironment =
+        
+            new ResourceEnvironment(){
+
+                @Override
+                public InputStream openResource(String resourceName)
+                        throws IOException
+                {
+                    return context.getAssets().open("hello2dbs/v1/" + resourceName);
+                }
+        
+                @Override
+                public Locale getLocale()
+                {
+                    return new Locale("en", "AU");
+                }};
+    }
+ 
+    protected ResourceEnvironment resourceEnvironment;
+    protected ApplicationComponent component;
+    
+    /**
+     * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
+     * Override to run with different database and/or platform. 
+     */
+    @Override
+    protected PersistenceContext createObjectGraph()
+    {
+        Context context = TestRoboApplication.getTestInstance();
+        component = 
+                DaggerAndroidHelloTwoDbs_ApplicationComponent.builder()
+                .androidHelloTwoDbsModule(new AndroidHelloTwoDbsModule(context, resourceEnvironment))
+                .build();
+        return component.persistenceContext();
+    }
+
+    @Override
+    public Executable getExecutable(String puName, PersistenceWork persistenceWork)
+    {
+        persistenceWorkModule = new PersistenceWorkModule(puName, true, persistenceWork);
+        return component.plus(persistenceWorkModule).executable();
+    }
+    
+    @Override
+    ConnectionType getConnectionType()
+    {
+        return component.connectionType();
+    }
 }

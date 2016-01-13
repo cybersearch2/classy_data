@@ -27,10 +27,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classyapp.TestClassyApplicationModule;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classynode.Node;
 import au.com.cybersearch2.classynode.NodeEntity;
@@ -38,13 +37,12 @@ import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork.Callable;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
@@ -55,6 +53,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 
 import dagger.Component;
+import dagger.Subcomponent;
 
 /**
  * JpaIntegrationTest
@@ -67,28 +66,31 @@ public class JpaIntegrationTest
     @Component(modules = TestClassyApplicationModule.class)  
     static interface ApplicationComponent extends ApplicationModule
     {
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        PersistenceContext persistenceContext();
+        PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
+    }
+
+    @Singleton
+    @Subcomponent(modules = PersistenceWorkModule.class)
+    static interface PersistenceWorkSubcontext
+    {
+        Executable executable();
     }
 
     private static final String TOP_TITLE = "Cybersearch2 Records";
-    protected PersistenceContainer testContainer;
     protected Transcript transcript;
     protected TestPersistenceFactory testPersistenceFactory; 
+    protected ApplicationComponent component;
+    protected PersistenceWorkModule persistenceWorkModule;
     
     protected PersistenceContext persistenceContext;
     
     @Before
     public void setup() throws Exception
     {
-	    createObjectGraph();
-        persistenceContext = new PersistenceContext();
-	    persistenceContext.initializeAllDatabases();
+        persistenceContext = createObjectGraph().persistenceContext();
         testPersistenceFactory = new TestPersistenceFactory(persistenceContext);
         transcript = new Transcript();
-        testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
     }
 
     @After
@@ -101,13 +103,14 @@ public class JpaIntegrationTest
 	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
 	 * Override to run with different database and/or platform. 
 	 */
-	protected void createObjectGraph()
+	protected ApplicationComponent createObjectGraph()
 	{
-        ApplicationComponent component = 
+        component = 
                 DaggerJpaIntegrationTest_ApplicationComponent.builder()
-                .testClassyApplicationModule(new TestClassyApplicationModule())
+                .testClassyApplicationModule(new TestClassyApplicationModule(new JavaTestResourceEnvironment()))
                 .build();
         DI.getInstance(component).validate();
+        return component;
 	}
 
     @Test
@@ -145,7 +148,8 @@ public class JpaIntegrationTest
                 return true;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, true, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
@@ -167,7 +171,8 @@ public class JpaIntegrationTest
                 return true;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, true, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
@@ -201,7 +206,8 @@ public class JpaIntegrationTest
                 return true;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, true, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
@@ -224,7 +230,8 @@ public class JpaIntegrationTest
                 return entityHolder[0].get_node_id() == 2;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, true, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.query() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
@@ -245,7 +252,8 @@ public class JpaIntegrationTest
                 return entityHolder[0].get_id() == 34;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, true, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
         Node node = Node.marshall(entityHolder[0]);

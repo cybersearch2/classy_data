@@ -34,9 +34,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import au.com.cybersearch2.classyapp.TestClassyApplication;
+import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
@@ -45,6 +45,7 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestEntityManagerFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classytask.Executable;
+import au.com.cybersearch2.classytask.TaskManager;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
 import au.com.cybersearch2.classytask.WorkStatus;
@@ -55,6 +56,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import dagger.Component;
 import dagger.Module;
 import dagger.Provides;
+import dagger.Subcomponent;
 
 /**
  * PersistenceContainerTest
@@ -63,11 +65,15 @@ import dagger.Provides;
  */
 public class SingleConnectPersistenceContainerTest
 {
-    @Module(/*injects = { PersistenceContext.class, WorkerRunnable.class }*/)
+    @Module
     public static class PersistenceContainerTestModule implements ApplicationModule
     {
-
-        @Provides @Singleton PersistenceFactory providePersistenceModule() 
+        @Provides @Singleton ThreadHelper provideSystemEnvironment()
+        {
+            return new TestSystemEnvironment();
+        }
+       
+        @Provides @Singleton PersistenceFactory providePersistenceFactory() 
         {
             PersistenceFactory persistenceFactory = mock(PersistenceFactory.class);
             Persistence persistence = mock(Persistence.class);
@@ -81,17 +87,32 @@ public class SingleConnectPersistenceContainerTest
             return persistenceFactory;
         }
         
-        @Provides @Singleton ThreadHelper provideSystemEnvironment()
+        @Provides @Singleton PersistenceContext providePersistenceContext(PersistenceFactory persistenceFactory)
         {
-            return new TestSystemEnvironment();
+            ConnectionSourceFactory connectionSourceFactory = mock(ConnectionSourceFactory.class);
+            return new PersistenceContext(persistenceFactory, connectionSourceFactory);
         }
-    }
+        
+        @Provides @Singleton TaskManager provideTaskManager()
+        {
+            return new TaskManager();
+        }
+        
+   }
 
     @Singleton
     @Component(modules = PersistenceContainerTestModule.class)  
     static interface ApplicationComponent extends ApplicationModule
     {
-        void inject(PersistenceContext  persistenceContext);
+        PersistenceContext persistenceContext();
+        PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
+    }
+
+    @Singleton
+    @Subcomponent(modules = PersistenceWorkModule.class)
+    static interface PersistenceWorkSubcontext
+    {
+        Executable executable();
     }
     
     class EntityManagerWork extends TestPersistenceWork
@@ -130,7 +151,8 @@ public class SingleConnectPersistenceContainerTest
     }
 
     private EntityManagerImpl entityManager;
-    private PersistenceContainer testContainer;
+    private ApplicationComponent component;
+    private PersistenceWorkModule persistenceWorkModule;
     private Transcript transcript;
     private EntityTransactionImpl transaction;
     public static boolean isSingleConnection;
@@ -138,13 +160,11 @@ public class SingleConnectPersistenceContainerTest
     @Before
     public void setUp() throws Exception 
     {
-        ApplicationComponent component = 
+        component = 
                 DaggerSingleConnectPersistenceContainerTest_ApplicationComponent.builder()
                 .persistenceContainerTestModule(new PersistenceContainerTestModule())
                 .build();
-        DI.getInstance(component);
         transcript = new Transcript();
-        testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
         transaction = TestEntityManagerFactory.setEntityManagerInstance();
         entityManager = (EntityManagerImpl) TestEntityManagerFactory.getEntityManager();
     }
@@ -153,7 +173,8 @@ public class SingleConnectPersistenceContainerTest
     public void test_background_called() throws InterruptedException
     {
         PersistenceWork persistenceWork = new TestPersistenceWork(transcript);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "onPostExecute true");
         verify(transaction).begin();
@@ -168,7 +189,8 @@ public class SingleConnectPersistenceContainerTest
         final RecordCategory entity = new RecordCategory();
         PersistenceWork persistenceWork = new EntityManagerWork(entity, transcript);
         doThrow(persistException).when(entityManager).persist(entity);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "onRollback " + persistException.toString());
         verify(transaction).begin();
@@ -183,7 +205,8 @@ public class SingleConnectPersistenceContainerTest
         PersistenceException exception = new PersistenceException("Exception on pre-commit: SQLException");
         doThrow(exception).when(entityManager).close();
         PersistenceWork persistenceWork = new TestPersistenceWork(transcript);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "onRollback " + exception.toString());
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
@@ -198,7 +221,8 @@ public class SingleConnectPersistenceContainerTest
         PersistenceWork persistenceWork = new EntityManagerWork(entity, transcript);
         doThrow(persistException).when(entityManager).persist(entity);
         doThrow(exception).when(entityManager).close();
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "onRollback " + persistException.toString());
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
@@ -210,7 +234,8 @@ public class SingleConnectPersistenceContainerTest
         PersistenceException exception = new PersistenceException("Exception on connect: SQLException");
         PersistenceWork persistenceWork = new TestPersistenceWork(transcript);
         doThrow(exception).when(transaction).begin();
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         transcript.assertEventsSoFar("onRollback " + exception.toString());
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FAILED);
@@ -225,7 +250,8 @@ public class SingleConnectPersistenceContainerTest
         when(transaction.isActive()).thenReturn(true);
         try
         {
-            testContainer.executeTask(persistenceWork);
+            persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+            component.plus(persistenceWorkModule).executable();
             failBecauseExceptionWasNotThrown(NullPointerException.class);
        }
        catch (NullPointerException e)
@@ -243,7 +269,8 @@ public class SingleConnectPersistenceContainerTest
         doThrow(exception).when(entityManager).persist(entity);
         try
         {
-             testContainer.executeTask(persistenceWork);
+            persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+            component.plus(persistenceWorkModule).executable();
              failBecauseExceptionWasNotThrown(NullPointerException.class);
         }
         catch (NullPointerException e)
@@ -271,16 +298,17 @@ public class SingleConnectPersistenceContainerTest
         PersistenceWork persistenceWork = new EntityManagerWork(entity, transcript);
         when(transaction.isActive()).thenReturn(false);
         doThrow(exception).when(entityManager).persist(entity);
-        testContainer.setUserTransactionMode(true);
         try
         {
-            testContainer.executeTask(persistenceWork);
+            persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+            persistenceWorkModule.setUserTransactions(true);
+            component.plus(persistenceWorkModule).executable();
             failBecauseExceptionWasNotThrown(NullPointerException.class);
-       }
-       catch (NullPointerException e)
-       {
+        }
+        catch (NullPointerException e)
+        {
        	
-       }
+        }
         synchronized(persistenceWork)
         {
      	   persistenceWork.wait(1000);
@@ -295,8 +323,9 @@ public class SingleConnectPersistenceContainerTest
     public void test_background_user_transaction() throws InterruptedException
     {
         PersistenceWork persistenceWork = new TestPersistenceWork(transcript);
-        testContainer.setUserTransactionMode(true);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+        persistenceWorkModule.setUserTransactions(true);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         verify(entityManager, times(2)).setUserTransaction(true);
         transcript.assertEventsSoFar("background task", "onPostExecute true");
@@ -344,7 +373,8 @@ public class SingleConnectPersistenceContainerTest
             persistenceWork = new EntityManagerWork(entity, transcript);
             doThrow(exception).when(entityManager).persist(entity);
         }
-        Executable exe = testContainer.executeTask(persistenceWork);
+        persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, false, persistenceWork);
+        Executable exe = component.plus(persistenceWorkModule).executable();
         exe.waitForTask();
         verify(transaction).begin();
         verify(transaction).setRollbackOnly();

@@ -17,6 +17,7 @@ package au.com.cybersearch2.classyjpa;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -28,38 +29,38 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.util.Transcript;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 
 import android.content.Context;
-import au.com.cybersearch2.classyapp.ApplicationContext;
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestAndroidModule;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
+import au.com.cybersearch2.classyapp.TestResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.TestPersistenceWork.Callable;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.persist.TestPersistenceFactory;
 import au.com.cybersearch2.classynode.Node;
 import au.com.cybersearch2.classynode.NodeEntity;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
-import org.robolectric.util.Transcript;
-
 import dagger.Component;
+import dagger.Subcomponent;
 
 /**
  * AndroidJpaIntegrationTest
@@ -76,11 +77,15 @@ public class AndroidJpaIntegrationTest
     @Component(modules = TestAndroidModule.class)  
     static interface TestComponent extends ApplicationModule
     {
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-        void inject(ApplicationContext applicationContext);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
+        PersistenceContext persistenceContext();
+        PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
+    }
+
+    @Singleton
+    @Subcomponent(modules = PersistenceWorkModule.class)
+    static interface PersistenceWorkSubcontext
+    {
+        Executable executable();
     }
 
     private static final String TOP_TITLE = "Cybersearch2 Records";
@@ -88,16 +93,14 @@ public class AndroidJpaIntegrationTest
     protected Transcript transcript;
     protected TestPersistenceFactory testPersistenceFactory; 
     protected PersistenceContext persistenceContext;
+    protected TestComponent component;
 
     @Before
     public void setup() throws Exception
     {
-	    createObjectGraph();
-        persistenceContext = new PersistenceContext(); //(TestClassyApplication.PU_NAME);
-    	initializeDatabase();
+        persistenceContext = createObjectGraph();
         testPersistenceFactory = new TestPersistenceFactory(persistenceContext);
         transcript = new Transcript();
-        testContainer = new PersistenceContainer(TestClassyApplication.PU_NAME);
     }
 
     @After
@@ -109,16 +112,19 @@ public class AndroidJpaIntegrationTest
 	/**
 	 * Set up dependency injection, which creates an ObjectGraph from test configuration object.
 	 * Override to run with different database and/or platform. 
+	 * @throws XmlPullParserException 
+	 * @throws IOException 
 	 */
-	protected void createObjectGraph()
+	protected PersistenceContext createObjectGraph() throws IOException, XmlPullParserException
 	{
 	    Context context = TestRoboApplication.getTestInstance();
-        TestAndroidModule testAndroidModule = new TestAndroidModule(context); 
-        TestComponent component = 
+        ResourceEnvironment resourceEnvironment = new TestResourceEnvironment();
+        TestAndroidModule testAndroidModule = new TestAndroidModule(context, resourceEnvironment, TestClassyApplication.PU_NAME); 
+        component = 
                 DaggerAndroidJpaIntegrationTest_TestComponent.builder()
                 .testAndroidModule(testAndroidModule)
                 .build();
-        DI.getInstance(component);
+        return component.persistenceContext();
 	}
 
     protected void initializeDatabase()
@@ -145,7 +151,6 @@ public class AndroidJpaIntegrationTest
         do_find_entity_by_named_query();
         transcript = new Transcript();
         do_findNodeById();
-
     }
 
     public void do_PersistenceEnvironment()
@@ -180,7 +185,7 @@ public class AndroidJpaIntegrationTest
                 return true;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        Executable exe = getExecutable(persistenceWork);
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
@@ -201,9 +206,10 @@ public class AndroidJpaIntegrationTest
                 return true;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        Executable exe = getExecutable(persistenceWork);
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
+        assertThat(entityHolder[0].get_node_id()).isEqualTo(1);
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
      }
          
@@ -234,7 +240,7 @@ public class AndroidJpaIntegrationTest
                 return true;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        Executable exe = getExecutable(persistenceWork);
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.find() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
@@ -256,7 +262,7 @@ public class AndroidJpaIntegrationTest
                 return entityHolder[0].get_node_id() == 2;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        Executable exe = getExecutable(persistenceWork);
         exe.waitForTask();
         transcript.assertEventsSoFar("background task", "entityManager.query() completed", "onPostExecute true");
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
@@ -276,7 +282,7 @@ public class AndroidJpaIntegrationTest
                 return entityHolder[0].get_id() == 34;
             }};
         persistenceWork.setCallable(doInBackgroundCallback);
-        Executable exe = testContainer.executeTask(persistenceWork);
+        Executable exe = getExecutable(persistenceWork);
         exe.waitForTask();
         assertThat(exe.getStatus()).isEqualTo(WorkStatus.FINISHED);
         Node node = Node.marshall(entityHolder[0]);
@@ -303,5 +309,11 @@ public class AndroidJpaIntegrationTest
         assertThat(root.get_id()).isEqualTo(0);
         assertThat(root.get_parent_id()).isEqualTo(0);
         assertThat(root.getLevel()).isEqualTo(0);
+    }
+
+    protected Executable getExecutable(PersistenceWork persistenceWork)
+    {
+        PersistenceWorkModule persistenceWorkModule = new PersistenceWorkModule(TestClassyApplication.PU_NAME, true, persistenceWork);
+        return component.plus(persistenceWorkModule).executable();
     }
 }

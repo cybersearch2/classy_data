@@ -21,8 +21,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import javax.inject.Singleton;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,16 +37,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.CancellationSignal;
 import android.provider.BaseColumns;
-import au.com.cybersearch2.classyapp.ApplicationContext;
-import au.com.cybersearch2.classyapp.ApplicationLocale;
-import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
-import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
 
 /**
  * SearchEngineBaseTest
@@ -58,40 +48,6 @@ import dagger.Provides;
 @RunWith(RobolectricTestRunner.class)
 public class SearchEngineBaseTest
 {
-    @Module(/*injects = { 
-            ApplicationLocale.class}*/)
-    static class SearchEngineBaseTestModule implements ApplicationModule
-    {
-        private Context context;
-        
-        public SearchEngineBaseTestModule(Context context)
-        {
-            this.context = context;
-        }
-        
-        @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
-        {
-            return new TestResourceEnvironment();
-        }
-
-        /**
-         * Returns Android Application Context
-         * @return Context
-         */
-        @Provides @Singleton Context provideContext()
-        {
-            return context;
-        }
-    }
-    
-    @Singleton
-    @Component(modules = SearchEngineBaseTestModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
-    {
-        void inject(ApplicationLocale applicationLocale);
-        void inject(ApplicationContext applicationContext);
-    }
-
     static class TestSearchEngine extends SearchEngineBase
     {
         // Create the constants used to differntiate between the different URI requests
@@ -104,7 +60,7 @@ public class SearchEngineBaseTest
         
         public TestSearchEngine()
         {
-            super(PROVIDER_AUTHORITY);
+            super(PROVIDER_AUTHORITY, TestRoboApplication.getTestInstance(), new TestResourceEnvironment().getLocale());
         }
         
         @Override
@@ -194,20 +150,14 @@ public class SearchEngineBaseTest
     @Before
     public void setUp()
     {
-        Context context = TestRoboApplication.getTestInstance();
-        ApplicationComponent component = 
-                DaggerSearchEngineBaseTest_ApplicationComponent.builder()
-                .searchEngineBaseTestModule(new SearchEngineBaseTestModule(context))
-                .build();
-        DI.getInstance(component);
     }
     
     @Test 
     public void test_constructor()
     {
         TestSearchEngine testSearchEngine = new TestSearchEngine();
-        assertThat(testSearchEngine.applicationContext).isNotNull();
-        assertThat(testSearchEngine.applicationLocale).isNotNull();
+        assertThat(testSearchEngine.context).isNotNull();
+        assertThat(testSearchEngine.locale).isNotNull();
         String selection = "";
         String[] selectionArgs = new String[]{};
         String[] columns = new String[]{};
@@ -466,9 +416,9 @@ public class SearchEngineBaseTest
     public void test_notifyChange()
     {
         TestSearchEngine testSearchEngine = new TestSearchEngine();
-        testSearchEngine.applicationContext = mock(ApplicationContext.class);
+        testSearchEngine.context = mock(Context.class);
         ContentResolver contentResolver = mock(ContentResolver.class);
-        when(testSearchEngine.applicationContext.getContentResolver()).thenReturn(contentResolver);
+        when(testSearchEngine.context.getContentResolver()).thenReturn(contentResolver);
         Uri uri = mock(Uri.class);
         testSearchEngine.notifyChange(uri);
         verify(contentResolver).notifyChange(uri, null);

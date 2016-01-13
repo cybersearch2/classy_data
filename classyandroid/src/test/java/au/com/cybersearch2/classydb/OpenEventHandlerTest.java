@@ -31,6 +31,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
+ * TODO - test default callbacks dependency injection
  * OpenEventHandlerTest
  * @author Andrew Bowley
  * 26 Nov 2014
@@ -54,7 +55,12 @@ public class OpenEventHandlerTest
     @Test
     public void test_create_OpenEventHandler()
     {
-    	OpenEventHandler openEventHandler = new OpenEventHandler(openHelperCallbacks, context, DATABASE_NAME, 1);
+        AndroidSqliteParams androidSqliteParams = mock(AndroidSqliteParams.class);
+        when(androidSqliteParams.getContext()).thenReturn(context);
+        when(androidSqliteParams.getName()).thenReturn(DATABASE_NAME);
+        when(androidSqliteParams.getVersion()).thenReturn(1);
+        when(androidSqliteParams.getOpenHelperCallbacks()).thenReturn(openHelperCallbacks);
+    	OpenEventHandler openEventHandler = new OpenEventHandler(androidSqliteParams);
         assertThat(openEventHandler.openHelperCallbacks).isNotNull();
         SQLiteDatabase db = mock(SQLiteDatabase.class);
         openEventHandler.onCreate(db);

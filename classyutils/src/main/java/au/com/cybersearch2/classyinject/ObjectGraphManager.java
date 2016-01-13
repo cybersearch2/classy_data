@@ -56,10 +56,10 @@ public class ObjectGraphManager
         Method[] methods = applicationModule.getClass().getMethods();
         for (Method method: methods)
         {
-            if ("inject".equals(method.getName()))
+            //if ("inject".equals(method.getName()))
                 //System.out.println(method.getParameterTypes()[0]);
-                injectMap.put(method.getParameterTypes()[0], method);
-            else if (isSubComponentFactory(method))
+                //injectMap.put(method.getParameterTypes()[0], method);
+            if (isSubComponentFactory(method))
             {
                 Class<?> methodClass = method.getParameterTypes()[0];
                 boolean moduleSupplied = false;
@@ -76,6 +76,50 @@ public class ObjectGraphManager
                     subComponentMap.put(methodClass, method);
             }
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public InjectService<?> createInjectService(Object injectee)
+    {
+        InjectService<?> injectService = null;
+        final Class<?> clazz = injectee.getClass();
+        try
+        {
+            Method method = applicationModule.getClass().getDeclaredMethod("inject", clazz);
+            injectMap.put(clazz, method);
+            injectService = new InjectService(){
+
+                @Override
+                public void inject(Object injectee)
+                {
+                    Method method = injectMap.get(clazz);
+                    try
+                    {
+                        method.invoke(applicationModule, injectee);
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    catch (InvocationTargetException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }};
+        }
+        catch (SecurityException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchMethodException e)
+        {
+            e.printStackTrace();
+        }
+        return injectService;
     }
     
     private Class<?> getGenericClass(Object module)

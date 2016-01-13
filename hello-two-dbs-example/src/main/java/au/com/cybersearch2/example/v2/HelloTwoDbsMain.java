@@ -1,19 +1,20 @@
 package au.com.cybersearch2.example.v2;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 
 import javax.inject.Singleton;
 
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.DatabaseAdmin;
+import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
@@ -23,6 +24,7 @@ import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.example.QueryForAllGenerator;
 import dagger.Component;
+import dagger.Subcomponent;
 
 /**
  * Version 2 of HelloTwoDbsMain introduces a new "quote" field to both SimpleData and ComplexData entities.
@@ -31,16 +33,23 @@ import dagger.Component;
 public class HelloTwoDbsMain 
 {
     @Singleton
-    @Component(modules = HelloTwoDbsModule.class)  
+    @Component(modules = HelloTwoDbsModule.class)
+    public  
     static interface ApplicationComponent extends ApplicationModule
     {
-        void inject(HelloTwoDbsMain helloTwoDbsMain);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        PersistenceFactory persistenceFactory();
+        PersistenceContext persistenceContext();
+        ConnectionType connectionType();
+        PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
     }
- 
+
+    @Singleton
+    @Subcomponent(modules = PersistenceWorkModule.class)
+    static interface PersistenceWorkSubcontext
+    {
+        Executable executable();
+    }
+
     static public final String TAG = "HelloTwoDbsMain";
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
@@ -51,11 +60,11 @@ public class HelloTwoDbsMain
    
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
-	protected static boolean applicationInitialized;
+	protected boolean applicationInitialized;
 
-    private static HelloTwoDbsMain singleton;
-    
     /** Factory object to create "simple" and "complex" Persistence Unit implementations */
+    protected ApplicationComponent component;
+    protected PersistenceWorkModule persistenceWorkModule;
     protected PersistenceContext persistenceContext;
     
     static
@@ -67,21 +76,30 @@ public class HelloTwoDbsMain
     }
     
     /**
-     * Create HelloTwoDbsMain object
-     * This creates and populates the database using JPA, provides verification logic and runs a test from main().
-     */
-    public HelloTwoDbsMain() 
-    {
-    	singleton = this;
-    }
-
-    /**
 	 * @return the persistenceContext
 	 */
 	public PersistenceContext getPersistenceContext() 
 	{
 		return persistenceContext;
 	}
+
+    /**
+     * @return the upgrade persistenceContext
+     */
+    public static PersistenceContext upgradePersistenceContext(PersistenceContext persistenceContextV1) 
+    {
+        // We cannot load a 2nd persistence.xml to get V2 configuration, so will 
+        // update the V1 configuration instead.
+        // We need to add the V2 entity classes and change the database version from 1 to 2.
+        persistenceContextV1.registerClasses(PU_NAME1, Collections.singletonList("au.com.cybersearch2.example.v2.SimpleData"));
+        Properties dbV2 = new Properties();
+        dbV2.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
+        persistenceContextV1.putProperties(PU_NAME1, dbV2);
+        persistenceContextV1.registerClasses(PU_NAME2, Collections.singletonList("au.com.cybersearch2.example.v2.ComplexData"));
+        persistenceContextV1.putProperties(PU_NAME2, dbV2);
+        return persistenceContextV1;
+    }
+
 
 	/**
      * Test 2 Databases accessed by application version 2
@@ -119,6 +137,7 @@ public class HelloTwoDbsMain
 	}
 	
     /**
+    /**
      * Initialize entity tables ensuring version is correct and contains initial data. 
      * Call this before doing any queries. 
      * Note the calling thread is suspended while the work is performed on a background thread. 
@@ -126,23 +145,13 @@ public class HelloTwoDbsMain
      */
     public void setUp() throws InterruptedException
     {
+        System.out.println("applicationInitialized = " + applicationInitialized);
     	if (!applicationInitialized)
     	{
     		initializeApplication();
 			applicationInitialized = true;
 			initializeDatabase();
     	}
-    }
-
-    /**
-     * Initialize entity tables ensuring version is correct and contains initial data  
-     * for integrated test. 
-     * @throws InterruptedException
-     */
-    public void setUpNoDI() throws InterruptedException
-    {
-		applicationInitialized = true;
-		initializeDatabase();
     }
 
     public void shutdown()
@@ -163,15 +172,14 @@ public class HelloTwoDbsMain
     protected void initializeApplication()
     {
         // Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object
-        createObjectGraph();
+        persistenceContext = createObjectGraph();
     }
     
     protected void initializeDatabase()
     {
-        persistenceContext = new PersistenceContext();
     	// Initialize all databases. This handles create and update events automatically.
     	persistenceContext.initializeAllDatabases();
-    	System.out.println("initializeAllDatabases() called");
+    	//System.out.println("initializeAllDatabases() called");
         // To populate these tables, call setUp().
         // Get Interface for JPA Support, required to create named queries
         PersistenceAdmin persistenceAdmin1 = persistenceContext.getPersistenceAdmin(PU_NAME1);
@@ -220,8 +228,7 @@ public class HelloTwoDbsMain
             }
         };
         // Execute work and wait synchronously for completion
-        PersistenceContainer container = new PersistenceContainer(puName);
-        return container.executeTask(todo);
+        return getExecutable(puName, todo);
     }
 
     /**
@@ -239,16 +246,26 @@ public class HelloTwoDbsMain
 	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
 	 * Override to run with different database and/or platform. 
 	 */
-	protected void createObjectGraph()
+	protected PersistenceContext createObjectGraph()
 	{
-        ApplicationComponent component = 
+        component = 
                 DaggerHelloTwoDbsMain_ApplicationComponent.builder()
                 .helloTwoDbsModule(new HelloTwoDbsModule())
                 .build();
-        // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        DI.getInstance(component).validate();
+        return component.persistenceContext();
 	}
-	
+
+    protected Executable getExecutable(String puName, PersistenceWork persistenceWork)
+    {
+        persistenceWorkModule = new PersistenceWorkModule(puName, true, persistenceWork);
+        return component.plus(persistenceWorkModule).executable();
+    }
+    
+    ConnectionType getConnectionType()
+    {
+        return component.connectionType();
+    }
+
 	/**
 	 * Log message
 	 * @param tag
@@ -279,6 +296,10 @@ public class HelloTwoDbsMain
 	 */
 	public static void logInfo(String tag, String message) 
 	{
-		singleton.logMessage(tag, message);
+        Log log = logMap.get(tag);
+        if ((log != null) && log.isLoggable(tag, Level.INFO))
+        {
+            log.info(tag, message);
+        }
 	}
 }

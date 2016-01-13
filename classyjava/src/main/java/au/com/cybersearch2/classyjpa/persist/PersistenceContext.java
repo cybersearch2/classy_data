@@ -18,39 +18,44 @@ package au.com.cybersearch2.classyjpa.persist;
 import java.util.List;
 import java.util.Properties;
 
-import javax.inject.Inject;
+import javax.persistence.PersistenceException;
 
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport;
-import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 
 /**
  * PersistenceContext
- * Hides PersistenceFactory to simplify dependency configuration
+ * Application persistence interface
  * @author Andrew Bowley
  * 05/07/2014
  */
 public class PersistenceContext
 {
-    @Inject PersistenceFactory persistenceFactory;
+    protected PersistenceFactory persistenceFactory;
+    protected ConnectionSourceFactory connectionSourceFactory;
+    protected boolean isInitialized;
    
     /**
      * Create PersistenceContext object
      */
-    public PersistenceContext()
+    public PersistenceContext(PersistenceFactory persistenceFactory, ConnectionSourceFactory connectionSourceFactory)
     {
-        DI.inject(this);
+        this(persistenceFactory, connectionSourceFactory, true);
     }
 
     /**
-     * Returns native support
-     * @return DatabaseSupport
+     * Create PersistenceContext object
      */
-    public DatabaseSupport getDatabaseSupport()
+    public PersistenceContext(PersistenceFactory persistenceFactory, ConnectionSourceFactory connectionSourceFactory, boolean initialize)
     {
-        return persistenceFactory. getDatabaseSupport();
+        this.persistenceFactory = persistenceFactory;
+        this.connectionSourceFactory = connectionSourceFactory;
+        persistenceFactory.initializeAllConnectionSources(connectionSourceFactory);
+        if (initialize)
+            initializeAllDatabases();
     }
-    
+
     /**
      * Returns persistence unit implementation, specified by name
      * @param puName Persistence unit name
@@ -58,14 +63,9 @@ public class PersistenceContext
      */
     public Persistence getPersistenceUnit(String puName)
     {
-        return persistenceFactory. getPersistenceUnit(puName);
+        return persistenceFactory.getPersistenceUnit(puName);
     }
 
-    public void initializeAllDatabases()
-    {
-        persistenceFactory.initializeAllDatabases();
-    }
-    
     /**
      * Returns Database-specific admin object for specified Persistence unit name
      * @param puName Persistence unit name
@@ -94,5 +94,30 @@ public class PersistenceContext
     public void putProperties(String puName, Properties properties)
     {
     	getPersistenceAdmin(puName).getProperties().putAll(properties);
+    }
+    
+    public void close()
+    {
+        persistenceFactory.getDatabaseSupport().close();
+    }
+
+    public void initializeAllDatabases()
+    {
+        if (isInitialized)
+            return;
+        persistenceFactory.initializeAllDatabases(connectionSourceFactory);
+        isInitialized = true;
+    }
+
+    public void upgradeAllDatabases()
+    {
+        if (!isInitialized)
+            throw new PersistenceException("PersistenceContext upgrade request while uninitialized");
+        persistenceFactory.initializeAllDatabases(connectionSourceFactory);
+    }
+
+    public DatabaseSupport getDatabaseSupport()
+    {
+        return persistenceFactory.getDatabaseSupport();
     }
 }

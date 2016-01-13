@@ -90,6 +90,8 @@ public interface PersistenceAdmin extends ConnectionSourceFactory
      */
     DatabaseType getDatabaseType();
 
+    int getDatabaseVersion();
+    
     /**
      * Returns PU properties
      * @return java.util.Properties
@@ -107,4 +109,5 @@ public interface PersistenceAdmin extends ConnectionSourceFactory
     
     /** Flag set true if connection source is for a single connection */
     boolean isSingleConnection();
-}
+
+ }

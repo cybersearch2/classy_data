@@ -15,18 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
-import javax.inject.Singleton;
+import java.io.IOException;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
-import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import dagger.Component;
+import au.com.cybersearch2.classytask.WorkStatus;
 
 /**
  * AndroidManyToManyTest
@@ -35,27 +32,29 @@ import dagger.Component;
  */
 public class AndroidManyToMany extends ManyToManyMain
 {
-    @Singleton
-    @Component(modules = AndroidManyToManyModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    private AndroidManyToManyFactory androidManyToManyFactory;
+    
+    @Override
+    protected PersistenceContext createFactory()
     {
-        void inject(PersistenceContext persistenceContext);
-        void inject(AndroidManyToMany androidManyToMany);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-        void inject(ApplicationContext applicationContext);
+        try
+        {
+            androidManyToManyFactory = new AndroidManyToManyFactory((Context)TestRoboApplication.getTestInstance());
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e)
+        {
+            e.printStackTrace();
+        }
+        return androidManyToManyFactory.getPersistenceContext();
     }
     
     @Override
-    protected void createObjectGraph()
+    protected WorkStatus execute(PersistenceWork persistenceWork) throws InterruptedException
     {
-        Context context = TestRoboApplication.getTestInstance();
-        ApplicationComponent component = 
-                DaggerAndroidManyToMany_ApplicationComponent.builder()
-                .androidManyToManyModule(new AndroidManyToManyModule(context))
-                .build();
-        // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        DI.getInstance(component).validate();
+        return androidManyToManyFactory.getExecutable(persistenceWork).waitForTask();
     }
 }

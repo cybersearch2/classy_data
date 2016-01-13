@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example.v2;
 
+import static org.fest.assertions.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.Properties;
 
@@ -41,35 +43,11 @@ import au.com.cybersearch2.example.HelloTwoDbsMain;
 public class HelloTwoDbsUpgradeTest 
 {
 
-    private static AndroidHelloTwoDbs helloTwoDbsMain;
+    private AndroidHelloTwoDbs helloTwoDbsMain;
 
     @Before
     public void setUp() throws Exception 
     {
-        // Run version 1 of example which will leave 2 database tables populated with version 1 objects.
-    	au.com.cybersearch2.example.HelloTwoDbsMain helloTwoDbsMain_v1 = new au.com.cybersearch2.example.AndroidHelloTwoDbs();
-        try
-        {
-        	// Set up v1 from start which causes the database tables to be dropped and the version reset to 0
-        	helloTwoDbsMain_v1.setUp(true);
-        	au.com.cybersearch2.example.SimpleTask simpleTask = new au.com.cybersearch2.example.SimpleTask("main");
-            helloTwoDbsMain_v1.performPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
-			// Our string builder for building the content-view
-			StringBuilder sb = new StringBuilder();
-			au.com.cybersearch2.example.ComplexTask complexTask = new au.com.cybersearch2.example.ComplexTask("main");
-            helloTwoDbsMain_v1.performPersistenceWork(HelloTwoDbsMain.PU_NAME2, complexTask);
-            helloTwoDbsMain_v1.logMessage(HelloTwoDbsMain.TAG, "Test completed successfully at " + System.currentTimeMillis());
-            helloTwoDbsMain_v1.displayMessage(sb
-					.append(HelloTwoDbsMain.SEPARATOR_LINE)
-					.append(simpleTask.getMessage())
-					.append(HelloTwoDbsMain.SEPARATOR_LINE)
-					.append(complexTask.getMessage())
-					.toString());
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
     } 
 
     @After
@@ -79,33 +57,64 @@ public class HelloTwoDbsUpgradeTest
     }
  
     @Test 
-    public void test_hello_two_dbs_serial_jpa() throws Exception
+    public void test_hello_two_dbs_upgrade() throws Exception
     {
-        if (helloTwoDbsMain == null)
-            helloTwoDbsMain = new AndroidHelloTwoDbs();
+        // Run version 1 of example which will leave 2 database tables populated with version 1 objects.
+        au.com.cybersearch2.example.HelloTwoDbsMain helloTwoDbsMain_v1 = 
+                new au.com.cybersearch2.example.AndroidHelloTwoDbs();
+        try
+        {
+            // Set up v1 from start which causes the database tables to be dropped and the version reset to 0
+            helloTwoDbsMain_v1.setUp(true);
+            au.com.cybersearch2.example.SimpleTask simpleTask = 
+                    new au.com.cybersearch2.example.SimpleTask("main");
+            helloTwoDbsMain_v1.performPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
+            // Our string builder for building the content-view
+            StringBuilder sb = new StringBuilder();
+            au.com.cybersearch2.example.ComplexTask complexTask = 
+                    new au.com.cybersearch2.example.ComplexTask("main");
+            helloTwoDbsMain_v1.performPersistenceWork(HelloTwoDbsMain.PU_NAME2, complexTask);
+            helloTwoDbsMain_v1.logMessage(HelloTwoDbsMain.TAG, "Test completed successfully at " + System.currentTimeMillis());
+            helloTwoDbsMain_v1.displayMessage(sb
+                    .append(HelloTwoDbsMain.SEPARATOR_LINE)
+                    .append(simpleTask.getMessage())
+                    .append(HelloTwoDbsMain.SEPARATOR_LINE)
+                    .append(complexTask.getMessage())
+                    .toString());
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
         // We cannot load a 2nd persistence.xml to get V2 configuration, so will 
         // update the V1 configuration instead.
         // We need to add the V2 entity classes and change the database version from 1 to 2.
-        PersistenceContext persistenceContext = new PersistenceContext();
-        persistenceContext.registerClasses(HelloTwoDbsMain.PU_NAME1, Collections.singletonList("au.com.cybersearch2.example.v2.SimpleData"));
-        Properties dbV2 = new Properties();
-        dbV2.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
-        persistenceContext.putProperties(HelloTwoDbsMain.PU_NAME1, dbV2);
-        persistenceContext.registerClasses(HelloTwoDbsMain.PU_NAME2, Collections.singletonList("au.com.cybersearch2.example.v2.ComplexData"));
-        persistenceContext.putProperties(HelloTwoDbsMain.PU_NAME2, dbV2);
-        // Use version of set up which does not include Dependency Injection initialization
-        helloTwoDbsMain.setUpNoDI();
-		PersistenceAdmin simpleAdmin = persistenceContext.getPersistenceAdmin(HelloTwoDbsMain.PU_NAME1);
-		PersistenceAdmin complexAdmin = persistenceContext.getPersistenceAdmin(HelloTwoDbsMain.PU_NAME2);
-		DatabaseSupport databaseSupport = persistenceContext.getDatabaseSupport();
-		ConnectionSource connectionSource1 = simpleAdmin.getConnectionSource();
-		int simpleVersion = databaseSupport.getVersion(connectionSource1);
-		System.out.println("Simple version = " + simpleVersion);
-		ConnectionSource connectionSource2 = complexAdmin.getConnectionSource();
-		int complexVersion = databaseSupport.getVersion(connectionSource2);
-		System.out.println("Complex version = " + complexVersion);
-		// Need to close connections to clear caches etc and ensure updates are picked up
-		databaseSupport.close();
+        PersistenceContext persistenceContext = HelloTwoDbsMain.upgradePersistenceContext(helloTwoDbsMain_v1.getPersistenceContext());
+        PersistenceAdmin simpleAdmin = persistenceContext.getPersistenceAdmin(HelloTwoDbsMain.PU_NAME1);
+        PersistenceAdmin complexAdmin = persistenceContext.getPersistenceAdmin(HelloTwoDbsMain.PU_NAME2);
+        DatabaseSupport databaseSupport = persistenceContext.getDatabaseSupport();
+        ConnectionSource connectionSource1 = simpleAdmin.getConnectionSource();
+        int simpleVersion = databaseSupport.getVersion(connectionSource1);
+        assertThat(simpleVersion).isEqualTo(1);
+        //System.out.println("Simple version = " + simpleVersion);
+        ConnectionSource connectionSource2 = complexAdmin.getConnectionSource();
+        int complexVersion = databaseSupport.getVersion(connectionSource2);
+        assertThat(complexVersion).isEqualTo(1);
+        //System.out.println("Complex version = " + complexVersion);
+        // Reinitialize databases using PersistenceContext
+        persistenceContext.upgradeAllDatabases();
+        simpleVersion = databaseSupport.getVersion(connectionSource1);
+        assertThat(simpleVersion).isEqualTo(2);
+        //System.out.println("Simple version = " + simpleVersion);
+        complexVersion = databaseSupport.getVersion(connectionSource2);
+        assertThat(complexVersion).isEqualTo(2);
+        //System.out.println("Complex version = " + complexVersion);
+        // Need to close connections to clear caches etc and ensure updates are picked up
+        databaseSupport.close();
+        // Now it's OK to use V2 code
+        helloTwoDbsMain = new AndroidHelloTwoDbs();
+        System.out.println("Calling setUp() in object: " + helloTwoDbsMain);
+        helloTwoDbsMain.setUp();
         SimpleTask simpleTask = new SimpleTask("main");
         helloTwoDbsMain.performPersistenceWork(HelloTwoDbsMain.PU_NAME1, simpleTask);
 		// Our string builder for building the content-view

@@ -6,6 +6,9 @@ package au.com.cybersearch2.classyjpa.entity;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 
 import javax.inject.Singleton;
@@ -28,15 +31,12 @@ import org.robolectric.util.Transcript;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.v4.content.AsyncTaskLoader;
-import au.com.cybersearch2.classyapp.ApplicationContext;
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestAndroidModule;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
@@ -53,11 +53,7 @@ public class PersistenceLoaderTest
     @Component(modules = TestAndroidModule.class)  
     static interface TestComponent extends ApplicationModule
     {
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-        void inject(ApplicationContext applicationContext);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
+        PersistenceContext persistenceContext();
     }
 
 	@Implements(value = SystemClock.class, callThroughByDefault = true)
@@ -108,6 +104,7 @@ public class PersistenceLoaderTest
 		  }
 	}
 	
+	protected Context context;
     protected PersistenceLoader testLoaderTask;
     protected PersistenceLoader testUserTransLoaderTask;
     protected PersistenceContext persistenceContext;
@@ -115,12 +112,11 @@ public class PersistenceLoaderTest
     @Before
     public void setup() throws Exception
     {
-    	Context context = createObjectGraph();
-	    testLoaderTask = new PersistenceLoader(context);
-	    testUserTransLoaderTask = new PersistenceLoader(context);
+        context = RuntimeEnvironment.application;
+    	persistenceContext = createObjectGraph();
+	    testLoaderTask = new PersistenceLoader(context, persistenceContext);
+	    testUserTransLoaderTask = new PersistenceLoader(context, persistenceContext);
 	    testUserTransLoaderTask.setUserTransactionMode(true);
-        persistenceContext = new PersistenceContext();
-    	initializeDatabase();
     	Robolectric.getForegroundThreadScheduler().pause();
         Robolectric.getBackgroundThreadScheduler().pause();
     }
@@ -131,31 +127,39 @@ public class PersistenceLoaderTest
     	closeDatabase();
     }
 
-    protected void initializeDatabase()
-    {
-    	persistenceContext.initializeAllDatabases();
-    }
-
     protected void closeDatabase()
     {
     }
-
-
 
 	/**
 	 * Set up dependency injection, which creates an ObjectGraph from test configuration object.
 	 * Override to run with different database and/or platform. 
 	 */
-	protected Context createObjectGraph()
+	protected PersistenceContext createObjectGraph()
 	{
-	    Context context = RuntimeEnvironment.application;
-        TestAndroidModule testAndroidModule = new TestAndroidModule(context); 
+        ResourceEnvironment resourceEnvironment = new ResourceEnvironment()
+        {
+            Locale locale = new Locale("en", "AU");
+
+            @Override
+            public InputStream openResource(String resourceName) throws IOException 
+            {
+                return context.getAssets().open(resourceName);
+            }
+
+            @Override
+            public Locale getLocale() 
+            {
+                return locale;
+            }
+
+        };
+        TestAndroidModule testAndroidModule = new TestAndroidModule(context, resourceEnvironment, TestClassyApplication.PU_NAME); 
         TestComponent component = 
                 DaggerPersistenceLoaderTest_TestComponent.builder()
                 .testAndroidModule(testAndroidModule)
                 .build();
-        DI.getInstance(component);
-	    return context;
+ 	    return component.persistenceContext();
 	}
 
     @Config(shadows = { MyShadowSystemClock.class, MyShadowAsyncTaskLoader.class })

@@ -39,7 +39,6 @@ public class ComplexOpenHelperCallbacks extends OpenHelperCallbacksImpl
 	public ComplexOpenHelperCallbacks() 
 	{
 		super(HelloTwoDbsMain.PU_NAME2);
-		
 	}
 
     /**

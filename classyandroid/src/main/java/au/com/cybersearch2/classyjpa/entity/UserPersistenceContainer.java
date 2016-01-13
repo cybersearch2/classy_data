@@ -15,9 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.entity;
 
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classytask.Executable;
 
 /**
+ * TODO - Create PersistenceWorkModule variant for this class
  * UserPersistenceContainer
  * Executes persistence work in a background thread, invoked from User thread
  * @author Andrew Bowley
@@ -30,22 +32,23 @@ public class UserPersistenceContainer extends PersistenceContainer
      * Create UserPersistenceContainer object
      * @param puName Persistence Unit name
      */
-    public UserPersistenceContainer(String puName)
+    public UserPersistenceContainer(PersistenceContext persistenceContext, String puName)
     {
-        super(puName);
+        super(persistenceContext, puName, true);
     }
 
     /**
      * Execute persistence work in a background thread, invoked from User thread
      * @see au.com.cybersearch2.classyjpa.entity.PersistenceContainer#executeTask(au.com.cybersearch2.classyjpa.entity.PersistenceWork)
      */
-    @Override
+    //@Override
     public Executable executeTask(PersistenceWork persistenceWork)
     {
-        UserTaskImpl taskImpl = new UserTaskImpl(this, persistenceWork);
-        taskImpl.getTransactionInfo().setUserTransaction(isUserTransactionMode);
-        taskImpl.execute();
-        return taskImpl;
+    //    UserTaskImpl taskImpl = new UserTaskImpl(this, persistenceWork);
+    //    taskImpl.getTransactionInfo().setUserTransaction(isUserTransactionMode);
+    //    taskImpl.execute();
+    //    return taskImpl;
+        return null;
     }
     
 }

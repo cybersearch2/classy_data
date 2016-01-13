@@ -25,7 +25,7 @@ import au.com.cybersearch2.classyfts.FtsEngineTest;
 import au.com.cybersearch2.classyfts.FtsQueryBuilderTest;
 import au.com.cybersearch2.classyfts.SearchEngineBaseTest;
 import au.com.cybersearch2.classyjpa.AndroidJpaIntegrationTest;
-import au.com.cybersearch2.example.HelloTwoDbsTest;
+import au.com.cybersearch2.example.AndroidHelloTwoDbsTest;
 import au.com.cybersearch2.example.v2.HelloTwoDbsUpgradeTest;
 
 /**
@@ -43,7 +43,7 @@ import au.com.cybersearch2.example.v2.HelloTwoDbsUpgradeTest;
     AndroidConnectionSourceFactoryTest.class,
     AndroidDatabaseSupportTest.class,
     OpenEventHandlerTest.class,
-    HelloTwoDbsTest.class,
+    AndroidHelloTwoDbsTest.class,
     HelloTwoDbsUpgradeTest.class
 })
 public class AndroidTestSuite

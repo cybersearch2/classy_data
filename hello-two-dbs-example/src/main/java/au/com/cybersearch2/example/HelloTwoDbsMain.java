@@ -1,10 +1,12 @@
 package au.com.cybersearch2.example;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.PersistenceException;
 
@@ -12,26 +14,22 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
 
-import java.util.logging.Level;
-
-import au.com.cybersearch2.classylog.*;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
-import au.com.cybersearch2.classyjpa.persist.ConnectionSourceFactory;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classylog.JavaLogger;
+import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classytask.Executable;
 import dagger.Component;
+import dagger.Subcomponent;
 
 /**
  * ORIGINAL COMMENTS:
@@ -51,16 +49,21 @@ import dagger.Component;
 public class HelloTwoDbsMain 
 {
     @Singleton
-    @Component(modules = HelloTwoDbsModule.class)  
+    @Component(modules = HelloTwoDbsModule.class)
     static interface ApplicationComponent extends ApplicationModule
     {
-        void inject(HelloTwoDbsMain helloTwoDbsMain);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
+        PersistenceContext persistenceContext();
+        ConnectionType connectionType();
+        PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
     }
- 
+
+    @Singleton
+    @Subcomponent(modules = PersistenceWorkModule.class)
+    static interface PersistenceWorkSubcontext
+    {
+        Executable executable();
+    }
+
     static public final String TAG = "HelloTwoDbsMain";
     static public final String PU_NAME1 = "simple";
     static public final String PU_NAME2 = "complex";
@@ -73,12 +76,11 @@ public class HelloTwoDbsMain
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
 
-    private static HelloTwoDbsMain singleton;
-    
     /** Factory object to create "simple" and "complex" Persistence Unit implementations */
+    protected ApplicationComponent component;
+    protected PersistenceWorkModule persistenceWorkModule;
+    protected boolean testInMemory;
     protected PersistenceContext persistenceContext;
-    /** ConnectionType - if not memory, then database may be populated on startup */
-    @Inject ConnectionType connectionType;
     
     static
     {
@@ -94,7 +96,7 @@ public class HelloTwoDbsMain
      */
     public HelloTwoDbsMain() 
     {
-    	singleton = this;
+    	testInMemory = true;
     }
 
     /**
@@ -132,7 +134,34 @@ public class HelloTwoDbsMain
         	helloTwoDbsMain.shutdown();
         }
 	}
+
+	public PersistenceContext getPersistenceContext()
+	{
+	    return persistenceContext;
+	}
 	
+    /**
+     * @return the upgrade persistenceContext
+     */
+    public static PersistenceContext upgradePersistenceContext(PersistenceContext persistenceContextV1) 
+    {
+        // We cannot load a 2nd persistence.xml to get V2 configuration, so will 
+        // update the V1 configuration instead.
+        // We need to add the V2 entity classes and change the database version from 1 to 2.
+        persistenceContextV1.registerClasses(PU_NAME1, Collections.singletonList("au.com.cybersearch2.example.v2.SimpleData"));
+        Properties dbV2 = new Properties();
+        dbV2.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
+        persistenceContextV1.putProperties(PU_NAME1, dbV2);
+        persistenceContextV1.registerClasses(PU_NAME2, Collections.singletonList("au.com.cybersearch2.example.v2.ComplexData"));
+        persistenceContextV1.putProperties(PU_NAME2, dbV2);
+        return persistenceContextV1;
+    }
+
+    public void setTestInMemory(boolean value)
+    {
+        testInMemory = value;
+    }
+
     /**
      * Populate entity tables. Call this before doing any queries. 
      * Note the calling thread is suspended while the work is performed on a background thread. 
@@ -149,35 +178,23 @@ public class HelloTwoDbsMain
 		if (fromStart)
 			dropDatabaseTables();
 		initializeDatabase();
-		if (!fromStart && (connectionType != ConnectionType.memory))
-            	clearDatabaseTables();
+	    // ConnectionType - if not memory, then database may be populated on startup 
+		if (!fromStart && (getConnectionType() != ConnectionType.memory))
+            clearDatabaseTables();
     	populateDatabases();
-    }
-
-    public void shutdown()
-    {
-        String[] puNames = { PU_NAME1, PU_NAME2 }; 
-        {
-        	for (String puName: puNames)
-        	{
-        		persistenceContext.getPersistenceUnit(puName).getPersistenceAdmin().close();
-        	}
-        }
     }
 
     protected void initializeApplication()
     {
         // Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object
-        createObjectGraph();
-        DI.inject(this);
-        persistenceContext = new PersistenceContext();
+        persistenceContext = createObjectGraph();
     }
     
     protected void initializeDatabase()
     {
         // Note that the table for each entity class will be created in the following step (assuming database is in memory).
         // To populate these tables, call setUp().
-    	persistenceContext.initializeAllDatabases();
+        persistenceContext.initializeAllDatabases();
         // Get Interface for JPA Support, required to create named queries
         PersistenceAdmin persistenceAdmin1 = persistenceContext.getPersistenceAdmin(PU_NAME1);
         // Create named queries to find all objects of an entity class.
@@ -227,8 +244,7 @@ public class HelloTwoDbsMain
             }
         };
         // Execute work and wait synchronously for completion
-        PersistenceContainer container = new PersistenceContainer(puName);
-        return container.executeTask(todo);
+        return getExecutable(puName, todo);
     }
 
     /**
@@ -246,16 +262,28 @@ public class HelloTwoDbsMain
 	 * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
 	 * Override to run with different database and/or platform. 
 	 */
-	protected void createObjectGraph()
+	protected PersistenceContext createObjectGraph()
 	{
-        ApplicationComponent component = 
+	    HelloTwoDbsModule helloTwoDbsModule = new HelloTwoDbsModule();
+	    helloTwoDbsModule.setTestInMemory(testInMemory);
+        component = 
                 DaggerHelloTwoDbsMain_ApplicationComponent.builder()
-                .helloTwoDbsModule(new HelloTwoDbsModule())
+                .helloTwoDbsModule(helloTwoDbsModule)
                 .build();
-        // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        DI.getInstance(component).validate();
-	}
+        return component.persistenceContext();
+ 	}
 
+    public Executable getExecutable(String puName, PersistenceWork persistenceWork)
+    {
+        persistenceWorkModule = new PersistenceWorkModule(puName, true, persistenceWork);
+        return component.plus(persistenceWorkModule).executable();
+    }
+
+    ConnectionType getConnectionType()
+	{
+	    return component.connectionType();
+	}
+	
 	/**
 	 * Log message
 	 * @param tag
@@ -375,8 +403,7 @@ public class HelloTwoDbsMain
 	
 	public void dropDatabaseVersionTable(String puName) throws InterruptedException
 	{
-		ConnectionSourceFactory connectionSourceFactory = persistenceContext.getPersistenceAdmin(puName);
-		ConnectionSource connectionSource = connectionSourceFactory.getConnectionSource();
+		ConnectionSource connectionSource = persistenceContext.getPersistenceAdmin(puName).getConnectionSource();
 		boolean tableExists = false;
 		DatabaseConnection connection = null;
 		try 
@@ -443,6 +470,15 @@ public class HelloTwoDbsMain
 			}});
 	}
 
+    public void shutdown()
+    {
+        String[] puNames = { PU_NAME1, PU_NAME2 }; 
+        {
+            for (String puName: puNames)
+                persistenceContext.getPersistenceAdmin(puName).close();
+        }
+    }
+    
 	/**
 	 * Public accessor for logMessage()
 	 * @param tag
@@ -450,6 +486,10 @@ public class HelloTwoDbsMain
 	 */
 	public static void logInfo(String tag, String message) 
 	{
-		singleton.logMessage(tag, message);
+        Log log = logMap.get(tag);
+        if ((log != null) && log.isLoggable(tag, Level.INFO))
+        {
+            log.info(tag, message);
+        }
 	}
 }

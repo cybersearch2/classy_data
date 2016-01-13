@@ -16,19 +16,25 @@
 package au.com.cybersearch2.classydb;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
-
-import javax.inject.Singleton;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
+
+import com.j256.ormlite.field.FieldType;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.support.DatabaseConnection;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -40,21 +46,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Bundle;
-import au.com.cybersearch2.classyapp.ApplicationContext;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 import au.com.cybersearch2.classyjpa.query.QueryInfo;
 import au.com.cybersearch2.classyjpa.query.QueryInfo.RowMapper;
 import au.com.cybersearch2.classyjpa.query.ResultRow;
-
-import com.j256.ormlite.field.FieldType;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.support.DatabaseConnection;
-
-import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
 
 /**
  * AndroidDatabaseSupportTest
@@ -64,23 +59,6 @@ import dagger.Provides;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidDatabaseSupportTest
 {
-    @Module(/*injects = { 
-            ApplicationContext.class}*/)
-    public class AndroidDatabaseSupportTestModule implements ApplicationModule
-    {
-        @Provides @Singleton Context provideContext()
-        {
-            return context;
-        }
-    }
- 
-    @Singleton
-    @Component(modules = AndroidDatabaseSupportTestModule.class)  
-    static interface TestComponent extends ApplicationModule
-    {
-        void inject(ApplicationContext ApplicationContext);
-    }
-    
     static class QueryParams
     {
         String table; 
@@ -378,16 +356,11 @@ public class AndroidDatabaseSupportTest
         properties = new Properties();
         properties.setProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY, PU_NAME);
         context = mock(Context.class);
-        TestComponent component =
-                DaggerAndroidDatabaseSupportTest_TestComponent.builder()
-                .androidDatabaseSupportTestModule(new AndroidDatabaseSupportTestModule())
-                .build();
-        DI.getInstance(component);
         sqLiteDatabase = mock(SQLiteDatabase.class);
         sqLiteDatabaseSupport = new TestAndroidDatabaseSupport();
         openHelperConnectionSource = mock(OpenHelperConnectionSource.class);
         androidConnectionSourceFactory = mock(AndroidConnectionSourceFactory.class);
-        when(androidConnectionSourceFactory.createAndroidSQLiteConnection(eq(DATABASE_NAME), isA(Properties.class))).thenReturn(openHelperConnectionSource);
+        when(androidConnectionSourceFactory.getConnectionSource(eq(DATABASE_NAME), isA(Properties.class))).thenReturn(openHelperConnectionSource);
         connectionSource = mock(ConnectionSource.class);
         dbConnection = mock(DatabaseConnection.class);
         when(connectionSource.getReadWriteConnection()).thenReturn(dbConnection);
@@ -398,7 +371,7 @@ public class AndroidDatabaseSupportTest
     {
         assertThat(sqLiteDatabaseSupport.androidSQLiteMap).isNotNull();
     }
-
+    /*
     @Test
     public void test_getAndroidSQLiteConnection()
     {
@@ -414,7 +387,7 @@ public class AndroidDatabaseSupportTest
         		(OpenHelperConnectionSource) sqLiteDatabaseSupport.getConnectionSource(DATABASE_NAME, properties);
         assertThat(result2).isEqualTo(result);
     }
-/*
+
     @Test
     public void test_createSQLiteOpenHelper()
     {

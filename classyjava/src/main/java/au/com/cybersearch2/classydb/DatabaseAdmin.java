@@ -68,5 +68,6 @@ public interface DatabaseAdmin
      * @param newVersion The new database version.
      */
     void onUpgrade(ConnectionSource connectionSource, int oldVersion, int newVersion);
-    
+
+    OpenHelperCallbacks getCustomOpenHelperCallbacks();
 }

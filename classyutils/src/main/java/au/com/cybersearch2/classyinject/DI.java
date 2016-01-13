@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyinject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import au.com.cybersearch2.classylog.*;
@@ -33,8 +35,24 @@ public class DI
     protected static DI singleton;
     /** Implementation delegated to an ObjectGraphManager instance */ 
     protected ObjectGraphManager objectGraphManager; 
+    protected Map<Class<?>, InjectService<?>> injectServiceMap;
 
-
+    public static <T> void register(Class<?> targetClass, InjectService<T> injectService)
+    {
+        if (singleton == null)
+            synchronized(DI.class)
+            {
+                if (singleton == null)
+                    singleton = new DI();
+            }
+        singleton.injectServiceMap.put(targetClass, injectService);
+    }
+ 
+    public static boolean isRegistered(Class<?> targetClass)
+    {
+        return singleton != null && singleton.injectServiceMap.containsKey(targetClass);
+    }
+        
     /** 
      * Returns DI singleton instance
      * @return DI
@@ -68,12 +86,25 @@ public class DI
      * Inject an object from the Object Graph
      * @param injectee Object containing one or more @Inject annotated class members
      */
+    @SuppressWarnings("unchecked")
     public static <T> void inject(T injectee)
     {
         if (injectee == null)
             throw new IllegalArgumentException("Parameter \"injectee\" is null");
-        getInstance().objectGraphManager.inject(injectee);
-    }
+        Class<T> clazz = (Class<T>) injectee.getClass();
+        DI dependencyInjection = getInstance();
+        InjectService<T> injectService = (InjectService<T>) dependencyInjection.injectServiceMap.get(clazz);
+        if (injectService == null)
+        {
+            if (dependencyInjection.objectGraphManager != null)
+                injectService = (InjectService<T>) dependencyInjection.objectGraphManager.createInjectService(injectee);
+            if (injectService != null)
+                register(clazz, injectService);
+            else
+                throw new IllegalArgumentException("Class \"" + clazz.getName() + "\" is not configured for Dependency Injection");
+       }
+       injectService.inject(injectee);
+    } 
 
     /**
      * Inject an object from the Object Graph and transient plus ObjectGraph 
@@ -100,6 +131,7 @@ public class DI
     private DI()
     {
         objectGraphManager = new ObjectGraphManager(new ApplicationModule(){});
+        injectServiceMap = new HashMap<Class<?>, InjectService<?>>();
     }
 
     /**

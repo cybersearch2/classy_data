@@ -15,29 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import static org.mockito.Mockito.*;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Properties;
-
-import javax.inject.Singleton;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.j256.ormlite.support.ConnectionSource;
 
-import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
 import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 
 /**
  * DatabaseAdminImplTest
@@ -46,39 +38,6 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
  */
 public class DatabaseAdminImplTest
 {
-    @Module(/*injects = { 
-            PersistenceContext.class,
-            NativeScriptDatabaseWork.class,
-            DatabaseAdminImpl.class,
-            TestDatabaseAdminImpl.class}*/)
-    class DatabaseAdminImplTestModule implements ApplicationModule
-    {
-        @Provides ResourceEnvironment provideResourceEnvironment()
-        {
-            return new JavaTestResourceEnvironment();
-        }
-        
-        @Provides @Singleton PersistenceFactory providePersistenceFactory()
-        {
-            PersistenceFactory persistenceFactory = mock(PersistenceFactory.class);
-            DatabaseSupport databaseSupport = mock(DatabaseSupport.class);
-            when(persistenceFactory.getDatabaseSupport()).thenReturn(databaseSupport);
-            return persistenceFactory;
-        }
-    }
-
-    @Singleton
-    @Component(modules = DatabaseAdminImplTestModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
-    {
-        void inject(TestDatabaseAdminImpl testDatabaseAdminImpl);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-    }
-
-
     public static final String CREATE_SQL_FILENAME = "create.sql";
     public static final String DROP_SQL_FILENAME = "drop.sql";
     public static final String DATA_FILENAME = "data.sql";
@@ -86,6 +45,7 @@ public class DatabaseAdminImplTest
     PersistenceAdmin persistenceAdmin;
     ConnectionSource connectionSource;
     Properties properties;
+    ResourceEnvironment resourceEnvironment;
 
     @Before
     public void setUp()
@@ -95,11 +55,7 @@ public class DatabaseAdminImplTest
         connectionSource = mock(ConnectionSource.class);
         when(persistenceAdmin.getConnectionSource()).thenReturn(connectionSource);
         when(persistenceAdmin.getProperties()).thenReturn(properties);
-        ApplicationComponent component = 
-                DaggerDatabaseAdminImplTest_ApplicationComponent.builder()
-                .databaseAdminImplTestModule(new DatabaseAdminImplTestModule())
-                .build();
-        DI.getInstance(component).validate();
+        resourceEnvironment = new JavaTestResourceEnvironment();
     }
 
     @Test
@@ -108,7 +64,7 @@ public class DatabaseAdminImplTest
         properties.setProperty(DatabaseAdmin.DROP_SCHEMA_FILENAME, DROP_SQL_FILENAME);
         properties.setProperty(DatabaseAdmin.SCHEMA_FILENAME, CREATE_SQL_FILENAME);
         properties.setProperty(DatabaseAdmin.DATA_FILENAME, DATA_FILENAME);
-        TestDatabaseAdminImpl databaseAdminImpl = new TestDatabaseAdminImpl(TestClassyApplication.PU_NAME, persistenceAdmin);
+        TestDatabaseAdminImpl databaseAdminImpl = new TestDatabaseAdminImpl(TestClassyApplication.PU_NAME, persistenceAdmin, resourceEnvironment);
         databaseAdminImpl.onCreate(connectionSource);
         NativeScriptDatabaseWork processFilesCallable = (NativeScriptDatabaseWork) databaseAdminImpl.processFilesCallable;
         assertThat(processFilesCallable.filenames.length).isEqualTo(3);
@@ -123,7 +79,7 @@ public class DatabaseAdminImplTest
         properties.setProperty(DatabaseAdmin.DROP_SCHEMA_FILENAME, DROP_SQL_FILENAME);
         properties.setProperty(DatabaseAdmin.SCHEMA_FILENAME, CREATE_SQL_FILENAME);
         properties.setProperty(DatabaseAdmin.DATA_FILENAME, DATA_FILENAME);
-        TestDatabaseAdminImpl databaseAdminImpl = new TestDatabaseAdminImpl(TestClassyApplication.PU_NAME, persistenceAdmin);
+        TestDatabaseAdminImpl databaseAdminImpl = new TestDatabaseAdminImpl(TestClassyApplication.PU_NAME, persistenceAdmin, resourceEnvironment);
         databaseAdminImpl.onUpgrade(connectionSource, 1,2);
         NativeScriptDatabaseWork processFilesCallable = (NativeScriptDatabaseWork) databaseAdminImpl.processFilesCallable;
         assertThat(processFilesCallable.filenames.length).isEqualTo(1);

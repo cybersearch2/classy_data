@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ import au.com.cybersearch2.classylog.Log;
  * @author Andrew Bowley
  * 16 May 2015
  */
-public abstract class DatabaseSupportBase implements DatabaseSupport 
+public abstract class DatabaseSupportBase implements DatabaseSupport, ConnectionSourceFactory 
 {
     /** Table to hold database version */
     public static final String DATABASE_INFO_NAME = "User_Info";
@@ -59,6 +60,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport
     protected final DatabaseType databaseType;
     /** Map connectionSource to database name */
     protected Map<String, ConnectionSource> connectionSourceMap;
+    protected List<OpenHelperCallbacks> openHelperCallbacksList;
     protected Log log;
     protected String tag;
 
@@ -73,6 +75,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport
         this.log = log;
         this.tag = tag;
         connectionSourceMap = new HashMap<String, ConnectionSource>();
+        openHelperCallbacksList = Collections.emptyList();
 	}
 
 	abstract protected File getDatabaseLocation();
@@ -101,7 +104,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport
      * @return ConnectionSource
      */
     @Override
-    public synchronized ConnectionSource getConnectionSource(String databaseName, Properties properties)
+    public ConnectionSource getConnectionSource(String databaseName, Properties properties)
     {
         ConnectionSource connectionSource = connectionSourceMap.get(databaseName);
         if (connectionSource == null)
@@ -151,7 +154,20 @@ public abstract class DatabaseSupportBase implements DatabaseSupport
         return databaseType;
     }
 
-
+    @Override
+    public void registerOpenHelperCallbacks(OpenHelperCallbacks openHelperCallbacks)
+    {
+        if (openHelperCallbacksList.isEmpty())
+            openHelperCallbacksList = new ArrayList<OpenHelperCallbacks>();
+        openHelperCallbacksList.add(openHelperCallbacks);
+    }
+    
+    @Override
+    public List<OpenHelperCallbacks> getOpenHelperCallbacksList()
+    {
+        return openHelperCallbacksList;
+    }
+    
     /**
      * Gets the database version.
      * @param  connectionSource Open ConnectionSource object of database. 

@@ -15,18 +15,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example.v2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+
 import javax.inject.Singleton;
 
-import au.com.cybersearch2.classyapp.ApplicationContext;
+import org.xmlpull.v1.XmlPullParserException;
+
+import android.content.Context;
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.example.AndroidHelloTwoDbsModule;
+import au.com.cybersearch2.classytask.Executable;
 import dagger.Component;
+import dagger.Subcomponent;
 
 /**
  * AndroidHelloTwoDbs
@@ -39,23 +46,73 @@ public class AndroidHelloTwoDbs extends HelloTwoDbsMain
     @Component(modules = AndroidHelloTwoDbsModule.class)  
     static interface ApplicationComponent extends ApplicationModule
     {
-        void inject(PersistenceContext persistenceContext);
-        void inject(AndroidHelloTwoDbs helloTwoDbsMain);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-        void inject(ApplicationContext applicationContext);
+        PersistenceContext persistenceContext();
+        ConnectionType connectionType();
+        PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
+    }
+
+    @Singleton
+    @Subcomponent(modules = PersistenceWorkModule.class)
+    static interface PersistenceWorkSubcontext
+    {
+        Executable executable();
+    }
+
+    public AndroidHelloTwoDbs() throws IOException, XmlPullParserException
+    {
+        super();
+        final Context context = TestRoboApplication.getTestInstance();
+        resourceEnvironment =
+        
+            new ResourceEnvironment(){
+
+                @Override
+                public InputStream openResource(String resourceName)
+                        throws IOException
+                {
+                    return context.getAssets().open("hello2dbs/v2/" + resourceName);
+                }
+        
+                @Override
+                public Locale getLocale()
+                {
+                    return new Locale("en", "AU");
+                }};
+    }
+ 
+    protected ResourceEnvironment resourceEnvironment;
+    protected ApplicationComponent component;
+    
+    /**
+     * Set up dependency injection, which creates an ObjectGraph from a HelloTwoDbsModule configuration object.
+     * Override to run with different database and/or platform. 
+     */
+    @Override
+    protected PersistenceContext createObjectGraph()
+    {
+        Context context = TestRoboApplication.getTestInstance();
+        component = 
+                DaggerAndroidHelloTwoDbs_ApplicationComponent.builder()
+                .androidHelloTwoDbsModule(new AndroidHelloTwoDbsModule(context, resourceEnvironment))
+                .build();
+        return component.persistenceContext();
     }
 
     @Override
-    protected void createObjectGraph()
+    protected Executable getExecutable(String puName, PersistenceWork persistenceWork)
     {
-        ApplicationComponent component = 
-                DaggerAndroidHelloTwoDbs_ApplicationComponent.builder()
-                .androidHelloTwoDbsModule(new AndroidHelloTwoDbsModule(TestRoboApplication.getTestInstance()))
-                .build();
-       // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        DI.getInstance(component).validate();
+        persistenceWorkModule = new PersistenceWorkModule(puName, true, persistenceWork);
+        if (component == null)
+            System.err.println("Component is null!");
+         PersistenceWorkSubcontext persistenceWorkSubcontext = component.plus(persistenceWorkModule);
+         if (persistenceWorkSubcontext == null)
+             System.err.println("persistenceWorkSubcontext is null!");
+         return persistenceWorkSubcontext.executable();
     }
-
+    
+    @Override
+    ConnectionType getConnectionType()
+    {
+        return component.connectionType();
+    }
 }

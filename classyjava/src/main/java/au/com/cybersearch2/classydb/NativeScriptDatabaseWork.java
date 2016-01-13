@@ -20,12 +20,10 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.SqlParser.StatementCallback;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.transaction.TransactionCallable;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
@@ -46,16 +44,16 @@ public class NativeScriptDatabaseWork implements TransactionCallable
     
     final String[] filenames;
     /** Resource environment provides system-specific file open method. */
-    @Inject ResourceEnvironment resourceEnvironment;
+    protected ResourceEnvironment resourceEnvironment;
     
     /**
      * Create NativeScriptDatabaseWork object
      * @param filenames SQL script file names 
      */
-    public NativeScriptDatabaseWork(final String... filenames)
+    public NativeScriptDatabaseWork(ResourceEnvironment resourceEnvironment, String... filenames)
     {
-        this.filenames = filenames;
-        DI.inject(this); // Inject resourceEnvironment
+        this.resourceEnvironment = resourceEnvironment;
+        this.filenames = filenames == null ? new String[]{} : filenames;
     }
 
 	/**

@@ -72,7 +72,6 @@ public class InternalHandler extends Handler
     public InternalHandler(Looper looper)
     {
         super(looper);
-
     }
 
     /**
@@ -96,25 +95,12 @@ public class InternalHandler extends Handler
             switch (msg.what) 
             {
                 case MESSAGE_POST_PROGRESS:
-                {
-                    @SuppressWarnings("rawtypes")
-                    UserTaskResult result = (UserTaskResult) msg.obj;
-                    if ((result != null) && (result.task != null))
-                        result.task.onProgressUpdate(result.data);
-                    break;
-                }
                 case MESSAGE_POST_RESULT:
                 case MESSAGE_POST_CANCEL:
                 {
-                    @SuppressWarnings("rawtypes")
-                    ResultMessage resultMessage = (ResultMessage<?>) msg.obj;
+                    ResultMessage resultMessage = (ResultMessage) msg.obj;
                     if (resultMessage != null)
-                    {
-                        if (msg.what == MESSAGE_POST_RESULT)
-                            resultMessage.action();
-                        else
-                            resultMessage.cancel();
-                    }
+                         resultMessage.getTask().run();
                     break;
                 }
             }

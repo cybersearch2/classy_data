@@ -16,9 +16,12 @@
 package au.com.cybersearch2.classyjpa.entity;
 
 import au.com.cybersearch2.classyjpa.transaction.TransactionInfo;
+import au.com.cybersearch2.classytask.BackgroundTask;
+import au.com.cybersearch2.classytask.Executable;
+import au.com.cybersearch2.classytask.ThreadHelper;
+import au.com.cybersearch2.classytask.WorkStatus;
 //import au.com.cybersearch2.classylog.JavaLogger;
 //import au.com.cybersearch2.classylog.Log;
-import au.com.cybersearch2.classytask.WorkerTask;
 
 /**
  * TaskBase
@@ -26,35 +29,32 @@ import au.com.cybersearch2.classytask.WorkerTask;
  * @author Andrew Bowley
  * 19/08/2014
  */
-public class TaskBase extends WorkerTask<Boolean>
+public class TaskBase extends BackgroundTask
 {
     //private static final String TAG = "TaskBase";
     //private Log log = JavaLogger.getLogger(TAG);
     
     /** Task to be performed */
     protected JavaPersistenceContext persistenceContext;
+    protected Executable executable;
 
     /**
      * Constructor
      * @param persistenceContext Object which creates a persistence context and executes a task in that context
      */
-    public TaskBase(JavaPersistenceContext persistenceContext)
+    public TaskBase(final JavaPersistenceContext persistenceContext, ThreadHelper threadHelper)
     {
+        super(threadHelper);
         this.persistenceContext = persistenceContext;
+        executable = new Executable(){
+
+            @Override
+            public WorkStatus getStatus()
+            {
+                return persistenceContext.getWorkStatus();
+            }};
     }
  
-    /**
-     * Process signalled result after task has run
-     * @param result Boolean TRUE or FALSE or null if task cancelled before result available
-     */
-    @Override
-    protected void finish(Boolean result) 
-    {
-        super.finish(result);
-        // Notify waiting threads at very last point of exit
-        notifyTaskCompleted();
-    }
-
     /**
      * Process signalled result after task has run
      * @param success Boolean TRUE or FALSE or null if task cancelled before result available
@@ -64,7 +64,9 @@ public class TaskBase extends WorkerTask<Boolean>
     {
         persistenceContext.setExecutionException(getExecutionException());
         persistenceContext.onPostExecute(success);
-    	status = persistenceContext.getWorkStatus();
+        // TODO - update TaskRunner status
+    	//status = persistenceContext.getWorkStatus();
+        notifyTaskCompleted();
     }
 
     /**
@@ -93,19 +95,24 @@ public class TaskBase extends WorkerTask<Boolean>
      */
     protected void notifyTaskCompleted() 
     {
-        synchronized(this)
+        synchronized(executable)
         {
-            this.notifyAll();
+            executable.notifyAll();
         }
     }
 
     /**
      * doInBackground
-     * @see au.com.cybersearch2.classytask.WorkerTask#doInBackground()
+     * @see au.com.cybersearch2.classytask.BackgroundTask#doInBackground()
      */
 	@Override
-	public Boolean doInBackground() 
+	public boolean doInBackground() 
 	{
 		return persistenceContext.doTask();
+	}
+	
+	public Executable getExecutable()
+	{
+	    return executable;
 	}
 }

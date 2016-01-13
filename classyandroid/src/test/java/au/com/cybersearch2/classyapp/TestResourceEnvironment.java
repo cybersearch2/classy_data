@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
+import android.content.Context;
+
 /**
  * TestResourceEnvironment
  * @author Andrew Bowley
@@ -31,8 +33,8 @@ public class TestResourceEnvironment implements ResourceEnvironment
     @Override
     public InputStream openResource(String resourceName) throws IOException 
     {
-        ApplicationContext applicationContext = new ApplicationContext();
-        return applicationContext.getContext().getAssets().open(resourceName);
+        Context context = (Context)TestRoboApplication.getTestInstance();
+        return context.getAssets().open(resourceName);
     }
 
     @Override

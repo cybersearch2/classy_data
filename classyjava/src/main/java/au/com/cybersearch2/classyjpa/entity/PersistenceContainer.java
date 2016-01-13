@@ -22,7 +22,6 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
-import au.com.cybersearch2.classytask.Executable;
 
 /**
  * PersistenceContainer
@@ -45,28 +44,17 @@ public class PersistenceContainer
     protected boolean async;
     /** Persistence Unit name */
     protected String puName;
-    /** Persistence unit administration */
-    protected PersistenceAdmin persistenceAdmin;
-
-    /**
-     * Create PersistenceContainer object 
-     * @param puName Persistence Unit name
-     */
-    public PersistenceContainer(String puName)
-    {
-    	this(puName, true);
-    }
 
     /**
      * Create PersistenceContainer object 
      * @param puName Persistence Unit name
      * @param async Flag set if executes asynchronously 
      */
-    public PersistenceContainer(String puName, boolean async)
+    public PersistenceContainer(PersistenceContext persistenceContext, String puName, boolean async)
     {
         this.puName = puName;
         /** Reference Persistence Unit specified by name to extract EntityManagerFactory object */
-        PersistenceAdmin persistenceAdmin = new PersistenceContext().getPersistenceAdmin(puName);
+        PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
         if (async && persistenceAdmin.isSingleConnection())
         	async = false;
         this.async = async;
@@ -82,24 +70,6 @@ public class PersistenceContainer
         isUserTransactionMode = value;
     }
  
-    /**
-     * Commence execution of work in perisistence context. Wait on returned object for notification of task complete.
-     * @param persistenceWork Object specifying unit of work
-     * @return Executable. 
-     */
-    public Executable executeTask(PersistenceWork persistenceWork)
-    {
-        JavaPersistenceContext jpaContext = getPersistenceTask(persistenceWork);
-        if (!async)
-    		return jpaContext.executeInProcess();
-        else
-        {
-        	TaskBase  task = new TaskBase(jpaContext);
-        	task.execute();
-        	return task;
-        }
-    }
-
     /**
      * Returns object which creates a persistence context and executes a task in that contex
      * @param persistenceWork

@@ -15,78 +15,106 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import android.content.Context;
-import dagger.Module;
-import dagger.Provides;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
+import au.com.cybersearch2.classydb.AndroidConnectionSourceFactory;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
+import au.com.cybersearch2.classydb.AndroidSqliteParams;
+import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
+import au.com.cybersearch2.classydb.OpenEventHandler;
 import au.com.cybersearch2.classyinject.ApplicationModule;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classytask.TaskManager;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
+import au.com.cybersearch2.example.v2.HelloTwoDbsMain;
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * AndroidHelloTwoDbsModule
  * @author Andrew Bowley
  * 24 Apr 2015
  */
-@Module(/*injects = { 
-		AndroidHelloTwoDbs.class,
-        WorkerRunnable.class,
-        PersistenceFactory.class,
-        NativeScriptDatabaseWork.class,
-        PersistenceContext.class,
-        DatabaseAdminImpl.class
-        }*/)
+@Module
 public class AndroidHelloTwoDbsModule implements ApplicationModule 
 {
-	//ConnectionType CONNECTION_TYPE = ConnectionType.memory;
 	ConnectionType CONNECTION_TYPE = ConnectionType.file;
-	private Context context;
+    private boolean testInMemory;
+    private Context context;
+    private ResourceEnvironment resourceEnvironment;
 
-	public AndroidHelloTwoDbsModule(Context context)
-	{
-	    this.context = context;
-	}
-	
+	public AndroidHelloTwoDbsModule(
+	        Context context,
+	        ResourceEnvironment resourceEnvironment)
+    {
+        this.context = context;
+        this.resourceEnvironment = resourceEnvironment;
+    }
+
+    @Provides @Singleton ConnectionType provideConnectionType()
+    {
+        return testInMemory ? ConnectionType.memory : ConnectionType.file;
+    }
+    
 	@Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
         return new TestSystemEnvironment();
     }
     
+    @Provides @Singleton TaskManager provideTaskManager()
+    {
+        return new TaskManager();
+    }
+
     @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
     {
-        return new ResourceEnvironment(){
-
-            @Override
-            public InputStream openResource(String resourceName)
-                    throws IOException
-            {
-                return context.getAssets().open("hello2dbs/" + resourceName);
-            }
-
-            @Override
-            public Locale getLocale()
-            {
-                return new Locale("en", "AU");
-            }};
+        return resourceEnvironment;
     }
 
-    @Provides @Singleton PersistenceFactory providePersistenceModule()
+    @Provides @Singleton AndroidDatabaseSupport provideDatabaseSupport()
     {
-        return new PersistenceFactory(new AndroidDatabaseSupport());
+        return new AndroidDatabaseSupport();
+    }
+    
+    @Provides @Singleton PersistenceFactory providePersistenceFactory(
+            AndroidDatabaseSupport databaseSupport, 
+            ResourceEnvironment resourceEnvironment)
+    {
+        return new PersistenceFactory(databaseSupport, resourceEnvironment);
     }
 
-    @Provides @Singleton ConnectionType provideConnectionType()
+    @Provides @Singleton @Named(HelloTwoDbsMain.PU_NAME1) 
+    OpenEventHandler provideOpenEventHandler1(Context context, PersistenceFactory persistenceFactory)
     {
-    	return CONNECTION_TYPE;
+        // NOTE: This class extends Android SQLiteHelper 
+        return new OpenEventHandler(new AndroidSqliteParams(context, HelloTwoDbsMain.PU_NAME1, persistenceFactory));
+    }
+  
+    @Provides @Singleton @Named(HelloTwoDbsMain.PU_NAME2) 
+    OpenEventHandler provideOpenEventHandler2(Context context, PersistenceFactory persistenceFactory)
+    {
+        // NOTE: This class extends Android SQLiteHelper 
+        return new OpenEventHandler(new AndroidSqliteParams(context, HelloTwoDbsMain.PU_NAME2, persistenceFactory));
+    }
+    
+    @Provides @Singleton ConnectionSourceFactory provideConnectionSourceFactory(
+            @Named(HelloTwoDbsMain.PU_NAME1) OpenEventHandler openEventHandler1,
+            @Named(HelloTwoDbsMain.PU_NAME2) OpenEventHandler openEventHandler2)
+    {
+        return new AndroidConnectionSourceFactory(openEventHandler1, openEventHandler2);
+    }
+    
+    @Provides @Singleton PersistenceContext providePersistenceContext(
+            PersistenceFactory persistenceFactory, 
+            ConnectionSourceFactory connectionSourceFactory)
+    {
+        return new PersistenceContext(persistenceFactory, connectionSourceFactory);
     }
 
     /**

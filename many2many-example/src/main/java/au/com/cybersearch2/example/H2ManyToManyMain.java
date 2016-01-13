@@ -15,16 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
-import javax.inject.Singleton;
-
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
+import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.classytask.WorkerRunnable;
-import dagger.Component;
+import au.com.cybersearch2.classytask.WorkStatus;
 
 /**
  * H2ManyToManyMain
@@ -61,19 +54,8 @@ import dagger.Component;
  */
 public class H2ManyToManyMain extends ManyToManyMain 
 {
-    @Singleton
-    @Component(modules = H2ManyToManyModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
-    {
-        void inject(H2ManyToManyMain h2ManyToManyMain);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-        void inject(WorkerRunnable<Boolean> workerRunnable);
-    }
-
-
+    protected H2ManyToManyFactory h2ManyToManyFactory;
+    
     /**
      * Create H2ManyToManyMain object
      * This creates and populates the database using JPA, provides verification logic and runs a test from main().
@@ -99,13 +81,17 @@ public class H2ManyToManyMain extends ManyToManyMain
 	 * Refer au.com.cybersearch2.example.AndroidManyToMany in classyandroid module for Android example.
 	 */
 	@Override
-	protected void createObjectGraph()
-	{
-        ApplicationComponent component = 
-                DaggerH2ManyToManyMain_ApplicationComponent.builder()
-                .h2ManyToManyModule(new H2ManyToManyModule())
-                .build();
-        DI.getInstance(component).validate();
-	}
+    protected PersistenceContext createFactory()
+    {
+        h2ManyToManyFactory = new H2ManyToManyFactory();
+        return h2ManyToManyFactory.getPersistenceContext();
+    }
+    
+    @Override
+    protected WorkStatus execute(PersistenceWork persistenceWork) throws InterruptedException
+    {
+        return h2ManyToManyFactory.getExecutable(persistenceWork).waitForTask();
+    }
+
 
 }

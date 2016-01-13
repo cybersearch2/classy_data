@@ -4,20 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import dagger.Component;
+import au.com.cybersearch2.classytask.WorkStatus;
 
 /**
  * ORIGINAL COMMENTS:
@@ -48,16 +39,6 @@ import dagger.Component;
  */
 public class ManyToManyMain 
 {
-    @Singleton
-    @Component(modules = ManyToManyModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
-    {
-        void inject(ManyToManyMain manyToManyMain);
-        void inject(PersistenceContext persistenceContext);
-        void inject(PersistenceFactory persistenceFactory);
-        void inject(DatabaseAdminImpl databaseAdminImpl);
-        void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
-    }
 
     /** Named query to find all posts staged by a user identified by ID */
     static public final String POSTS_BY_USER = "posts_by_user";
@@ -75,8 +56,8 @@ public class ManyToManyMain
     /** Now it's a bit warmer thank goodness. */
     Post post2;
     /** Factory object to create "manytomany" Persistence Unit implementation */
-    @Inject
-    PersistenceContext persistenceContext;
+    protected PersistenceContext persistenceContext;
+    protected ManyToManyFactory manyToManyFactory;
 
     /**
      * Create ManyToManyMain object
@@ -85,9 +66,7 @@ public class ManyToManyMain
     public ManyToManyMain() 
     {
         // Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object
-        createObjectGraph();
-        DI.inject(this);
-        persistenceContext.initializeAllDatabases();
+        persistenceContext = createFactory();
         // Note that the table for each entity class will be created in the following step (assuming database is in memory).
         // To populate these tables, call setUp().
         // Get Interface for JPA Support, required to create named queries
@@ -164,8 +143,23 @@ public class ManyToManyMain
             }
         };
         // Execute work and wait synchronously for completion
-        PersistenceContainer container = new PersistenceContainer("manytomany");
-        container.executeTask(setUpWork).waitForTask();
+        execute(setUpWork);
+    }
+
+    protected PersistenceContext createFactory()
+    {
+        manyToManyFactory = new ManyToManyFactory();
+        return manyToManyFactory.getPersistenceContext();
+    }
+    
+    protected WorkStatus execute(PersistenceWork persistenceWork) throws InterruptedException
+    {
+        return manyToManyFactory.getExecutable(persistenceWork).waitForTask();
+    }
+
+    public void close()
+    {
+        persistenceContext.close();
     }
 
     /**
@@ -252,8 +246,7 @@ public class ManyToManyMain
                     user2.id,
                     post1.id,
                     post2.id);
-            PersistenceContainer container = new PersistenceContainer("manytomany");
-            container.executeTask(postsByUserEntityTask).waitForTask();
+            execute(postsByUserEntityTask);
             List<Post> posts = postsByUserEntityTask.getPosts();
             verifyPostsByUser(posts);
             System.out.println("PostsByUser: ");
@@ -263,7 +256,7 @@ public class ManyToManyMain
                     user2.id,
                     post1.id,
                     post2.id);
-            container.executeTask(usersByPostTask).waitForTask();
+            execute(usersByPostTask);
             verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
             System.out.println("UsersByPosts: ");
             System.out.println("Only " + user1.name + " posted \"" + post1.contents + "\"");
@@ -277,17 +270,5 @@ public class ManyToManyMain
         }
     }
     
-	/**
-	 * Set up dependency injection, which creates an ObjectGraph from a ManyToManyModule configuration object.
-	 * Override to run with different database and/or platform. 
-	 * Refer au.com.cybersearch2.example.AndroidManyToMany in classyandroid module for Android example.
-	 */
-	protected void createObjectGraph()
-	{
-        ApplicationComponent component = 
-                DaggerManyToManyMain_ApplicationComponent.builder()
-                .manyToManyModule(new ManyToManyModule())
-                .build();
-        DI.getInstance(component).validate();
-	}
+
 }

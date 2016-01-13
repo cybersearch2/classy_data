@@ -17,6 +17,7 @@ package au.com.cybersearch2.classydb;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.transaction.TransactionCallable;
 
@@ -34,9 +35,10 @@ public class TestDatabaseAdminImpl extends DatabaseAdminImpl
      * @param persistenceAdmin
      */
     public TestDatabaseAdminImpl(String puName,
-            PersistenceAdmin persistenceAdmin)
+            PersistenceAdmin persistenceAdmin,
+            ResourceEnvironment resourceEnvironment)
     {
-        super(puName, persistenceAdmin);
+        super(puName, persistenceAdmin, resourceEnvironment, null);
 
     }
 

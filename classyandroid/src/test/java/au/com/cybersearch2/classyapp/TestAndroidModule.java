@@ -18,15 +18,17 @@ package au.com.cybersearch2.classyapp;
 import javax.inject.Singleton;
 
 import android.content.Context;
+import au.com.cybersearch2.classydb.AndroidConnectionSourceFactory;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-//import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-//import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.AndroidSqliteParams;
+import au.com.cybersearch2.classydb.ConnectionSourceFactory;
+import au.com.cybersearch2.classydb.OpenEventHandler;
 import au.com.cybersearch2.classyinject.ApplicationModule;
-//import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
-import au.com.cybersearch2.classytask.ThreadHelper;
+import au.com.cybersearch2.classytask.TaskManager;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
-//import au.com.cybersearch2.classytask.WorkerRunnable;
+import au.com.cybersearch2.classytask.ThreadHelper;
 import dagger.Module;
 import dagger.Provides;
 
@@ -35,20 +37,21 @@ import dagger.Provides;
  * @author Andrew Bowley
  * 20/06/2014
  */
-@Module(/*injects = { 
-        WorkerRunnable.class,
-        PersistenceFactory.class,
-        NativeScriptDatabaseWork.class,
-        PersistenceContext.class,
-        DatabaseAdminImpl.class
-        }*/)
+@Module
 public class TestAndroidModule implements ApplicationModule
 {
+    private String puName;
+    private ResourceEnvironment resourceEnvironment;
     private Context context;
 
-    public TestAndroidModule(Context context)
+    public TestAndroidModule(
+            Context context,
+            ResourceEnvironment resourceEnvironment, 
+            String puName)
     {
         this.context = context;
+        this.resourceEnvironment = resourceEnvironment;
+        this.puName = puName;
     }
     
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
@@ -58,12 +61,42 @@ public class TestAndroidModule implements ApplicationModule
     
     @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
     {
-        return new TestResourceEnvironment();
+        return resourceEnvironment;
     }
 
-    @Provides @Singleton PersistenceFactory providePersistenceFactory()
+    @Provides @Singleton TaskManager provideTaskManager()
     {
-        return new PersistenceFactory(new AndroidDatabaseSupport());
+        return new TaskManager();
+    }
+
+    @Provides @Singleton AndroidDatabaseSupport provideDatabaseSupport()
+    {
+        return new AndroidDatabaseSupport();
+    }
+    
+    @Provides @Singleton PersistenceFactory providePersistenceFactory(
+            AndroidDatabaseSupport databaseSupport, 
+            ResourceEnvironment resourceEnvironment)
+    {
+        return new PersistenceFactory(databaseSupport, resourceEnvironment);
+    }
+
+    @Provides @Singleton OpenEventHandler provideOpenEventHandler(Context context, PersistenceFactory persistenceFactory)
+    {
+        // NOTE: This class extends Android SQLiteHelper 
+        return new OpenEventHandler(new AndroidSqliteParams(context, puName, persistenceFactory));
+    }
+    
+    @Provides @Singleton ConnectionSourceFactory provideConnectionSourceFactory(OpenEventHandler openEventHandler)
+    {
+        return new AndroidConnectionSourceFactory(openEventHandler);
+    }
+    
+    @Provides @Singleton PersistenceContext providePersistenceContext(
+            PersistenceFactory persistenceFactory, 
+            ConnectionSourceFactory connectionSourceFactory)
+    {
+        return new PersistenceContext(persistenceFactory, connectionSourceFactory);
     }
 
     /**

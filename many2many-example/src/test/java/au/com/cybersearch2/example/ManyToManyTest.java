@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classytask.WorkStatus;
 
 
@@ -31,18 +29,15 @@ import au.com.cybersearch2.classytask.WorkStatus;
  */
 public class ManyToManyTest
 {
-    private static ManyToManyMain manyToManyMain;
-
     @Before
     public void setUp() 
     {
-        if (manyToManyMain == null)
-            manyToManyMain = new ManyToManyMain();
     } 
     
     @Test 
     public void test_many_to_many_jpa() throws Exception
     {
+        ManyToManyMain manyToManyMain = new ManyToManyMain();
         manyToManyMain.setUp();
         PostsByUserEntityTask postsByUserEntityTask = new PostsByUserEntityTask(
                 manyToManyMain.getUser1().id,
@@ -50,15 +45,14 @@ public class ManyToManyTest
                 manyToManyMain.getPost1().id,
                 manyToManyMain.getPost2().id);
 
-        PersistenceContainer container = new PersistenceContainer("manytomany");
-        assertEquals(container.executeTask(postsByUserEntityTask).waitForTask(), WorkStatus.FINISHED);
+        assertEquals(manyToManyMain.execute(postsByUserEntityTask), WorkStatus.FINISHED);
         manyToManyMain.verifyPostsByUser(postsByUserEntityTask.getPosts());
         UsersByPostTask usersByPostTask= new UsersByPostTask(
                 manyToManyMain.getUser1().id,
                 manyToManyMain.getUser2().id,
                 manyToManyMain.getPost1().id,
                 manyToManyMain.getPost2().id);
-        assertEquals(container.executeTask(usersByPostTask).waitForTask(), WorkStatus.FINISHED);
+        assertEquals(manyToManyMain.execute(usersByPostTask), WorkStatus.FINISHED);
         manyToManyMain.verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
     }
 

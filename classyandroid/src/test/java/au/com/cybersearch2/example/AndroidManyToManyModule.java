@@ -15,26 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-
 import javax.inject.Singleton;
 
 import android.content.Context;
-import dagger.Module;
-import dagger.Provides;
-import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
+import au.com.cybersearch2.classydb.AndroidConnectionSourceFactory;
 import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
-//import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-//import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.AndroidSqliteParams;
+import au.com.cybersearch2.classydb.ConnectionSourceFactory;
+import au.com.cybersearch2.classydb.OpenEventHandler;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classytask.TaskManager;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
-//import au.com.cybersearch2.classytask.WorkerRunnable;
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * ManyToManyModule
@@ -42,22 +39,31 @@ import au.com.cybersearch2.classytask.ThreadHelper;
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-@Module(/*injects = { 
-		AndroidManyToMany.class,
-        WorkerRunnable.class,
-        PersistenceFactory.class,
-        NativeScriptDatabaseWork.class,
-        PersistenceContext.class,
-        DatabaseAdminImpl.class
-        }*/)
+@Module
 public class AndroidManyToManyModule implements ApplicationModule
 {
     private Context context;
+    private String puName;
+    private ResourceEnvironment resourceEnvironment;
 
-    public AndroidManyToManyModule(Context context)
+    public AndroidManyToManyModule(
+            Context context, 
+            ResourceEnvironment resourceEnvironment, 
+            String puName)
     {
         this.context = context;
+        this.resourceEnvironment = resourceEnvironment;
+        this.puName = puName;
     }
+    
+    /**
+     * Returns Android Application Context
+     * @return Context
+     */
+    @Provides @Singleton Context provideContext()
+    {
+        return context;
+    } 
     
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
@@ -66,39 +72,42 @@ public class AndroidManyToManyModule implements ApplicationModule
     
     @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
     {
-        return new ResourceEnvironment(){
-
-            @Override
-            public InputStream openResource(String resourceName)
-                    throws IOException
-            {
-                ApplicationContext applicationContext = new ApplicationContext();
-                return applicationContext.getContext().getAssets().open("manytomany/" + resourceName);
-            }
-
-            @Override
-            public Locale getLocale()
-            {
-                return new Locale("en", "AU");
-            }};
+        return resourceEnvironment;
     }
 
-    @Provides @Singleton PersistenceFactory providePersistenceModule()
+    @Provides @Singleton TaskManager provideTaskManager()
     {
-        return new PersistenceFactory(new AndroidDatabaseSupport());
+        return new TaskManager();
+    }
+
+    @Provides @Singleton AndroidDatabaseSupport provideDatabaseSupport()
+    {
+        return new AndroidDatabaseSupport();
     }
     
-    @Provides @Singleton PersistenceContext providePersistenceContext()
+    @Provides @Singleton PersistenceFactory providePersistenceFactory(
+            AndroidDatabaseSupport databaseSupport, 
+            ResourceEnvironment resourceEnvironment)
     {
-        return new PersistenceContext();
+        return new PersistenceFactory(databaseSupport, resourceEnvironment);
     }
 
-    /**
-     * Returns Android Application Context
-     * @return Context
-     */
-    @Provides @Singleton Context provideContext()
+    @Provides @Singleton OpenEventHandler provideOpenEventHandler(Context context, PersistenceFactory persistenceFactory)
     {
-        return context;
+        // NOTE: This class extends Android SQLiteHelper 
+        return new OpenEventHandler(new AndroidSqliteParams(context, puName, persistenceFactory));
     }
+  
+    @Provides @Singleton ConnectionSourceFactory provideConnectionSourceFactory(OpenEventHandler openEventHandler)
+    {
+        return new AndroidConnectionSourceFactory(openEventHandler);
+    }
+    
+    @Provides @Singleton PersistenceContext providePersistenceContext(
+            PersistenceFactory persistenceFactory, 
+            ConnectionSourceFactory connectionSourceFactory)
+    {
+        return new PersistenceContext(persistenceFactory, connectionSourceFactory);
+    }
+
 }

@@ -18,7 +18,8 @@ package au.com.cybersearch2.classyjpa.entity;
 import android.content.Context;
 import android.support.v4.content.Loader;
 import au.com.cybersearch2.classyapp.ApplicationContext;
-import au.com.cybersearch2.classytask.BackgroundTask;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
+import au.com.cybersearch2.classytask.AsyncBackgroundTask;
 import au.com.cybersearch2.classytask.Executable;
 import au.com.cybersearch2.classytask.WorkStatus;
 import au.com.cybersearch2.classytask.WorkTracker;
@@ -31,7 +32,7 @@ import au.com.cybersearch2.classytask.WorkTracker;
  */
 public class PersistenceLoader
 {
-	class LoaderImpl extends BackgroundTask
+	class LoaderImpl extends AsyncBackgroundTask
 	{
 	    /** Persistence task */
 	    protected JavaPersistenceContext persistenceTask;
@@ -40,11 +41,11 @@ public class PersistenceLoader
 	    /** Persistence unit object to perform persistence work */
 	    protected String persistenceUnit;
 
-	    public LoaderImpl(String persistenceUnit, PersistenceWork persistenceWork)
+	    public LoaderImpl(PersistenceContext persistenceContext, String persistenceUnit, PersistenceWork persistenceWork)
 	    {
 	        super(context);
 	        this.persistenceUnit = persistenceUnit;
-	        PersistenceContainer persistenceContainer = new PersistenceContainer(persistenceUnit, false);
+	        PersistenceContainer persistenceContainer = new PersistenceContainer(persistenceContext, persistenceUnit, false);
 	        if (isUserTransactionMode)
 	        	persistenceContainer.setUserTransactionMode(true);
 	        persistenceTask = persistenceContainer.getPersistenceTask(persistenceWork);
@@ -100,24 +101,17 @@ public class PersistenceLoader
     protected volatile boolean isUserTransactionMode;
     /** Android Application Context */
     protected Context context;
-
-    /**
-     * Create PersistenceLoader object
-     */
-    public PersistenceLoader()
-    {
-    	this(new ApplicationContext().getContext());
-    }
+    protected PersistenceContext persistenceContext;
 
     /**
      * Create PersistenceLoader object
      * @param context Android Application Context
      */
-    public PersistenceLoader(Context context)
+    public PersistenceLoader(Context context, PersistenceContext persistenceContext)
     {
     	this.context = context;
+    	this.persistenceContext = persistenceContext;
     }
-
 
 	/**
      * Set user transaction mode. The transaction is accessed by calling EntityManager getTransaction() method.
@@ -127,14 +121,13 @@ public class PersistenceLoader
     {
         isUserTransactionMode = value;
     }
- 
     
     /**
      * Execute persistence work. To be run on calling thread.
      */
     public Executable execute(String persistenceUnit, PersistenceWork persistenceWork) 
     {
-    	LoaderImpl LoaderImpl = new LoaderImpl(persistenceUnit, persistenceWork);
+    	LoaderImpl LoaderImpl = new LoaderImpl(persistenceContext, persistenceUnit, persistenceWork);
         return LoaderImpl.execute();
     }
 

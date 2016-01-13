@@ -17,6 +17,8 @@ package au.com.cybersearch2.classydb;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+
 /**
  * OpenHelperCallbacks
  * Interface for onCreate() and onUpdate() SQLiteOpenHelper abstract methods
@@ -25,6 +27,9 @@ import com.j256.ormlite.support.ConnectionSource;
  */
 public interface OpenHelperCallbacks
 {
+    void setDatabaseAdmin(DatabaseAdmin databaseAdmin);
+    void setPersistenceAdmin(PersistenceAdmin persistenceAdmin);
+    
     /**
      * What to do when your database needs to be created. Usually this entails creating the tables and loading any
      * initial data.

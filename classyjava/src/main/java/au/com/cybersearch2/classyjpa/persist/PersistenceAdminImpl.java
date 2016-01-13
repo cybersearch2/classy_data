@@ -53,6 +53,7 @@ public class PersistenceAdminImpl implements PersistenceAdmin
     protected DatabaseSupport databaseSupport;
     protected String databaseName;
     protected Boolean singleConnection;
+    protected ConnectionSource connectionSource;
     
     /**
      * Create PersistenceAdminImpl object
@@ -66,9 +67,7 @@ public class PersistenceAdminImpl implements PersistenceAdmin
         this.config = config;
         this.puInfo = config.getPuInfo();
         this.databaseSupport = databaseSupport;
-        databaseName = puInfo.getProperties().getProperty(DatabaseAdmin.DATABASE_NAME);
-        if ((databaseName == null) || (databaseName.length() == 0))
-            throw new PersistenceException("\"" + puName + "\" does not have property \"" + DatabaseAdmin.DATABASE_NAME + "\"");
+        databaseName = getDatabaseName(puInfo);
         provider = new PersistenceProviderImpl(puName, config, this);
     }
 
@@ -79,9 +78,14 @@ public class PersistenceAdminImpl implements PersistenceAdmin
     @Override
     public ConnectionSource getConnectionSource() 
     {
-        return databaseSupport.getConnectionSource(databaseName, puInfo.getProperties());
+        return connectionSource;
     }
 
+    protected void setConnectionSource(ConnectionSource connectionSource)
+    {
+        this.connectionSource = connectionSource;
+    }
+    
     /**
      * Add named query to persistence unit context
      * @param clazz Entity class
@@ -141,7 +145,6 @@ public class PersistenceAdminImpl implements PersistenceAdmin
     public List<Object> getResultList(QueryInfo queryInfo, int startPosition,
             int maxResults) 
     {
-        ConnectionSource connectionSource = databaseSupport.getConnectionSource(databaseName, puInfo.getProperties());
         return databaseSupport.getResultList(connectionSource, queryInfo, startPosition, maxResults);
     }
 
@@ -153,7 +156,6 @@ public class PersistenceAdminImpl implements PersistenceAdmin
     @Override
     public Object getSingleResult(QueryInfo queryInfo) 
     {
-        ConnectionSource connectionSource = databaseSupport.getConnectionSource(databaseName, puInfo.getProperties());
         return databaseSupport.getSingleResult(connectionSource, queryInfo);
     }
 
@@ -167,6 +169,12 @@ public class PersistenceAdminImpl implements PersistenceAdmin
         return databaseName;
     }
 
+    @Override
+    public int getDatabaseVersion()
+    {
+        return getDatabaseVersion(puInfo.getProperties());
+    }
+    
     /**
      * Returns database version, which is defined as PU property "database-version". Defaults to 1 if not defined
      * @return String
@@ -181,7 +189,7 @@ public class PersistenceAdminImpl implements PersistenceAdmin
 	        try
 	        {
 	        	if (textVersion != null)
-	        	databaseVersion = Integer.parseInt(textVersion);
+	        	    databaseVersion = Integer.parseInt(textVersion);
 	        }
 	        catch (NumberFormatException e)
 	        {
@@ -247,5 +255,13 @@ public class PersistenceAdminImpl implements PersistenceAdmin
 	public void registerClasses(List<String> managedClassNames) 
 	{
 		config.registerClasses(managedClassNames);
+	}
+	
+	public static String getDatabaseName(PersistenceUnitInfo puInfo)
+	{
+        String databaseName = puInfo.getProperties().getProperty(DatabaseAdmin.DATABASE_NAME);
+        if ((databaseName == null) || (databaseName.length() == 0))
+            throw new PersistenceException("\"" + puInfo.getPersistenceUnitName() + "\" does not have property \"" + DatabaseAdmin.DATABASE_NAME + "\"");
+        return databaseName;
 	}
 }

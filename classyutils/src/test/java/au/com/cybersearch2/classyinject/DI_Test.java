@@ -20,6 +20,7 @@ import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrow
 
 import java.util.Date;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -76,6 +77,7 @@ public class DI_Test
         }
     }
 
+    @Ignore
     @Test
     public void test_moduleInject()
     {

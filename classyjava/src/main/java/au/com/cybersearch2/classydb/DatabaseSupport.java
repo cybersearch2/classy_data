@@ -16,7 +16,6 @@
 package au.com.cybersearch2.classydb;
 
 import java.util.List;
-import java.util.Properties;
 
 import au.com.cybersearch2.classyjpa.query.QueryInfo;
 
@@ -38,14 +37,6 @@ public interface DatabaseSupport
         file,
         pooled
     }
-
-    /** 
-     * Returns ConnectionSource object
-     * @param databaseName
-     * @param properties Properties defined in persistence.xml
-     * @return ConnectionSource
-     */
-    ConnectionSource getConnectionSource(String databaseName, Properties properties);
 
     /**
      * Perform any inititialization required prior to creating first database connection
@@ -94,5 +85,8 @@ public interface DatabaseSupport
      * @param version the new database version
      */
     void setVersion(int version, ConnectionSource connectionSource);
+    
+    void registerOpenHelperCallbacks(OpenHelperCallbacks openHelperCallbacks);
+    List<OpenHelperCallbacks> getOpenHelperCallbacksList();
 
 }

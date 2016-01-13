@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
+import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
+import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classylog.JavaLogger;
@@ -34,11 +36,13 @@ public class TestPersistenceEnvironment
 
     protected DatabaseSupport testDatabaseSupport;
     protected PersistenceFactory persistenceFactory;
+    protected ResourceEnvironment resourceEnvironment;
      
     public TestPersistenceEnvironment()
     {
         testDatabaseSupport = new SQLiteDatabaseSupport(connectionType);
-        persistenceFactory = new PersistenceFactory(testDatabaseSupport);
+        resourceEnvironment = new JavaTestResourceEnvironment();
+        persistenceFactory = new PersistenceFactory(testDatabaseSupport, resourceEnvironment);
     }
 
     public void close()

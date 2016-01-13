@@ -17,7 +17,10 @@ package au.com.cybersearch2.classyapp;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.OpenHelperCallbacks;
+import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
@@ -61,12 +64,24 @@ public class TestOpenHelperCallbacks implements OpenHelperCallbacks
         assertThat(newVersion).isEqualTo(2);
     }
 
-    public static ConnectionSource getOpenConnectionSource() {
+    public static ConnectionSource getOpenConnectionSource() 
+    {
         return openConnectionSource;
     }
 
-    public static ConnectionSource getUpdateConnectionSource() {
+    public static ConnectionSource getUpdateConnectionSource() 
+    {
         return updateConnectionSource;
+    }
+
+    @Override
+    public void setDatabaseAdmin(DatabaseAdmin databaseAdmin)
+    {
+    }
+
+    @Override
+    public void setPersistenceAdmin(PersistenceAdmin persistenceAdmin)
+    {
     }
 
 }

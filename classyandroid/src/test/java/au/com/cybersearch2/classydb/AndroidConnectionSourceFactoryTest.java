@@ -16,29 +16,17 @@
 package au.com.cybersearch2.classydb;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Properties;
-
-import javax.inject.Singleton;
-import javax.persistence.PersistenceException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
-import android.content.Context;
-import au.com.cybersearch2.classyapp.ApplicationContext;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
-import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import android.database.sqlite.SQLiteDatabase;
 import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 
 /**
@@ -49,90 +37,35 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 @RunWith(RobolectricTestRunner.class)
 public class AndroidConnectionSourceFactoryTest
 {
-    @Module(/*injects = PersistenceContext.class*/)
-    static class AndroidConnectionSourceFactoryTestModule implements ApplicationModule
-    {
-        private Context context;
-        private DatabaseAdmin databaseAdmin;
-        private PersistenceFactory persistenceFactory;
-  
-        public AndroidConnectionSourceFactoryTestModule(Context context)
-        {
-            this.context = context;
-            persistenceFactory = mock(PersistenceFactory.class);
-            Persistence persistence = mock(Persistence.class);
-            databaseAdmin = mock(DatabaseAdmin.class);
-            when(persistenceFactory.getPersistenceUnit(PU_NAME)).thenReturn(persistence);
-            when(persistence.getDatabaseAdmin()).thenReturn(databaseAdmin);
-        }
-        
-        @Provides  @Singleton PersistenceFactory providePersistenceFactory()
-        {
-            return persistenceFactory;
-        }
-
-        /**
-         * Returns Android Application Context
-         * @return Context
-         */
-        @Provides @Singleton Context provideContext()
-        {
-            return context;
-        }
-    }
- 
-    @Singleton
-    @Component(modules = AndroidConnectionSourceFactoryTestModule.class)  
-    static interface TestComponent extends ApplicationModule
-    {
-        void inject(PersistenceContext persistenceContext);
-        void inject(ApplicationContext applicationContext);
-    }
- 
     protected AndroidConnectionSourceFactory androidConnectionSourceFactory;
-    protected AndroidDatabaseSupport androidDatabaseSupport;
-    static AndroidConnectionSourceFactoryTestModule androidConnectionSourceFactoryTestModule;
+    protected OpenEventHandler openEventHandler;
+    protected SQLiteDatabase sqliteDatabase;
     static final String PU_NAME = "classyfy";
     static final String DATABASE_NAME = "classyfy.db";
     Properties properties;
-    static Context context;
     
     @Before
     public void setUp()
     {
-        if (context == null)
-        {
-            //context = TestRoboApplication.getTestInstance();
-        	context = mock(Context.class);
-            androidConnectionSourceFactoryTestModule = new AndroidConnectionSourceFactoryTestModule(context);
-            TestComponent component =
-                DaggerAndroidConnectionSourceFactoryTest_TestComponent.builder()
-                .androidConnectionSourceFactoryTestModule(androidConnectionSourceFactoryTestModule)
-                .build();
-            DI.getInstance(component);
-        }
+        openEventHandler = mock(OpenEventHandler.class);
+        when(openEventHandler.getDatabaseName()).thenReturn(DATABASE_NAME);
+        sqliteDatabase = mock(SQLiteDatabase.class);
+        when(openEventHandler.getWritableDatabase()).thenReturn(sqliteDatabase);
         properties = new Properties();
         properties.setProperty(PersistenceUnitInfoImpl.PU_NAME_PROPERTY, PU_NAME);
         properties.setProperty(DatabaseAdmin.DATABASE_VERSION, "2");
-        androidDatabaseSupport = mock(AndroidDatabaseSupport.class);
-        androidConnectionSourceFactory = new AndroidConnectionSourceFactory(androidDatabaseSupport);
+        androidConnectionSourceFactory = new AndroidConnectionSourceFactory(openEventHandler);
     }
     
-    @Test
-    public void test_constructor()
-    {
-        assertThat(androidConnectionSourceFactory.applicationContext).isNotNull();
-    }
-
     @Test
     public void test_createAndroidSQLiteConnection()
     {
         OpenHelperConnectionSource result = 
-             androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, properties);
+             androidConnectionSourceFactory.getConnectionSource(DATABASE_NAME, properties);
         assertThat(result).isNotNull();
-        assertThat(result.getSQLiteOpenHelper()).isInstanceOf(OpenEventHandler.class);
+        assertThat(result.getSQLiteOpenHelper()).isEqualTo(openEventHandler);
     }
-    
+/*    
     @Test
     public void test_getAndroidSQLiteConnection_custom()
     {
@@ -140,7 +73,7 @@ public class AndroidConnectionSourceFactoryTest
     	testProperties.putAll(properties);
     	testProperties.setProperty(PersistenceUnitInfoImpl.CUSTOM_OHC_PROPERTY, TestOpenHelperCallbacks.class.getName());
         OpenHelperConnectionSource result = 
-             androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, testProperties);
+             androidConnectionSourceFactory.getConnectionSource(DATABASE_NAME, testProperties);
         assertThat(result).isNotNull();
         assertThat(result.getSQLiteOpenHelper()).isInstanceOf(OpenEventHandler.class);
         OpenEventHandler openEventHandler = (OpenEventHandler) result.getSQLiteOpenHelper();
@@ -153,7 +86,7 @@ public class AndroidConnectionSourceFactoryTest
         properties.setProperty("open-helper-callbacks-classname", "x" + TestOpenHelperCallbacks.class.getName());
         try
         {
-            androidConnectionSourceFactory.createAndroidSQLiteConnection(DATABASE_NAME, properties);
+            androidConnectionSourceFactory.getConnectionSource(DATABASE_NAME, properties);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         }
         catch (PersistenceException e)
@@ -161,4 +94,5 @@ public class AndroidConnectionSourceFactoryTest
             assertThat(e.getMessage()).contains("x" + TestOpenHelperCallbacks.class.getName());
         }
     }
+    */
 }

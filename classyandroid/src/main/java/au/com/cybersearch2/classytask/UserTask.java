@@ -1,3 +1,5 @@
+package au.com.cybersearch2.classytask;
+
 /**
     Copyright (C) 2014  www.cybersearch2.com.au
 
@@ -29,9 +31,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package au.com.cybersearch2.classytask;
-
-import android.os.Message;
 
 /**
  * UserTask
@@ -132,33 +131,56 @@ import android.os.Message;
  *     a second execution is attempted.)</li>
  * </ul>
 */
-public abstract class UserTask<Progress, Result> extends WorkerTask<Result>
+public abstract class UserTask<Progress> extends TaskRunner
 {
-    protected UserTaskContext userTaskContext;
+    protected InternalHandler internalHandler;
     
     /**
      * Creates a new user task. This constructor must be invoked on the UI thread.
      */
-    public UserTask()
+    public UserTask(TaskManager taskManager, final InternalHandler internalHandler)
     {
-        super();
-        userTaskContext = new UserTaskContext();
-    }
+         
+        super(taskManager, new TaskMessenger(){
 
-    /**
-     * Override this method to perform a computation on a background thread. Any
-     * required parameters will need to be provided as fields belonging to the sub class.
-     *
-     * This method can call {@link #publishProgress(Object[])} to publish updates
-     * on the UI thread.
-     *
-     * @return A result, defined by the subclass of this task.
-     *
-     * @see #onPreExecute()
-     * @see #onPostExecute(Object)
-     * @see #publishProgress(Object[])
-     */
-    public abstract Result doInBackground();
+            /**
+             * Post result to calling thread on background thread completion
+             * @see au.com.cybersearch2.classytask.WorkerTask#sendResult(java.lang.Object)
+             */
+            @Override
+            public void sendResult(final TaskRunner taskRunner, final Boolean result)
+            {
+                Runnable task = new Runnable(){
+                    @Override
+                    public void run() {
+                        taskRunner.finish(result);
+                    }};
+                internalHandler.obtainMessage(
+                        InternalHandler.MESSAGE_POST_RESULT, 
+                        new ResultMessage(task))
+                .sendToTarget();
+            }
+
+            /**
+             * Post result to calling thread on background thread cancellation
+             * @see au.com.cybersearch2.classytask.WorkerTask#sendCancel(java.lang.Object)
+             */
+            @Override
+            public void sendCancel(final BackgroundTask backgroundTask, final Boolean result)
+            {
+                Runnable task = new Runnable(){
+                    @Override
+                    public void run() {
+                        backgroundTask.onCancelled(result);
+                    }};
+                internalHandler.obtainMessage(
+                        InternalHandler.MESSAGE_POST_CANCEL, 
+                        new ResultMessage(task))
+                .sendToTarget();
+            }
+
+        });
+    }
 
      /**
       * This method can be invoked from {@link #doInBackground()} to
@@ -171,10 +193,17 @@ public abstract class UserTask<Progress, Result> extends WorkerTask<Result>
       * @see #onProgressUpdate (Object[])
       * @see #doInBackground()
       */
-     protected final void publishProgress(Progress... values) 
+     protected final void publishProgress(final Progress... values) 
      {
-         userTaskContext.getInternalHandler().obtainMessage(InternalHandler.MESSAGE_POST_PROGRESS,
-                 new UserTaskResult<Progress>(UserTask.this, values)).sendToTarget();
+         Runnable task = new Runnable(){
+             @Override
+             public void run() {
+                 onProgressUpdate(values);
+             }};
+         internalHandler.obtainMessage(
+                 InternalHandler.MESSAGE_POST_PROGRESS,
+                 new ResultMessage(task))
+         .sendToTarget();
      }
 
     /**
@@ -190,28 +219,5 @@ public abstract class UserTask<Progress, Result> extends WorkerTask<Result>
     {
     }
 
-    /**
-     * Post result to calling thread on background thread completion
-     * @see au.com.cybersearch2.classytask.WorkerTask#sendResult(java.lang.Object)
-     */
-    @Override
-    public void sendResult(Result result)
-    {
-        Message message = userTaskContext.getInternalHandler().obtainMessage(InternalHandler.MESSAGE_POST_RESULT,
-                new ResultMessage<Result>(UserTask.this, result));
-        message.sendToTarget();
-    }
-
-    /**
-     * Post result to calling thread on background thread cancellation
-     * @see au.com.cybersearch2.classytask.WorkerTask#sendCancel(java.lang.Object)
-     */
-    @Override
-    public void sendCancel(Result result)
-    {
-        Message message = userTaskContext.getInternalHandler().obtainMessage(InternalHandler.MESSAGE_POST_CANCEL,
-                new ResultMessage<Result>(UserTask.this, result));
-        message.sendToTarget();
-    }
 
 }

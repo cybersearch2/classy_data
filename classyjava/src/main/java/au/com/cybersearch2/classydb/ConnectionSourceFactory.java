@@ -1,5 +1,5 @@
 /**
-    Copyright (C) 2014  www.cybersearch2.com.au
+    Copyright (C) 2015  www.cybersearch2.com.au
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -13,37 +13,18 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
-package au.com.cybersearch2.classytask;
+package au.com.cybersearch2.classydb;
 
-import javax.inject.Inject;
+import java.util.Properties;
 
-import au.com.cybersearch2.classyinject.DI;
+import com.j256.ormlite.support.ConnectionSource;
 
 /**
- * UserTaskContext
- * Message handler for posting messages from background thread to User thread
+ * ConnectionSourceFactory
  * @author Andrew Bowley
- * 26/06/2014
+ * 10 Jan 2016
  */
-public class UserTaskContext
+public interface ConnectionSourceFactory
 {
-    /** Task Handler */
-    @Inject InternalHandler internalHandler;
- 
-    /**
-     * Create UserTaskContext object
-     */
-    public UserTaskContext()
-    {
-        DI.inject(this); // Inject internalHandler
-    }
-    
-    /**
-     * Returns task Handler
-     * @return InternalHandler
-     */
-    public InternalHandler getInternalHandler()
-    {
-        return internalHandler;
-    }
+    ConnectionSource getConnectionSource(String databaseName, Properties properties);
 }

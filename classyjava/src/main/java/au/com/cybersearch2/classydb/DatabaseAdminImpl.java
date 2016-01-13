@@ -21,18 +21,13 @@ import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import javax.inject.Inject;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
-import au.com.cybersearch2.classybean.BeanException;
-import au.com.cybersearch2.classybean.BeanUtil;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdminImpl;
 import au.com.cybersearch2.classyjpa.persist.PersistenceConfig;
-import au.com.cybersearch2.classyjpa.persist.PersistenceUnitInfoImpl;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
 import au.com.cybersearch2.classyjpa.transaction.TransactionCallable;
 import au.com.cybersearch2.classylog.JavaLogger;
@@ -58,18 +53,35 @@ public class DatabaseAdminImpl implements DatabaseAdmin
     /** Persistence control and configuration implementation */
     protected PersistenceAdmin persistenceAdmin;
     /** Resource environment provides system-specific file open method. */
-    @Inject ResourceEnvironment resourceEnvironment;
+    protected ResourceEnvironment resourceEnvironment;
+    protected OpenHelperCallbacks openHelperCallbacks;
     
     /**
      * Construct a DatabaseAdminImpl object
      * @param puName The persistence unit name
      * @param persistenceAdmin The persistence unit connectionSource and properties provider  
      */
-    public DatabaseAdminImpl(String puName, PersistenceAdmin persistenceAdmin)
+    public DatabaseAdminImpl(
+            String puName, 
+            PersistenceAdmin persistenceAdmin, 
+            ResourceEnvironment resourceEnvironment,
+            OpenHelperCallbacks openHelperCallbacks)
     {
         this.puName = puName;
         this.persistenceAdmin = persistenceAdmin;
-        DI.inject(this);
+        this.resourceEnvironment = resourceEnvironment;
+        if (openHelperCallbacks != null)
+        {
+            openHelperCallbacks.setDatabaseAdmin(this);
+            openHelperCallbacks.setPersistenceAdmin(persistenceAdmin);
+            this.openHelperCallbacks = openHelperCallbacks;
+        }
+    }
+
+    @Override
+    public OpenHelperCallbacks getCustomOpenHelperCallbacks()
+    {
+        return openHelperCallbacks;
     }
 
     /**
@@ -92,7 +104,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         {
         	// Database work is executed as background task
         	TransactionCallable processFilesCallable = 
-                new NativeScriptDatabaseWork(schemaFilename, dropSchemaFilename, dataFilename);    
+                new NativeScriptDatabaseWork(resourceEnvironment, schemaFilename, dropSchemaFilename, dataFilename);    
         	executeTask(connectionSource, processFilesCallable);
         }
     }
@@ -150,8 +162,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         if (log.isLoggable(TAG, Level.INFO))
             log.info(TAG, "Upgrade file \"" + filename + "\" exists: " + upgradeSupported);
     	// Database work is executed in a transaction
-        TransactionCallable processFilesCallable = 
-            new NativeScriptDatabaseWork(filename);    
+        TransactionCallable processFilesCallable = new NativeScriptDatabaseWork(resourceEnvironment, filename);    
     	executeTask(connectionSource, processFilesCallable);
     }
     
@@ -171,7 +182,6 @@ public class DatabaseAdminImpl implements DatabaseAdmin
         if (reportedDatabaseVersion != currentDatabaseVersion)
         {   // No assistance provided by helper to trigger create/upgrade event
             // Allow custom creat/upgrade handler
-        	OpenHelperCallbacks openHelperCallbacks = getOpenHelperCallbacks(properties);
         	if (reportedDatabaseVersion == 0)
         	{
         		if (openHelperCallbacks == null)
@@ -209,30 +219,6 @@ public class DatabaseAdminImpl implements DatabaseAdmin
     }
    
     /**
-     * Returns OpenHelperCallbacks object, if defined in the PU properties
-     * @param properties Properties object
-     * @return OpenHelperCallbacks or null if not defined
-     */
-    protected OpenHelperCallbacks getOpenHelperCallbacks(Properties properties)
-    {
-        OpenHelperCallbacks openHelperCallbacks = null;
-        // Property "open-helper-callbacks-classname"
-        String openHelperCallbacksClassname = properties.getProperty(PersistenceUnitInfoImpl.CUSTOM_OHC_PROPERTY);
-        if (openHelperCallbacksClassname != null)
-        {   // Custom
-            try
-            {
-                openHelperCallbacks = (OpenHelperCallbacks) BeanUtil.newClassInstance(openHelperCallbacksClassname);
-            }
-            catch(BeanException e)
-            {
-                throw new PersistenceException(e.getMessage(), e.getCause());
-            }
-        }
-        return openHelperCallbacks;
-    }
-    
-    /**
      * Cloes input stream quietly
      * @param instream InputStream
      * @param filename Name of file being closed
@@ -249,5 +235,6 @@ public class DatabaseAdminImpl implements DatabaseAdmin
                 log.warn(TAG, "Error closing file " + filename, e);
             }
     }
+
 
 }

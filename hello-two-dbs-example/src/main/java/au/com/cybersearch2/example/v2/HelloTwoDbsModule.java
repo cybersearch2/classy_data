@@ -21,13 +21,17 @@ import dagger.Module;
 import dagger.Provides;
 import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
+import au.com.cybersearch2.classydb.ConnectionSourceFactory;
+import au.com.cybersearch2.classydb.DatabaseSupport;
 //import au.com.cybersearch2.classydb.DatabaseAdminImpl;
 //import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
+import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 //import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classytask.TaskManager;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
 //import au.com.cybersearch2.classytask.WorkerRunnable;
@@ -38,18 +42,17 @@ import au.com.cybersearch2.classytask.ThreadHelper;
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-@Module(/*injects = { 
-        WorkerRunnable.class,
-        PersistenceFactory.class,
-        NativeScriptDatabaseWork.class,
-        HelloTwoDbsMain.class, 
-        PersistenceContext.class,
-        DatabaseAdminImpl.class
-        }*/)
+@Module
 public class HelloTwoDbsModule implements ApplicationModule
 {
 	ConnectionType CONNECTION_TYPE = ConnectionType.file;
-	
+    private SQLiteDatabaseSupport sqliteDatabaseSupport;
+
+    @Provides @Singleton ConnectionType provideConnectionType()
+    {
+        return CONNECTION_TYPE;
+    }
+    
     @Provides @Singleton ThreadHelper provideSystemEnvironment()
     {
         return new TestSystemEnvironment();
@@ -60,9 +63,34 @@ public class HelloTwoDbsModule implements ApplicationModule
         return new JavaTestResourceEnvironment("src/test/resources");
     }
 
-    @Provides @Singleton PersistenceFactory providePersistenceModule()
+    @Provides @Singleton TaskManager provideTaskManager()
     {
-        return new PersistenceFactory(new SQLiteDatabaseSupport(CONNECTION_TYPE));
+        return new TaskManager();
     }
 
+    @Provides @Singleton DatabaseSupport provideDatabaseSupport(ConnectionType connectionType)
+    {
+        sqliteDatabaseSupport = new SQLiteDatabaseSupport(connectionType);
+        sqliteDatabaseSupport.registerOpenHelperCallbacks(new ComplexOpenHelperCallbacks());
+        sqliteDatabaseSupport.registerOpenHelperCallbacks(new SimpleOpenHelperCallbacks());
+        return sqliteDatabaseSupport;    
+    }
+    
+    @Provides @Singleton PersistenceFactory providePersistenceFactory(DatabaseSupport databaseSupport, ResourceEnvironment resourceEnvironment)
+    {
+         return new PersistenceFactory(databaseSupport, resourceEnvironment);
+    }
+
+    @Provides @Singleton ConnectionSourceFactory provideConnectionSourceFactory()
+    {
+        return sqliteDatabaseSupport;
+    }
+
+    // Delay PersistenceContext object creation to allow database upgrade to be demonstrated
+    @Provides @Singleton PersistenceContext providePersistenceContext(PersistenceFactory persistenceFactory, ConnectionSourceFactory connectionSourceFactory)
+    {
+        return new PersistenceContext(persistenceFactory, connectionSourceFactory, false);
+    }
+    
+    
 }

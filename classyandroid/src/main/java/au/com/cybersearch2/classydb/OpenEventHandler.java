@@ -21,7 +21,6 @@ import com.j256.ormlite.android.AndroidConnectionSource;
 import com.j256.ormlite.android.AndroidDatabaseConnection;
 import com.j256.ormlite.support.DatabaseConnection;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -50,13 +49,13 @@ public class OpenEventHandler extends SQLiteOpenHelper
      * @param databaseName The name passed in the SQLiteOpenHelper constructor
      * @param databaseVersion Schema version number
      */
-	public OpenEventHandler(OpenHelperCallbacks openHelperCallbacks, Context context, String databaseName, int databaseVersion)
+	public OpenEventHandler(AndroidSqliteParams androidSqliteParams)
 	{
-		super(context,
-                databaseName,
-                null,
-                databaseVersion);
-        this.openHelperCallbacks = openHelperCallbacks;
+		super(androidSqliteParams.getContext(),
+		       androidSqliteParams.getName(),
+		       androidSqliteParams.getFactory(),
+		       androidSqliteParams.getVersion());
+        this.openHelperCallbacks = androidSqliteParams.getOpenHelperCallbacks();
 	}
 
     /**

@@ -19,15 +19,17 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
-//import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-//import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
+import au.com.cybersearch2.classydb.ConnectionSourceFactory;
+import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
+import au.com.cybersearch2.classytask.TaskManager;
+import au.com.cybersearch2.classytask.TestSystemEnvironment;
+import au.com.cybersearch2.classytask.ThreadHelper;
 
 /**
  * ManyToManyModule
@@ -35,27 +37,51 @@ import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
  * @author Andrew Bowley
  * 23 Sep 2014
  */
-@Module(/*injects = { 
-		ManyToManyMain.class,
-        PersistenceFactory.class,
-        NativeScriptDatabaseWork.class,
-        PersistenceContext.class,
-        DatabaseAdminImpl.class
-        }*/)
+@Module
 public class ManyToManyModule implements ApplicationModule
 {
+    private ResourceEnvironment resourceEnvironment;
+    private SQLiteDatabaseSupport sqliteDatabaseSupport;
+    
+    public ManyToManyModule(ResourceEnvironment resourceEnvironment)
+    {
+        this.resourceEnvironment = resourceEnvironment;
+    }
+    
+    @Provides @Singleton ThreadHelper provideSystemEnvironment()
+    {
+        return new TestSystemEnvironment();
+    }
+   
+    @Provides @Singleton TaskManager provideTaskManager()
+    {
+        return new TaskManager();
+    }
+
     @Provides @Singleton ResourceEnvironment provideResourceEnvironment()
     {
-        return new JavaTestResourceEnvironment("src/main/resources");
+         return resourceEnvironment;
     }
 
-    @Provides @Singleton PersistenceFactory providePersistenceModule()
+    @Provides @Singleton DatabaseSupport provideDatabaseSupport()
     {
-        return new PersistenceFactory(new SQLiteDatabaseSupport(ConnectionType.memory));
+        sqliteDatabaseSupport = new SQLiteDatabaseSupport(ConnectionType.memory);
+        return sqliteDatabaseSupport;    
+    }
+    
+    @Provides @Singleton PersistenceFactory providePersistenceFactory(DatabaseSupport databaseSupport, ResourceEnvironment resourceEnvironment)
+    {
+        return new PersistenceFactory(databaseSupport, resourceEnvironment);
     }
 
-    @Provides @Singleton PersistenceContext providesPersistenceContext()
+    @Provides @Singleton ConnectionSourceFactory provideConnectionSourceFactory()
     {
-    	return new PersistenceContext();
+        return sqliteDatabaseSupport;
     }
+
+    @Provides @Singleton PersistenceContext providePersistenceContext(PersistenceFactory persistenceFactory, ConnectionSourceFactory connectionSourceFactory)
+    {
+        return new PersistenceContext(persistenceFactory, connectionSourceFactory);
+    }
+    
 }

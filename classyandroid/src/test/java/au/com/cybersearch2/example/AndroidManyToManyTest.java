@@ -15,12 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
+import au.com.cybersearch2.classytask.WorkStatus;
 
 /**
  * AndroidManyToManyTest
@@ -49,15 +51,14 @@ public class AndroidManyToManyTest
                 androidManyToMany.getPost1().id,
                 androidManyToMany.getPost2().id);
 
-        PersistenceContainer container = new PersistenceContainer("manytomany");
-        container.executeTask(postsByUserEntityTask).waitForTask();
+        assertEquals(androidManyToMany.execute(postsByUserEntityTask), WorkStatus.FINISHED);
         androidManyToMany.verifyPostsByUser(postsByUserEntityTask.getPosts());
         UsersByPostTask usersByPostTask= new UsersByPostTask(
                 androidManyToMany.getUser1().id,
                 androidManyToMany.getUser2().id,
                 androidManyToMany.getPost1().id,
                 androidManyToMany.getPost2().id);
-        container.executeTask(usersByPostTask).waitForTask();
+        assertEquals(androidManyToMany.execute(usersByPostTask), WorkStatus.FINISHED);
         androidManyToMany.verifyUsersByPost(usersByPostTask.getUsersByPost1(), usersByPostTask.getUsersByPost2());
     }
 
