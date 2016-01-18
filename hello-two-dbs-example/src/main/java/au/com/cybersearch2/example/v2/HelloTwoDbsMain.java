@@ -261,7 +261,7 @@ public class HelloTwoDbsMain
         return component.plus(persistenceWorkModule).executable();
     }
     
-    ConnectionType getConnectionType()
+    protected ConnectionType getConnectionType()
     {
         return component.connectionType();
     }

@@ -85,5 +85,9 @@ public class PersistenceWorkModule
     {
         this.isUserTransactions = isUserTransactions;
     }
- 
+
+    public PersistenceWork getPersistenceWork()
+    {
+        return persistenceWork;
+    }
 }

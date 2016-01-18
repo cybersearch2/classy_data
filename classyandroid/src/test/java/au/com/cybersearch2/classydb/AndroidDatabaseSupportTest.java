@@ -313,9 +313,9 @@ public class AndroidDatabaseSupportTest
             return null;
         }
         
-        @Override
-        public void setExtras (Bundle extras) {
-        }
+        //@Override
+        //public void setExtras (Bundle extras) {
+        //}
     }   
     static final String COLUMN_NAME = "ID";
     static final String[] COLUMN_NAMES = new String[] { COLUMN_NAME, "Description" };

@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * AsyncBackgroundTask
+ * BackgroundTask
  * @author Andrew Bowley
  * 8 Jan 2016
  */

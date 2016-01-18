@@ -17,9 +17,6 @@ package au.com.cybersearch2.example.v2;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-import java.util.Collections;
-import java.util.Properties;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +25,6 @@ import org.robolectric.RobolectricTestRunner;
 
 import com.j256.ormlite.support.ConnectionSource;
 
-import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;

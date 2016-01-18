@@ -111,7 +111,7 @@ public class AndroidHelloTwoDbs extends HelloTwoDbsMain
     }
     
     @Override
-    ConnectionType getConnectionType()
+    protected ConnectionType getConnectionType()
     {
         return component.connectionType();
     }
