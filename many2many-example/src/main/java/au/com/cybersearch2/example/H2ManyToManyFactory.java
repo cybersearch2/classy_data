@@ -18,7 +18,6 @@ package au.com.cybersearch2.example;
 import javax.inject.Singleton;
 
 import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
@@ -35,7 +34,7 @@ public class H2ManyToManyFactory
 {
     @Singleton
     @Component(modules = H2ManyToManyModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         PersistenceContext persistenceContext();
         H2PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);

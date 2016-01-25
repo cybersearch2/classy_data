@@ -23,18 +23,13 @@ import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classydb.DatabaseSupport;
-//import au.com.cybersearch2.classydb.DatabaseAdminImpl;
-//import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
-//import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TaskManager;
 import au.com.cybersearch2.classytask.TestSystemEnvironment;
 import au.com.cybersearch2.classytask.ThreadHelper;
-//import au.com.cybersearch2.classytask.WorkerRunnable;
 
 /**
  * ManyToManyModule
@@ -43,7 +38,7 @@ import au.com.cybersearch2.classytask.ThreadHelper;
  * 23 Sep 2014
  */
 @Module
-public class HelloTwoDbsModule implements ApplicationModule
+public class HelloTwoDbsModule
 {
 	ConnectionType CONNECTION_TYPE = ConnectionType.file;
     private SQLiteDatabaseSupport sqliteDatabaseSupport;

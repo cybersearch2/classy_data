@@ -34,7 +34,6 @@ import android.support.v4.content.AsyncTaskLoader;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestAndroidModule;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.transaction.EntityTransactionImpl;
@@ -51,7 +50,7 @@ public class PersistenceLoaderTest
 {
     @Singleton
     @Component(modules = TestAndroidModule.class)  
-    static interface TestComponent extends ApplicationModule
+    static interface TestComponent
     {
         PersistenceContext persistenceContext();
     }

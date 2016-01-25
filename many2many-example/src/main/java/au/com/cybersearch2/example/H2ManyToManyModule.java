@@ -22,7 +22,6 @@ import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classydb.H2DatabaseSupport;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TaskManager;
@@ -42,7 +41,7 @@ import dagger.Provides;
  * 23 Sep 2014
  */
 @Module
-public class H2ManyToManyModule implements ApplicationModule
+public class H2ManyToManyModule
 {
     private ResourceEnvironment resourceEnvironment;
     private H2DatabaseSupport h2DatabaseSupport;

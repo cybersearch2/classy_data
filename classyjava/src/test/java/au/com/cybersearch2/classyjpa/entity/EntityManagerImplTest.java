@@ -43,8 +43,6 @@ import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceConfig;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
@@ -74,7 +72,7 @@ public class EntityManagerImplTest
     @Module(/*injects = { 
             PersistenceContext.class,
             NativeScriptDatabaseWork.class }*/)
-    class ClassyEntityManagerTestModule implements ApplicationModule
+    class ClassyEntityManagerTestModule
     {
         @Provides ResourceEnvironment provideResourceEnvironment()
         {
@@ -92,7 +90,7 @@ public class EntityManagerImplTest
 
     @Singleton
     @Component(modules = ClassyEntityManagerTestModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         void inject(PersistenceContext persistenceContext);
         void inject(NativeScriptDatabaseWork nativeScriptDatabaseWork);
@@ -121,7 +119,6 @@ public class EntityManagerImplTest
                 DaggerEntityManagerImplTest_ApplicationComponent.builder()
                 .classyEntityManagerTestModule(new ClassyEntityManagerTestModule())
                 .build();
-        DI.getInstance(component);
         connectionSource = mock(ConnectionSource.class);
         helperFactoryMap = mock(Map.class);
         @SuppressWarnings("rawtypes")

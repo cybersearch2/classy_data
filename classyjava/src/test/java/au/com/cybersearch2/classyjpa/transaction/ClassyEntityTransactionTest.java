@@ -33,8 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import au.com.cybersearch2.classydb.DatabaseSupport;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 
@@ -54,7 +52,7 @@ public class ClassyEntityTransactionTest
 {
     @Module(/*injects = { 
             PersistenceContext.class }*/)
-    class ClassyEntityTransactionTestModule implements ApplicationModule
+    class ClassyEntityTransactionTestModule
     {
         @Provides @Singleton PersistenceFactory providePersistenceFactory()
         {
@@ -67,7 +65,7 @@ public class ClassyEntityTransactionTest
     
     @Singleton
     @Component(modules = ClassyEntityTransactionTestModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         void inject(PersistenceContext persistenceContext);
     }
@@ -146,7 +144,6 @@ public class ClassyEntityTransactionTest
                 DaggerClassyEntityTransactionTest_ApplicationComponent.builder()
                 .classyEntityTransactionTestModule(new ClassyEntityTransactionTestModule())
                 .build();
-        DI.getInstance(component);
         connectionSource = mock(ConnectionSource.class);
     }
     

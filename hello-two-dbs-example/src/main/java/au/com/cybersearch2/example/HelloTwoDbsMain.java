@@ -16,7 +16,6 @@ import com.j256.ormlite.table.TableUtils;
 
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
@@ -50,7 +49,7 @@ public class HelloTwoDbsMain
 {
     @Singleton
     @Component(modules = HelloTwoDbsModule.class)
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         PersistenceContext persistenceContext();
         ConnectionType connectionType();

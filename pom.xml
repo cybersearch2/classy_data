@@ -10,11 +10,12 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
-    <android.platform.version>22</android.platform.version>
+    <android.plugin.version>4.3.0</android.plugin.version>
+    <android.platform.version>23</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>5.1.1_r2</android.sdk.version>
+    <android.sdk.version>6.0.0_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
-    <android.support.version>22.2.1</android.support.version>
+    <android.support.version>23.1.1</android.support.version>
     <robolectric.version>3.0</robolectric.version>
     <ormlite.version>4.49-SNAPSHOT</ormlite.version>
     <!--<dagger.version>1.2.2</dagger.version>-->
@@ -75,7 +76,13 @@
     <module>classyandroid</module>
   </modules>
   <dependencyManagement>
-    <dependencies>
+	<dependencies>
+        <dependency>
+          <groupId>android</groupId>
+          <artifactId>android</artifactId>
+          <version>${android.sdk.version}</version>
+          <scope>provided</scope>
+        </dependency>  
         <dependency>
           <groupId>com.googlecode.openbeans</groupId>
           <artifactId>openbeans</artifactId>
@@ -248,49 +255,51 @@
                   <version>1.2.1</version>
                 </plugin>
                 <plugin>
-                  <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                  <groupId>com.simpligility.maven.plugins</groupId>
                   <artifactId>android-maven-plugin</artifactId>
-        		  <version>${android.plugin.version}</version>
+                  <version>${android.plugin.version}</version>
                   <configuration>
+                    <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
+                    <assetsDirectory>${project.basedir}/assets</assetsDirectory>
+                    <resourceDirectory>${project.basedir}/res</resourceDirectory>
+                    <nativeLibrariesDirectory>${project.basedir}/libs</nativeLibrariesDirectory>
                     <sdk>
                       <platform>${android.platform.version}</platform>
                     </sdk>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
+                    <disableConflictingDependenciesWarning>true</disableConflictingDependenciesWarning>
                   </configuration>
                   <extensions>true</extensions>
                 </plugin>
           		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-          		<plugin>
-          			<groupId>org.eclipse.m2e</groupId>
-          			<artifactId>lifecycle-mapping</artifactId>
-          			<version>1.0.0</version>
-          			<configuration>
-          				<lifecycleMappingMetadata>
-          					<pluginExecutions>
-          						<pluginExecution>
-          							<pluginExecutionFilter>
-          								<groupId>
-          									com.jayway.maven.plugins.android.generation2
-          								</groupId>
-          								<artifactId>
-          									android-maven-plugin
-          								</artifactId>
-          								<versionRange>
-          									[4.0.0-rc.2,)
-          								</versionRange>
-          								<goals>
-          									<goal>generate-sources</goal>
-          									<goal>proguard</goal>
-          								</goals>
-          							</pluginExecutionFilter>
-          							<action>
-          								<ignore />
-          							</action>
-          						</pluginExecution>
-          					</pluginExecutions>
-          				</lifecycleMappingMetadata>
-          			</configuration>
-          		</plugin>
+    	  		<plugin>
+    	  			<groupId>org.eclipse.m2e</groupId>
+    	  			<artifactId>lifecycle-mapping</artifactId>
+    	  			<version>1.0.0</version>
+    	  			<configuration>
+    	  				<lifecycleMappingMetadata>
+    	  					<pluginExecutions>
+    	  						<pluginExecution>
+    	  							<pluginExecutionFilter>
+    	  								<groupId>com.simpligility.maven.plugins</groupId>
+    	  								<artifactId>
+    	  									android-maven-plugin
+    	  								</artifactId>
+    	  								<versionRange>
+    	  									[4.0.0-rc.2,)
+    	  								</versionRange>
+    	  								<goals>
+    	  									<goal>copy-dependencies</goal>
+    	  								</goals>
+    	  							</pluginExecutionFilter>
+    	  							<action>
+    	  								<ignore />
+    	  							</action>
+    	  						</pluginExecution>
+    	  					</pluginExecutions>
+    	  				</lifecycleMappingMetadata>
+    	  			</configuration>
+    	  		</plugin>
             </plugins>
  	    </pluginManagement>
     </build>

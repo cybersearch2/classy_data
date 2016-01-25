@@ -34,8 +34,7 @@ import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classynode.Node;
 import au.com.cybersearch2.classynode.NodeEntity;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
-import au.com.cybersearch2.classyinject.ApplicationModule;
-import au.com.cybersearch2.classyinject.DI;
+
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
@@ -64,7 +63,7 @@ public class JpaIntegrationTest
 {
     @Singleton
     @Component(modules = TestClassyApplicationModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         PersistenceContext persistenceContext();
         PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);
@@ -109,7 +108,6 @@ public class JpaIntegrationTest
                 DaggerJpaIntegrationTest_ApplicationComponent.builder()
                 .testClassyApplicationModule(new TestClassyApplicationModule(new JavaTestResourceEnvironment()))
                 .build();
-        DI.getInstance(component).validate();
         return component;
 	}
 

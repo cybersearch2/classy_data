@@ -44,7 +44,7 @@ import au.com.cybersearch2.classyapp.TestResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
-import au.com.cybersearch2.classyinject.ApplicationModule;
+
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
@@ -75,7 +75,7 @@ public class AndroidJpaIntegrationTest
 {
     @Singleton
     @Component(modules = TestAndroidModule.class)  
-    static interface TestComponent extends ApplicationModule
+    static interface TestComponent
     {
         PersistenceContext persistenceContext();
         PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);

@@ -25,7 +25,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
@@ -42,7 +41,7 @@ public class AndroidManyToManyFactory
 {
     @Singleton
     @Component(modules = AndroidManyToManyModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         PersistenceContext persistenceContext();
         PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);

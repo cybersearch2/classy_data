@@ -17,7 +17,6 @@ package au.com.cybersearch2.classyjpa.entity;
 
 import android.content.Context;
 import android.support.v4.content.Loader;
-import au.com.cybersearch2.classyapp.ApplicationContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classytask.AsyncBackgroundTask;
 import au.com.cybersearch2.classytask.Executable;

@@ -15,10 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyfts;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import au.com.cybersearch2.classyapp.ApplicationContext;
 
 /**
  * FtsOpenHelper
@@ -38,11 +38,10 @@ public class FtsOpenHelper
      * Create an FtsOpenHelper object
      * @param databaseOpenHelper Open helper for the database being searched
      */
-    public FtsOpenHelper(SQLiteOpenHelper databaseOpenHelper)
+    public FtsOpenHelper(Context context, SQLiteOpenHelper databaseOpenHelper)
     {
         this.databaseOpenHelper = databaseOpenHelper;
-        ApplicationContext applicationContext = new ApplicationContext();
-        dictionaryOpenHelper = new DictionaryOpenHelper(applicationContext.getContext());
+        dictionaryOpenHelper = new DictionaryOpenHelper(context);
     }
 
 

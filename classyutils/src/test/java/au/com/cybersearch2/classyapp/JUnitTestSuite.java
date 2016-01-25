@@ -20,8 +20,6 @@ import org.junit.runners.Suite;
 
 import au.com.cybersearch2.classybean.BeanMapTest;
 import au.com.cybersearch2.classybean.BeanUtilTest;
-import au.com.cybersearch2.classyinject.DI_Test;
-import au.com.cybersearch2.classyinject.ObjectGraphManagerTest;
 
 /**
  * JUnitTestSuite
@@ -31,9 +29,7 @@ import au.com.cybersearch2.classyinject.ObjectGraphManagerTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     BeanMapTest.class,
-    BeanUtilTest.class,
-    DI_Test.class,
-    ObjectGraphManagerTest.class
+    BeanUtilTest.class
 })
 public class JUnitTestSuite 
 {   

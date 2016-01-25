@@ -21,7 +21,7 @@ import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
 import au.com.cybersearch2.classydb.SQLiteDatabaseSupport;
-import au.com.cybersearch2.classyinject.ApplicationModule;
+
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TaskManager;
@@ -36,7 +36,7 @@ import dagger.Provides;
  * 13/06/2014
  */
 @Module
-public class TestClassyApplicationModule implements ApplicationModule
+public class TestClassyApplicationModule
 {
     private ResourceEnvironment resourceEnvironment;
     private SQLiteDatabaseSupport sqliteDatabaseSupport;

@@ -24,7 +24,6 @@ import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
 import au.com.cybersearch2.classydb.AndroidSqliteParams;
 import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classydb.OpenEventHandler;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TaskManager;
@@ -40,7 +39,7 @@ import dagger.Provides;
  * 23 Sep 2014
  */
 @Module
-public class AndroidManyToManyModule implements ApplicationModule
+public class AndroidManyToManyModule
 {
     private Context context;
     private String puName;

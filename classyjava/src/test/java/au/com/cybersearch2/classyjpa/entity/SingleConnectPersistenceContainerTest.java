@@ -36,7 +36,6 @@ import org.junit.Test;
 import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.persist.Persistence;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
@@ -66,7 +65,7 @@ import dagger.Subcomponent;
 public class SingleConnectPersistenceContainerTest
 {
     @Module
-    public static class PersistenceContainerTestModule implements ApplicationModule
+    public static class PersistenceContainerTestModule
     {
         @Provides @Singleton ThreadHelper provideSystemEnvironment()
         {
@@ -102,7 +101,7 @@ public class SingleConnectPersistenceContainerTest
 
     @Singleton
     @Component(modules = PersistenceContainerTestModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         PersistenceContext persistenceContext();
         PersistenceWorkSubcontext plus(PersistenceWorkModule persistenceWorkModule);

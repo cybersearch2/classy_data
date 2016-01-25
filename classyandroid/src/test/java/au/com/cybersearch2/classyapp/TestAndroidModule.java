@@ -23,7 +23,6 @@ import au.com.cybersearch2.classydb.AndroidDatabaseSupport;
 import au.com.cybersearch2.classydb.AndroidSqliteParams;
 import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classydb.OpenEventHandler;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 import au.com.cybersearch2.classytask.TaskManager;
@@ -38,7 +37,7 @@ import dagger.Provides;
  * 20/06/2014
  */
 @Module
-public class TestAndroidModule implements ApplicationModule
+public class TestAndroidModule
 {
     private String puName;
     private ResourceEnvironment resourceEnvironment;

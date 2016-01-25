@@ -10,7 +10,6 @@ import javax.inject.Singleton;
 
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
@@ -35,7 +34,7 @@ public class HelloTwoDbsMain
     @Singleton
     @Component(modules = HelloTwoDbsModule.class)
     public  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         PersistenceFactory persistenceFactory();
         PersistenceContext persistenceContext();

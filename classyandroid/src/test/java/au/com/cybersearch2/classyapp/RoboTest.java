@@ -31,7 +31,6 @@ import com.j256.ormlite.db.SqliteAndroidDatabaseType;
 import com.j256.ormlite.support.ConnectionSource;
 
 import android.content.Context;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import dagger.Component;
 
@@ -45,7 +44,7 @@ public class RoboTest
 {
     @Singleton
     @Component(modules = TestAndroidModule.class)  
-    static interface TestComponent extends ApplicationModule
+    static interface TestComponent
     {
         PersistenceContext persistenceContext();
     }

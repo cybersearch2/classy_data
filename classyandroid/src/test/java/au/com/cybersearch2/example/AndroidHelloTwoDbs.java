@@ -27,7 +27,6 @@ import android.content.Context;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classydb.DatabaseSupport.ConnectionType;
-import au.com.cybersearch2.classyinject.ApplicationModule;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
@@ -44,7 +43,7 @@ public class AndroidHelloTwoDbs extends HelloTwoDbsMain
 {
     @Singleton
     @Component(modules = AndroidHelloTwoDbsModule.class)  
-    static interface ApplicationComponent extends ApplicationModule
+    static interface ApplicationComponent
     {
         PersistenceContext persistenceContext();
         ConnectionType connectionType();

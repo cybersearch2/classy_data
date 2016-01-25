@@ -34,7 +34,6 @@ import dagger.Provides;
 import static org.fest.assertions.api.Assertions.*;
 import au.com.cybersearch2.classybean.BeanUtil.DataPair;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
-import au.com.cybersearch2.classyinject.DependencyProvider;
 
 /**
  * BeanUtilTest
@@ -44,7 +43,7 @@ import au.com.cybersearch2.classyinject.DependencyProvider;
 public class BeanUtilTest
 {
     @Module(/*injects = Injectee.class*/)
-    static class TestModule2 implements DependencyProvider<Injectee>
+    static class TestModule2
     {
         @Provides
         Object provideObject() 
@@ -106,8 +105,7 @@ public class BeanUtilTest
     @Test
     public void test_newClassInstance()
     {
-        @SuppressWarnings("unchecked")
-        DependencyProvider<Injectee> module = (DependencyProvider<Injectee>) BeanUtil.newClassInstance(TestModule2.class.getName());
+        Object module = BeanUtil.newClassInstance(TestModule2.class.getName());
         assertThat(module).isNotNull();
         String badClassName = TestModule2.class.getName()+"X";
         try
