@@ -14,7 +14,7 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.entity.PersistenceTask;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceUnitAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
@@ -61,7 +61,7 @@ public class HelloTwoDbsMain
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
 	protected boolean applicationInitialized;
 
-    /** Factory object to create "simple" and "complex" Persistence Unit implementations */
+    /** Factory object to create "simple" and "complex" PersistenceUnitAdmin Unit implementations */
     protected ApplicationComponent component;
     protected PersistenceWorkModule persistenceWorkModule;
     protected PersistenceContext persistenceContext;
@@ -161,7 +161,7 @@ public class HelloTwoDbsMain
         {
         	for (String puName: puNames)
         	{
-        		Persistence pu = persistenceContext.getPersistenceUnit(puName);
+        		PersistenceUnitAdmin pu = persistenceContext.getPersistenceUnit(puName);
         		if (pu != null)
         			pu.getPersistenceAdmin().close();
         	}
@@ -194,7 +194,7 @@ public class HelloTwoDbsMain
     
     /**
      * Launch persistence work to run in background thread
-     * @param puName Persistence Unit name
+     * @param puName PersistenceUnitAdmin Unit name
      * @param persistenceTask PersistenceTask object
      * @return Executable object to signal completion of task
      * @throws InterruptedException
@@ -232,7 +232,7 @@ public class HelloTwoDbsMain
 
     /**
      * Launch persistence work to run in background thread and wait for completion
-     * @param puName Persistence Unit name
+     * @param puName PersistenceUnitAdmin Unit name
      * @param persistenceTask PersistenceTask object
      * @throws InterruptedException
      */

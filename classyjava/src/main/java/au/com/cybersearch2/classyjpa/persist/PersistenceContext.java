@@ -58,17 +58,17 @@ public class PersistenceContext
 
     /**
      * Returns persistence unit implementation, specified by name
-     * @param puName Persistence unit name
-     * @return Persistence
+     * @param puName PersistenceUnitAdmin unit name
+     * @return PersistenceUnitAdmin
      */
-    public Persistence getPersistenceUnit(String puName)
+    public PersistenceUnitAdmin getPersistenceUnit(String puName)
     {
         return persistenceFactory.getPersistenceUnit(puName);
     }
 
     /**
-     * Returns Database-specific admin object for specified Persistence unit name
-     * @param puName Persistence unit name
+     * Returns Database-specific admin object for specified PersistenceUnitAdmin unit name
+     * @param puName PersistenceUnitAdmin unit name
      * @return DatabaseAdmin
      */
     public DatabaseAdmin getDatabaseAdmin(String puName) 
@@ -77,8 +77,8 @@ public class PersistenceContext
     }
 
     /**
-     * Returns JPA admin object for specified Persistence unit name
-     * @param puName Persistence unit name
+     * Returns JPA admin object for specified PersistenceUnitAdmin unit name
+     * @param puName PersistenceUnitAdmin unit name
      * @return PersistenceAdmin
      */
     public PersistenceAdmin getPersistenceAdmin(String puName) 

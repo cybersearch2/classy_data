@@ -63,7 +63,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     protected EntityTransaction entityTransaction;
     /** Connection Source to use for all database connections */
     protected final ConnectionSource connectionSource;
-    /** Persistence Unit configuration */
+    /** PersistenceUnitAdmin Unit configuration */
     protected final PersistenceConfig persistenceConfig;
     /** Callback to complete transaction management prior to commit */
     protected final OnTransactionPreCommitCallback onTransactionPreCommitCallback;
@@ -75,7 +75,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     /**
      * Create ClassyEntityManager object
      * @param connectionSource Source of all database connections
-     * @param persistenceConfig Persistence Unit configuration
+     * @param persistenceConfig PersistenceUnitAdmin Unit configuration
      */
     public EntityManagerImpl(
             ConnectionSource connectionSource, 
@@ -216,7 +216,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
     }
 
     /**
-     * Javax Persistence: "Get an instance, whose state may be lazily fetched".
+     * Javax PersistenceUnitAdmin: "Get an instance, whose state may be lazily fetched".
      * This implementation is just an alias for find()
      * If the requested instance does not exist in the database,
      * throws {@link EntityNotFoundException} when the instance state is
@@ -379,7 +379,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
 
     /**
     * Returns EntityManagerDelegate object which provides access to OrmLite DAOs.
-    * Return type of Object complies with Persistence API. Use cast to access the returned object as EntityManagerDelegate type.
+    * Return type of Object complies with PersistenceUnitAdmin API. Use cast to access the returned object as EntityManagerDelegate type.
     * @return Object 
     * @throws IllegalStateException if this EntityManager has been closed.
     */
@@ -442,7 +442,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
      * Returns ORMLite DAO helper for specified class 
      * @param clazz Entity class
      * @return OrmDaoHelper
-     * @throws IllegalStateException if class is unknown to the current Persistence Unit.
+     * @throws IllegalStateException if class is unknown to the current PersistenceUnitAdmin Unit.
      */
     private OrmDaoHelper<?,?> getOrmDaoHelperForClass(Class<?> clazz)
     {
@@ -453,7 +453,7 @@ public class EntityManagerImpl implements EntityManagerLite, UserTransactionSupp
      * Returns ORMLite DAO helper for specified class 
      * @param clazz Entity class
      * @return OrmDaoHelper
-     * @throws IllegalStateException if class is unknown to the current Persistence Unit.
+     * @throws IllegalStateException if class is unknown to the current PersistenceUnitAdmin Unit.
      */
     private OrmDaoHelperFactory<?,?> getOrmDaoHelperFactoryForClass(Class<?> clazz)
     {

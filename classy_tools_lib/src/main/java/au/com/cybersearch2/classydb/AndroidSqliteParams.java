@@ -17,7 +17,7 @@ package au.com.cybersearch2.classydb;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceUnitAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
 
@@ -43,8 +43,8 @@ public class AndroidSqliteParams
     public AndroidSqliteParams(Context context, String puName, PersistenceFactory persistenceFactory)
     {
         this.context = context;
-        Persistence persistenceUnit = persistenceFactory.getPersistenceUnit(puName);
-        DatabaseAdmin databaseAdmin = persistenceUnit.getDatabaseAdmin();
+        PersistenceUnitAdmin persistenceUnitAdmin = persistenceFactory.getPersistenceUnit(puName);
+        DatabaseAdmin databaseAdmin = persistenceUnitAdmin.getDatabaseAdmin();
         if (databaseAdmin != null)
             openHelperCallbacks = databaseAdmin.getCustomOpenHelperCallbacks();
         if (openHelperCallbacks == null)
@@ -53,7 +53,7 @@ public class AndroidSqliteParams
             openHelperCallbacks.setDatabaseAdmin(databaseAdmin);
             openHelperCallbacks.setPersistenceAdmin(persistenceAdmin);
         }
-        persistenceAdmin = persistenceUnit.getPersistenceAdmin();
+        persistenceAdmin = persistenceUnitAdmin.getPersistenceAdmin();
         name = persistenceAdmin.getDatabaseName();
         version = persistenceAdmin.getDatabaseVersion();
     }

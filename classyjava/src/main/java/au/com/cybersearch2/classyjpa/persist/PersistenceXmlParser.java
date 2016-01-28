@@ -79,7 +79,7 @@ public class PersistenceXmlParser
                 else if (eventType == XmlPullParser.START_TAG) 
                 {
                     if ("persistence-unit".equals(xpp.getName()))
-                    {   // Persistence unit element
+                    {   // PersistenceUnitAdmin unit element
                         String name = getAttribute("name");
                         if (name != null)
                             result.put(name, parsePersistenceUnit(name));
@@ -111,7 +111,7 @@ public class PersistenceXmlParser
 
     /**
      * Returns persistence unit data
-     * @param puName Persistence unit name
+     * @param puName PersistenceUnitAdmin unit name
      * @return PersistenceUnitInfo
      * @throws XmlPullParserException
      * @throws IOException
@@ -123,7 +123,7 @@ public class PersistenceXmlParser
         while (eventType != XmlPullParser.END_DOCUMENT) 
         {
             if (eventType == XmlPullParser.END_TAG) 
-            {   // Persistence unit end element 
+            {   // PersistenceUnitAdmin unit end element 
                 if ("persistence-unit".equals(xpp.getName()))
                     return pu;
             } 

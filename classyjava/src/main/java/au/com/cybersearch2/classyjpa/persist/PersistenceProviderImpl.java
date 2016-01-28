@@ -30,17 +30,17 @@ import au.com.cybersearch2.classyjpa.PersistenceProvider;
  */
 public class PersistenceProviderImpl implements PersistenceProvider
 {
-    /** Persistence Unit configuration information */
+    /** PersistenceUnitAdmin Unit configuration information */
     protected PersistenceConfig persistenceConfig;
     /** Connection source factory */
     protected ConnectionSourceFactory connectionSourceFactory;
-    /** Persistence Unit name */
+    /** PersistenceUnitAdmin Unit name */
     public final String puName;
 
     /**
      * Create PersistenceProviderImpl object
-     * @param puName Persistence unit name
-     * @param persistenceConfig Persistence configuration
+     * @param puName PersistenceUnitAdmin unit name
+     * @param persistenceConfig PersistenceUnitAdmin configuration
      * @param connectionSourceFactory Database connection provider object
      */
     public PersistenceProviderImpl(
@@ -54,7 +54,7 @@ public class PersistenceProviderImpl implements PersistenceProvider
     }
 
     /**
-     * Called by Persistence class when an EntityManagerFactory is to be created.
+     * Called by PersistenceUnitAdmin class when an EntityManagerFactory is to be created.
      * 
      * @param emName
      *            The name of the persistence unit

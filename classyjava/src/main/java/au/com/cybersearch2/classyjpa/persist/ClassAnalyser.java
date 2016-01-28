@@ -103,7 +103,7 @@ public class ClassAnalyser
 
     /**
      * Returns a list of database table configurations for specified list of class names
-     * @param managedClassNames List of class names representing all entities within a single Persistence Unit
+     * @param managedClassNames List of class names representing all entities within a single PersistenceUnitAdmin Unit
      * @return List of DatabaseTableConfig
      */
     protected List<DatabaseTableConfig<?>> getDatabaseTableConfigList(List<String> managedClassNames)

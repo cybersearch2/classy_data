@@ -6,4 +6,8 @@
 /target/
 /libs/
 /test-libs/
+/eclipse-aar/
 /pom.xml.*
+AndroidManifest.xml
+/res/
+/assets/

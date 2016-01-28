@@ -19,7 +19,7 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 
 /**
  * PersistenceWork
- * Interface for execution of work in a Persistence context. 
+ * Interface for execution of work in a PersistenceUnitAdmin context. 
  * @see PersistenceContainer
  * @author Andrew Bowley
  * 28/06/2014

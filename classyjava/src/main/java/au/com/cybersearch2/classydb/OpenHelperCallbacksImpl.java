@@ -46,7 +46,7 @@ public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
     
     /**
      * Create ClassyOpenHelperCallbacks object
-     * @param puName Persistence Unit name
+     * @param puName PersistenceUnitAdmin Unit name
      */
     public OpenHelperCallbacksImpl(String puName)
     {
@@ -117,7 +117,7 @@ public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
     {
         if (persistenceAdmin == null)
             throw new IllegalStateException(getClass().getName() + " not initialized");
-        // Persistence work required for JavaPersistenceContext, but only doTask() is relevant
+        // PersistenceUnitAdmin work required for JavaPersistenceContext, but only doTask() is relevant
         // as work is performed on caller's thread
         PersistenceWork persistenceWork = new PersistenceWork(){
 

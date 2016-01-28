@@ -34,7 +34,7 @@ public class EntityManagerFactoryImpl implements EntityManagerLiteFactory
 {
     /** Database connection provider */
     protected ConnectionSource connectionSource;
-    /** Persistence Unit configuration information */
+    /** PersistenceUnitAdmin Unit configuration information */
     protected PersistenceConfig persistenceConfig; 
     /** Flag to track if open */
     private volatile boolean isOpen;
@@ -42,7 +42,7 @@ public class EntityManagerFactoryImpl implements EntityManagerLiteFactory
     /**
      * Create an EntityManagerFactoryImpl object
      * @param connectionSource Database connection provider
-     * @param persistenceConfig Persistence Unit configuration information
+     * @param persistenceConfig PersistenceUnitAdmin Unit configuration information
      */
     public EntityManagerFactoryImpl(ConnectionSource connectionSource, PersistenceConfig persistenceConfig)
     {

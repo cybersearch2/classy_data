@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Interface used to interact with the entity manager factory for the persistence unit.
- * Only Persistence API 1.0 methods supported
+ * Only PersistenceUnitAdmin API 1.0 methods supported
  */
 public interface EntityManagerLiteFactory {
 

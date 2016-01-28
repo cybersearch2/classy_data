@@ -57,9 +57,9 @@ public class PersistenceAdminImpl implements PersistenceAdmin
     
     /**
      * Create PersistenceAdminImpl object
-     * @param puName Persistence Unit (PU) name
+     * @param puName PersistenceUnitAdmin Unit (PU) name
      * @param databaseSupport Native support
-     * @param config Persistence Unit configuration
+     * @param config PersistenceUnitAdmin Unit configuration
      */
     public PersistenceAdminImpl(String puName, DatabaseSupport databaseSupport, PersistenceConfig config)
     {

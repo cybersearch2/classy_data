@@ -7,7 +7,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 /**
  * Interface implemented by the persistence provider.
  * 
- * It is invoked by the container in Java EE environments and by the Persistence class in Java SE environments to create an
+ * It is invoked by the container in Java EE environments and by the PersistenceUnitAdmin class in Java SE environments to create an
  * EntityManagerFactory.
  */
 public interface PersistenceProvider 
@@ -27,7 +27,7 @@ public interface PersistenceProvider
 	public EntityManagerLiteFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map<?, ?> map);
 
 	/**
-	 * Called by Persistence class when an EntityManagerFactory is to be created.
+	 * Called by PersistenceUnitAdmin class when an EntityManagerFactory is to be created.
 	 * 
 	 * @param emName
 	 *            the name of the persistence unit

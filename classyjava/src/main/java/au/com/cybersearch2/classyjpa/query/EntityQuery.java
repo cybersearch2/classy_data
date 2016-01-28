@@ -31,7 +31,7 @@ import au.com.cybersearch2.classylog.*;
 
 /**
  * EntityQuery
- * Implements javax.persistence.Query using OrmLite query. Only a subset of Persistence API 1.0 methods supported.
+ * Implements javax.persistence.Query using OrmLite query. Only a subset of PersistenceUnitAdmin API 1.0 methods supported.
  * @author Andrew Bowley
  * 13/05/2014
  */

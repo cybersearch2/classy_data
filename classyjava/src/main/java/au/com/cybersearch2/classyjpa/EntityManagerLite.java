@@ -7,7 +7,7 @@ import javax.persistence.Query;
 
 /**
  * Interface used to interact with the persistence context and to create executable query objects.
- * Only a subset of Persistence API 1.0 methods supported, except generic version selected 
+ * Only a subset of PersistenceUnitAdmin API 1.0 methods supported, except generic version selected 
  * over non-generic when applicable. In particular, LockMode is not supported.
  */
 public interface EntityManagerLite 
@@ -45,7 +45,7 @@ public interface EntityManagerLite
 	public boolean contains(Object entity);
 
 	/**
-	 * Create an instance of Query for executing a named query (in the Java Persistence query language or in native SQL).
+	 * Create an instance of Query for executing a named query (in the Java PersistenceUnitAdmin query language or in native SQL).
 	 * 
 	 * @param name
 	 *            the name of a query defined in metadata
@@ -67,7 +67,7 @@ public interface EntityManagerLite
 
 	/**
     * Returns EntityManagerDelegate object which provides access to OrmLite DAOs.
-    * Return type of Object complies with Persistence API. Use cast to access the returned object as EntityManagerDelegate type.
+    * Return type of Object complies with PersistenceUnitAdmin API. Use cast to access the returned object as EntityManagerDelegate type.
     * @return Object 
     * @throws IllegalStateException 
     *              if this EntityManager has been closed.
@@ -231,7 +231,7 @@ public interface EntityManagerLite
 	public void lock(Object entity, LockModeType lockMode);
 
 	/*
-	 * The following commented-out methods are from Persistence API 2.0 which which may be implemented in the future.
+	 * The following commented-out methods are from PersistenceUnitAdmin API 2.0 which which may be implemented in the future.
 	 */
 	
 	/**
@@ -515,7 +515,7 @@ public interface EntityManagerLite
 	//public void refresh(Object entity, Map<String, Object> properties);
 
 	/**
-	 * Create an instance of TypedQuery for executing a Java Persistence query language named query. The select list of the query must
+	 * Create an instance of TypedQuery for executing a Java PersistenceUnitAdmin query language named query. The select list of the query must
 	 * contain only a single item, which must be assignable to the type specified by the resultClass argument.[27]
 	 * 
 	 * @param name
@@ -579,10 +579,10 @@ public interface EntityManagerLite
 	//public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery);
 
 	/**
-	 * Create an instance of Query for executing a Java Persistence query language statement.
+	 * Create an instance of Query for executing a Java PersistenceUnitAdmin query language statement.
 	 * 
 	 * @param qlString
-	 *            a Java Persistence query string
+	 *            a Java PersistenceUnitAdmin query string
 	 * @return the new query instance
 	 * @throws IllegalArgumentException
 	 *             if the query string is found to be invalid
@@ -590,11 +590,11 @@ public interface EntityManagerLite
 	//public Query createQuery(String qlString);
 
 	/**
-	 * Create an instance of TypedQuery for executing a Java Persistence query language statement. The select list of the query must contain
+	 * Create an instance of TypedQuery for executing a Java PersistenceUnitAdmin query language statement. The select list of the query must contain
 	 * only a single item, which must be assignable to the type specified by the resultClass argument.[26]
 	 * 
 	 * @param qlString
-	 *            a Java Persistence query string
+	 *            a Java PersistenceUnitAdmin query string
 	 * @param resultClass
 	 *            the type of the query result
 	 * @param <T>

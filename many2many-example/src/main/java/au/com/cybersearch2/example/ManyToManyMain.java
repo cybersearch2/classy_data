@@ -44,7 +44,7 @@ public class ManyToManyMain
     static public final String POSTS_BY_USER = "posts_by_user";
     /** Named query to find all users associated with a post identified by ID */
     static public final String USERS_BY_POST = "users_by_post";
-    /** Persistence Unit name to look up configuration details in persistence.xml */
+    /** PersistenceUnitAdmin Unit name to look up configuration details in persistence.xml */
     static public final String PU_NAME = "manytomany";
 
     /** Bilbo Baggins */
@@ -55,7 +55,7 @@ public class ManyToManyMain
     Post post1;
     /** Now it's a bit warmer thank goodness. */
     Post post2;
-    /** Factory object to create "manytomany" Persistence Unit implementation */
+    /** Factory object to create "manytomany" PersistenceUnitAdmin Unit implementation */
     protected PersistenceContext persistenceContext;
     protected ManyToManyFactory manyToManyFactory;
 
@@ -97,7 +97,7 @@ public class ManyToManyMain
      */
     public void setUp() throws InterruptedException
     {
-        // Persistence work adds 2 users and 2 posts to the database using JPA.
+        // PersistenceUnitAdmin work adds 2 users and 2 posts to the database using JPA.
         // Hence there will be an enclosing transaction to ensure data consistency.
         // Any failure will result in an IllegalStateExeception being thrown from
         // the calling thread.

@@ -58,7 +58,7 @@ public class JavaPersistenceContext
 
     /**
      * Construct JavaPersistenceContext object
-     * @param persistenceWork Work to be performed in Java Persistence context
+     * @param persistenceWork Work to be performed in Java PersistenceUnitAdmin context
      * @param entityManagerFactory EntityManager factory
      */
     public JavaPersistenceContext(PersistenceWork persistenceWork, EntityManagerProvider entityManagerProvider)
@@ -248,7 +248,7 @@ public class JavaPersistenceContext
         if (rollbackException != null)
         {
             persistenceWork.onRollback(rollbackException);
-            log.error(TAG, "Persistence container rolled back transaction", rollbackException);
+            log.error(TAG, "PersistenceUnitAdmin container rolled back transaction", rollbackException);
         }
         else
             persistenceWork.onPostExecute(success);
@@ -298,13 +298,13 @@ public class JavaPersistenceContext
                 if (success && transaction.isActive() && transaction.getRollbackOnly())
                     setRollbackOnly = true;
                 entityManager.close();
-            } // Persistence exception may be thrown on commit or rollback. Just log it.
+            } // PersistenceUnitAdmin exception may be thrown on commit or rollback. Just log it.
             catch (PersistenceException e)
             {   // Ensure onRollback() is called on PersistenceWork object
                 if (rollbackException == null)
                     transactionInfo.setRollbackException(e);
                 setRollbackOnly = true;
-                log.error(TAG, "Persistence error on commit", e);
+                log.error(TAG, "PersistenceUnitAdmin error on commit", e);
             }
         }
         return setRollbackOnly;

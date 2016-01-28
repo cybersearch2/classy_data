@@ -75,7 +75,7 @@ public class HelloTwoDbsMain
     private final static Map<String, Log> logMap;
 	public static final Object SEPARATOR_LINE = "------------------------------------------\n"; 
 
-    /** Factory object to create "simple" and "complex" Persistence Unit implementations */
+    /** Factory object to create "simple" and "complex" PersistenceUnitAdmin Unit implementations */
     protected ApplicationComponent component;
     protected PersistenceWorkModule persistenceWorkModule;
     protected boolean testInMemory;
@@ -210,7 +210,7 @@ public class HelloTwoDbsMain
     
     /**
      * Launch persistence work to run in background thread
-     * @param puName Persistence Unit name
+     * @param puName PersistenceUnitAdmin Unit name
      * @param persistenceTask PersistenceTask object
      * @return Executable object to signal completion of task
      * @throws InterruptedException
@@ -248,7 +248,7 @@ public class HelloTwoDbsMain
 
     /**
      * Launch persistence work to run in background thread and wait for completion
-     * @param puName Persistence Unit name
+     * @param puName PersistenceUnitAdmin Unit name
      * @param persistenceTask PersistenceTask object
      * @throws InterruptedException
      */
@@ -312,7 +312,7 @@ public class HelloTwoDbsMain
 	 */
 	public void clearDatabaseTables() throws InterruptedException
 	{
-        // Persistence task clears Simple table the helloTwoDb1.db database using JPA. 
+        // PersistenceUnitAdmin task clears Simple table the helloTwoDb1.db database using JPA. 
 		performPersistenceWork(PU_NAME1, new PersistenceTask(){
 
 			@Override
@@ -332,7 +332,7 @@ public class HelloTwoDbsMain
 				}
                 logMessage(PU_NAME1, "Cleared table \"Simple\"");
 			}});
-    	// Persistence task drops then creates Complex table in the helloTwoDb2.db database using JPA.
+    	// PersistenceUnitAdmin task drops then creates Complex table in the helloTwoDb2.db database using JPA.
 		performPersistenceWork(PU_NAME2, new PersistenceTask(){
 
 			@Override
@@ -356,7 +356,7 @@ public class HelloTwoDbsMain
 	
 	public void dropDatabaseTables() throws InterruptedException
 	{
-        // Persistence task clears Simple table the helloTwoDb1.db database using JPA. 
+        // PersistenceUnitAdmin task clears Simple table the helloTwoDb1.db database using JPA. 
 		performPersistenceWork(PU_NAME1, new PersistenceTask(){
 
 			@Override
@@ -377,7 +377,7 @@ public class HelloTwoDbsMain
                 logMessage(PU_NAME1, "Dropped table \"Simple\"");
 			}});
 		dropDatabaseVersionTable(PU_NAME1);
-    	// Persistence task drops then creates Complex table in the helloTwoDb2.db database using JPA.
+    	// PersistenceUnitAdmin task drops then creates Complex table in the helloTwoDb2.db database using JPA.
 		performPersistenceWork(PU_NAME2, new PersistenceTask(){
 
 			@Override
@@ -439,7 +439,7 @@ public class HelloTwoDbsMain
 	 */
 	public void populateDatabases() throws InterruptedException
 	{
-        // Persistence task adds 2 SimpleData entity objects to the helloTwoDb1.db database using JPA. 
+        // PersistenceUnitAdmin task adds 2 SimpleData entity objects to the helloTwoDb1.db database using JPA. 
 		performPersistenceWork(PU_NAME1, new PersistenceTask(){
 
 			@Override
@@ -453,7 +453,7 @@ public class HelloTwoDbsMain
                 entityManager.persist(simple2);
                 logMessage(PU_NAME1, "Created new entries in onCreate: " + millis);
 			}});
-    	// Persistence task adds 2 ComplexData entity objects to the helloTwoDb2.db database using JPA.
+    	// PersistenceUnitAdmin task adds 2 ComplexData entity objects to the helloTwoDb2.db database using JPA.
 		performPersistenceWork(PU_NAME2, new PersistenceTask(){
 
 			@Override

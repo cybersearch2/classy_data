@@ -48,9 +48,9 @@ public class DatabaseAdminImpl implements DatabaseAdmin
     private static Log log = JavaLogger.getLogger(TAG);
     /** Default filename template for upgrade */
     protected String DEFAULT_FILENAME_TEMPLATE = "{2}-upgrade-v{0}-v{1}.sql";
-    /** Persistence unit name*/
+    /** PersistenceUnitAdmin unit name*/
     protected String puName;
-    /** Persistence control and configuration implementation */
+    /** PersistenceUnitAdmin control and configuration implementation */
     protected PersistenceAdmin persistenceAdmin;
     /** Resource environment provides system-specific file open method. */
     protected ResourceEnvironment resourceEnvironment;
@@ -168,7 +168,7 @@ public class DatabaseAdminImpl implements DatabaseAdmin
     
 	/**
 	 * Open database and handle create/upgrade events
-	 * @param persistenceConfig Persistence Unit Configuration
+	 * @param persistenceConfig PersistenceUnitAdmin Unit Configuration
 	 * @param databaseSupport Database Support for specific database type 
 	 */
     public void initializeDatabase(PersistenceConfig persistenceConfig, DatabaseSupport databaseSupport)

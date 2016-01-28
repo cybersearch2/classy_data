@@ -42,18 +42,18 @@ public class PersistenceContainer
     protected EntityManagerLiteFactory entityManagerFactory;
     /** Flag set if executes asynchronously (default = false if only single connection ) */
     protected boolean async;
-    /** Persistence Unit name */
+    /** PersistenceUnitAdmin Unit name */
     protected String puName;
 
     /**
      * Create PersistenceContainer object 
-     * @param puName Persistence Unit name
+     * @param puName PersistenceUnitAdmin Unit name
      * @param async Flag set if executes asynchronously 
      */
     public PersistenceContainer(PersistenceContext persistenceContext, String puName, boolean async)
     {
         this.puName = puName;
-        /** Reference Persistence Unit specified by name to extract EntityManagerFactory object */
+        /** Reference PersistenceUnitAdmin Unit specified by name to extract EntityManagerFactory object */
         PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
         if (async && persistenceAdmin.isSingleConnection())
         	async = false;

@@ -18,7 +18,7 @@ package au.com.cybersearch2.classyjpa.entity;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 
 /**
- * PersistenceTask performs Java Persistence operations in a container
+ * PersistenceTask performs Java PersistenceUnitAdmin operations in a container
  * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork
  * @author Andrew Bowley
  * 20 Nov 2014

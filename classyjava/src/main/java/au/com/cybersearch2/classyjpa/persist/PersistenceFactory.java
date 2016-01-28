@@ -37,7 +37,7 @@ import au.com.cybersearch2.classydb.OpenHelperCallbacks;
 
 /**
  * PersistenceFactory
- * Creates Persistence Unit implementations based on persistence.xml configuration
+ * Creates PersistenceUnitAdmin Unit implementations based on persistence.xml configuration
  * @author Andrew Bowley
  * 05/07/2014
  */
@@ -77,12 +77,12 @@ public class PersistenceFactory
  
     /**
      * Returns persistence unit implementation, specified by name
-     * @param puName Persistence unit name
-     * @return Persistence
+     * @param puName PersistenceUnitAdmin unit name
+     * @return PersistenceUnitAdmin
      */
-    public Persistence getPersistenceUnit(final String puName)
+    public PersistenceUnitAdmin getPersistenceUnit(final String puName)
     {
-        return new Persistence(){
+        return new PersistenceUnitAdmin(){
 
             /**
              * Returns Database-specific admin object

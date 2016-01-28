@@ -37,7 +37,7 @@ import au.com.cybersearch2.classyapp.TestClassyApplication;
 import au.com.cybersearch2.classydb.ConnectionSourceFactory;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
-import au.com.cybersearch2.classyjpa.persist.Persistence;
+import au.com.cybersearch2.classyjpa.persist.PersistenceUnitAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
 import au.com.cybersearch2.classyjpa.persist.PersistenceFactory;
@@ -75,13 +75,13 @@ public class SingleConnectPersistenceContainerTest
         @Provides @Singleton PersistenceFactory providePersistenceFactory() 
         {
             PersistenceFactory persistenceFactory = mock(PersistenceFactory.class);
-            Persistence persistence = mock(Persistence.class);
-            when(persistenceFactory.getPersistenceUnit(isA(String.class))).thenReturn(persistence);
+            PersistenceUnitAdmin persistenceUnitAdmin = mock(PersistenceUnitAdmin.class);
+            when(persistenceFactory.getPersistenceUnit(isA(String.class))).thenReturn(persistenceUnitAdmin);
             PersistenceAdmin persistenceAdmin = mock(PersistenceAdmin.class);
             ConnectionSource connectionSource = mock(ConnectionSource.class);
             when(persistenceAdmin.isSingleConnection()).thenReturn(true);
             when(persistenceAdmin.getConnectionSource()).thenReturn(connectionSource);
-            when(persistence.getPersistenceAdmin()).thenReturn(persistenceAdmin);
+            when(persistenceUnitAdmin.getPersistenceAdmin()).thenReturn(persistenceAdmin);
             when(persistenceAdmin.getEntityManagerFactory()).thenReturn(new TestEntityManagerFactory());
             return persistenceFactory;
         }

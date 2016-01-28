@@ -18,12 +18,12 @@ package au.com.cybersearch2.classyjpa.persist;
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 
 /**
- * Persistence
- * Persistence Unit implementation
+ * PersistenceUnitAdmin
+ * PersistenceUnitAdmin Unit implementation
  * @author Andrew Bowley
  * 12/06/2014
  */
-public interface Persistence
+public interface PersistenceUnitAdmin
 {
     /**
      * Returns persistence unit name

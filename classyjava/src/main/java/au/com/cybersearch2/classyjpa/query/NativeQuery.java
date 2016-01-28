@@ -30,7 +30,7 @@ import au.com.cybersearch2.classylog.*;
 
 /**
  * NativeQuery
- * Implements javax.persistence.Query using native query. Only a subset of Persistence API 1.0 methods supported.
+ * Implements javax.persistence.Query using native query. Only a subset of PersistenceUnitAdmin API 1.0 methods supported.
  * @author Andrew Bowley
  * 30/05/2014
  */
