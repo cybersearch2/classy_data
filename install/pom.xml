@@ -52,10 +52,6 @@
     <android.support.path>${android.sdk.path}</android.support.path>
     <!-- Absolute Android jar location in SDK -->
     <sdk.android.jar.path>${android.sdk.path}/platforms/android-${android.platform.version}/android.jar</sdk.android.jar.path>
-    <!-- v4 Support Library jar absolute path -->
-    <sdk.compatibility.v4.jar.path>${android.support.path}/extras/android/support/v7/appcompat/libs/android-support-v4.jar</sdk.compatibility.v4.jar.path>
-    <!-- Google Maps v18 jar absolute path. Refer Robolectric 3.0 dependencies -->
-    <google.maps.18.path>${android.sdk.path}/add-ons/addon-google_apis-google-18/libs/maps.jar</google.maps.18.path>
   </properties>
 	<profiles>
 	    <profile>
@@ -295,21 +291,6 @@
                    <version>${android.sdk.version}</version>
                  </configuration>
               </execution>
-              <execution>
-                 <id>support-v4</id>
-                 <goals>
-                    <goal>install-file</goal>
-                 </goals>
-                 <phase>initialize</phase>
-                 <configuration>
-                   <packaging>jar</packaging>
-                   <file>${sdk.compatibility.v4.jar.path}</file>
-                   <generatePom>true</generatePom>
-                   <groupId>com.android.support</groupId>
-                   <artifactId>support-v4</artifactId>        
-                   <version>${android.support.version}</version>
-                 </configuration>
-              </execution>
            </executions>
           </plugin>      
           <!-- Install RobolectricTestRunner Maven dependencies now rather than wait for first
@@ -332,34 +313,6 @@
 	            </plugins>
 	        </build>
 	    </profile>
-        <profile>
-          <id>google-apis</id>
-          <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>goggle-maps-18</id>
-                    <goals>
-                      <goal>install-file</goal>
-                    </goals>
-                    <phase>initialize</phase>
-                    <configuration>
-                     <packaging>jar</packaging>
-                     <file>${google.maps.18.path}</file>
-                     <generatePom>true</generatePom>
-                     <groupId>com.google.android.maps</groupId>
-                     <artifactId>maps</artifactId>
-                     <version>18_r3</version>
-                    </configuration>
-                  </execution>
-                </executions>
-              </plugin>
-            </plugins>
-          </build>
-        </profile>
 	</profiles>
     <build>
       <plugins>
