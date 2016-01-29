@@ -181,7 +181,7 @@ public class FtsQueryBuilder extends SQLiteQueryBuilder
 
     /**
      * Returns cancellation signal
-     * @return
+     * @return CancellationSignal
      */
     public CancellationSignal getCancellationSignal()
     {

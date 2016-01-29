@@ -58,7 +58,24 @@
                    </goals>
                </execution>
            </executions>
-       </plugin>
+        </plugin>
+        <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+             <goals>
+               <goal>jar</goal>
+             </goals>
+             <configuration>
+               <skip>true</skip>
+             </configuration>
+           </execution>
+          </executions>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
         <plugin>
 			<groupId>com.simpligility.maven.plugins</groupId>
 			<artifactId>android-maven-plugin</artifactId>
@@ -247,7 +264,6 @@
     <dependency>
       <groupId>android</groupId>
       <artifactId>android</artifactId>
-      <version>${android.sdk.version}</version>
       <scope>provided</scope>
     </dependency>  
     <!-- Exclude Support Library as already have android.support:compatibility-v4 above -->

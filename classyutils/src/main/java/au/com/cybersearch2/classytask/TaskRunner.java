@@ -1,5 +1,5 @@
 /**
-    Copyright (C) 2015  www.cybersearch2.com.au
+    Copyright (C) 2016  www.cybersearch2.com.au
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import java.util.concurrent.FutureTask;
  */
 public class TaskRunner extends Executable 
 {
-    /** Manages the thread pool */
+    /** Manages the background task thread pool */
     protected TaskManager taskManager; 
     /** Post inter-thread messages */
     TaskMessenger taskMessenger;
@@ -36,7 +36,12 @@ public class TaskRunner extends Executable
     protected BackgroundTask backgroundTask;
     /** The FutureTask implementation - overrides abstract method done() */
     private FutureTask<Boolean> future;
-   
+
+    /**
+     * Construct TaskRunner object
+     * @param taskManager Manages the thread pool
+     * @param taskMessenger Post inter-thread messages
+     */
     public TaskRunner(TaskManager taskManager, TaskMessenger taskMessenger)
     {
         this.taskManager = taskManager;
@@ -59,6 +64,7 @@ public class TaskRunner extends Executable
      * Executes the worker task. Any required parameters will need to be provided as fields 
      * belonging to the sub class. 
      * The task returns itself (this) so that the caller can keep a reference to it.
+     * @param backgroundTask Task to run
      * @return Executable to track status
      * @throws IllegalStateException If status is either
      *         {@link WorkStatus#RUNNING} or {@link WorkStatus#FINISHED}.
@@ -109,7 +115,7 @@ public class TaskRunner extends Executable
       *         <tt>true</tt> otherwise
       *
       * @see #isCancelled()
-      * @see #onCancelled(Object) 
+      * @see BackgroundTask#onCancelled(Boolean) 
       */
      public final boolean cancel(boolean mayInterruptIfRunning) 
      {

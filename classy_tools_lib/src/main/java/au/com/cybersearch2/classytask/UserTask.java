@@ -48,8 +48,8 @@ package au.com.cybersearch2.classytask;
  *
  * <h2>Usage</h2>
  * <p>UserTask must be subclassed to be used. The subclass will override at least
- * one method ({@link #doInBackground()}), and most often will override a
- * second one ({@link #onPostExecute(Object)}.)</p>
+ * one method ({@link BackgroundTask#doInBackground()}), and most often will override a
+ * second one ({@link BackgroundTask#onPostExecute(Boolean)}.)</p>
  *
  * <p>Here is an example of subclassing:</p>
  * <pre>
@@ -97,11 +97,11 @@ package au.com.cybersearch2.classytask;
  * <h2>The 4 steps</h2>
  * <p>When a user task is executed, the task goes through 4 steps:</p>
  * <ol>
- *     <li>{@link #onPreExecute()}, invoked on the UI thread immediately after the task
+ *     <li>{@link BackgroundTask#onPreExecute()}, invoked on the UI thread immediately after the task
  *     is executed. This step is normally used to setup the task, for instance by
  *     showing a progress bar in the user interface.</li>
- *     <li>{@link #doInBackground(])}, invoked on the background thread
- *     immediately after {@link #onPreExecute ()} finishes executing. This step is used
+ *     <li>{@link BackgroundTask#doInBackground()}, invoked on the background thread
+ *     immediately after {@link BackgroundTask#onPreExecute ()} finishes executing. This step is used
  *     to perform background computation that can take a long time. The parameters
  *     of the user task are passed to this step. The result of the computation must
  *     be returned by this step and will be passed back to the last step. This step
@@ -113,7 +113,7 @@ package au.com.cybersearch2.classytask;
  *     undefined. This method is used to display any form of progress in the user
  *     interface while the background computation is still executing. For instance,
  *     it can be used to animate a progress bar or show logs in a text field.</li>
- *     <li>{@link #onPostExecute (Object)}, invoked on the UI thread after the background
+ *     <li>{@link BackgroundTask#onPostExecute(Boolean)}, invoked on the UI thread after the background
  *     computation finishes. The result of the background computation is passed to
  *     this step as a parameter.</li>
  * </ol>
@@ -123,9 +123,9 @@ package au.com.cybersearch2.classytask;
  * work properly:</p>
  * <ul>
  *     <li>The task instance must be created on the UI thread.</li>
- *     <li>{@link #execute()} must be invoked on the UI thread.</li>
- *     <li>Do not call {@link #onPreExecute ()}, {@link #onPostExecute (Object)},
- *     {@link #doInBackground()}, {@link #onProgressUpdate (Object[])}
+ *     <li>{@link #execute(BackgroundTask)} must be invoked on the UI thread.</li>
+ *     <li>Do not call {@link BackgroundTask#onPreExecute ()}, {@link BackgroundTask#onPostExecute(Boolean)},
+ *     {@link BackgroundTask#doInBackground()}, {@link #onProgressUpdate (Object[])}
  *     manually.</li>
  *     <li>The task can be executed only once (an exception will be thrown if
  *     a second execution is attempted.)</li>
@@ -145,7 +145,7 @@ public abstract class UserTask<Progress> extends TaskRunner
 
             /**
              * Post result to calling thread on background thread completion
-             * @see au.com.cybersearch2.classytask.WorkerTask#sendResult(java.lang.Object)
+             * @see TaskRunner#postResult(Boolean)
              */
             @Override
             public void sendResult(final TaskRunner taskRunner, final Boolean result)
@@ -163,7 +163,7 @@ public abstract class UserTask<Progress> extends TaskRunner
 
             /**
              * Post result to calling thread on background thread cancellation
-             * @see au.com.cybersearch2.classytask.WorkerTask#sendCancel(java.lang.Object)
+             * @see TaskRunner#postResult(Boolean)
              */
             @Override
             public void sendCancel(final BackgroundTask backgroundTask, final Boolean result)
@@ -191,7 +191,7 @@ public abstract class UserTask<Progress> extends TaskRunner
       * @param values The progress values to update the UI with.
       *
       * @see #onProgressUpdate (Object[])
-      * @see #doInBackground()
+      * @see BackgroundTask#doInBackground()
       */
      protected final void publishProgress(final Progress... values) 
      {
@@ -213,7 +213,7 @@ public abstract class UserTask<Progress> extends TaskRunner
      * @param values The values indicating progress.
      *
      * @see #publishProgress(Object[])
-     * @see #doInBackground()
+     * @see BackgroundTask#doInBackground()
      */
     public void onProgressUpdate(Object[] values) 
     {

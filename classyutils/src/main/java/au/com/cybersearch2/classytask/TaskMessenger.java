@@ -31,8 +31,8 @@ public interface TaskMessenger
     
     /**
      * Post result on background thread cancellation
-     * @param taskRunner Destination
-     * @param result Object of Result generic type or null if task not started or interrupted
+     * @param backgroundTask Task to run
+     * @param result Boolena result or null if task not started or interrupted
      */
     void sendCancel(BackgroundTask backgroundTask, Boolean result);
 

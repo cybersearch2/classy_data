@@ -28,7 +28,6 @@ public class ResultMessage
     /**
      * Create ResultMessage object
      * @param task The target of the message
-     * @param result Object of generic type "Result" - maybe null in cancel case
      */
     public ResultMessage(Runnable task)
     {

@@ -77,7 +77,7 @@ public class NodeFinder implements PersistenceWork
 
     /**
      * Find node by primary key on background thread
-     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#doInBackground(au.com.cybersearch2.classyjpa.EntityManagerLite)
+     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#doTask(au.com.cybersearch2.classyjpa.EntityManagerLite)
      */
     @Override
     public void doTask(EntityManagerLite entityManager) 

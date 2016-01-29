@@ -27,13 +27,13 @@ import au.com.cybersearch2.classyjpa.EntityManagerLite;
 public interface PersistenceWork extends PersistenceTask
 {
     /**
-     * Runs on separate thread after successful completion of {@link #doInBackground(EntityManagerLite entityManager)}.
+     * Runs on separate thread after successful completion of {@link PersistenceTask#doTask(EntityManagerLite entityManager)}.
      * @param success True if PersistenceWork completed successfully, otherwise false
      */
     void onPostExecute(boolean success); 
 
     /**
-     * Handle rollback caused by exception while executing {@link #doInBackground(EntityManagerLite entityManager)}
+     * Handle rollback caused by exception while executing {@link PersistenceTask#doTask(EntityManagerLite entityManager)}
      * @param rollbackException Throwable exception which caused rollback
      */
     void onRollback(Throwable rollbackException);

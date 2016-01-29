@@ -37,7 +37,6 @@ import com.j256.ormlite.support.ConnectionSource;
  * 
  * @author Andrew Bowley
  * 24/06/2014
- * @see InProcessPersistenceContainer
  */
 public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
 {
@@ -111,7 +110,7 @@ public class OpenHelperCallbacksImpl implements OpenHelperCallbacks
      * Execute persistence work in same thread as caller
      * @param connectionSource Open ConnectionSource object
      * @param persistenceTask Object specifying unit of work
-     * @return Executable object track task status
+     * @return Executable object to track task status
      */
     protected Executable doWork(final ConnectionSource connectionSource, final PersistenceTask persistenceTask)
     {

@@ -44,10 +44,7 @@ public class OpenEventHandler extends SQLiteOpenHelper
 
     /**
      * Create OpenEventHandler object
-     * @param openHelperCallbacks The OpenHelperCallbacks delegate for onCreate() and onUpdate() handling
-     * @param context Android Context
-     * @param databaseName The name passed in the SQLiteOpenHelper constructor
-     * @param databaseVersion Schema version number
+     * @param androidSqliteParams AndroidSqliteParams adapter
      */
 	public OpenEventHandler(AndroidSqliteParams androidSqliteParams)
 	{

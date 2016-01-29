@@ -61,6 +61,9 @@
         <configuration>
           <doctitle><![CDATA[<h1>ClassyTools API - >Many to many example</h1>]]></doctitle>
           <windowtitle>ClassyTools API - &gt;Many to many example</windowtitle> 
+          <links>
+           <link>http://google.github.io/dagger/api/2.0/</link>
+          </links>
         </configuration>
       </plugin>
       <plugin>

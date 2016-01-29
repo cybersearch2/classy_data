@@ -52,7 +52,7 @@ public class ComplexTask implements PersistenceTask
     }
     
     /**
-     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#doInBackground(au.com.cybersearch2.classyjpa.EntityManagerLite)
+     * @see au.com.cybersearch2.classyjpa.entity.PersistenceWork#doTask(au.com.cybersearch2.classyjpa.EntityManagerLite)
      */
     @SuppressWarnings("unchecked")
     @Override

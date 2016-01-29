@@ -73,7 +73,7 @@ public class PersistenceContainer
     /**
      * Returns object which creates a persistence context and executes a task in that contex
      * @param persistenceWork
-     * @return
+     * @return JavaPersistenceContext
      */
     public JavaPersistenceContext getPersistenceTask(PersistenceWork persistenceWork)
     {

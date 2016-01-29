@@ -71,7 +71,7 @@
           <doctitle><![CDATA[<h1>ClassyTools API - Utils Library</h1>]]></doctitle>
           <windowtitle>ClassyTools API - Java Library</windowtitle> 
           <links>
-           <link>https://square.github.io/dagger/javadoc/</link>
+           <link>http://google.github.io/dagger/api/2.0/</link>
           </links>
          </configuration>
        </plugin>
@@ -151,37 +151,4 @@
       <version>${dagger.version}</version>
     </dependency>
   </dependencies>
-  <profiles>
-    <profile>
-        <id>classic</id>
-        <build>
-            <plugins>
-               <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                 <configuration>
-                  <outputDirectory>libs</outputDirectory>
-                  <overWriteReleases>false</overWriteReleases>
-                  <overWriteSnapshots>false</overWriteSnapshots>
-                  <overWriteIfNewer>true</overWriteIfNewer>
-                  <includeScope>runtime</includeScope>
-	              <includeArtifactIds>
-	                commons-logging,
-                    openbeans,
-                    javax.inject,
-                    commons-beanutils,
-                    kxml2,
-                    dagger,
-	              </includeArtifactIds>
-	              <excludeArtifactIds>
-	              	maven-core,
-	              	junit,
-	              	dagger-compiler
-	              </excludeArtifactIds>
-                </configuration>
-               </plugin>
-            </plugins>
-        </build>
-    </profile>
-  </profiles>
 </project>

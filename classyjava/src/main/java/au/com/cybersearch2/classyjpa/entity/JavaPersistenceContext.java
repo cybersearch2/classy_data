@@ -59,7 +59,7 @@ public class JavaPersistenceContext
     /**
      * Construct JavaPersistenceContext object
      * @param persistenceWork Work to be performed in Java PersistenceUnitAdmin context
-     * @param entityManagerFactory EntityManager factory
+     * @param entityManagerProvider EntityManager factory
      */
     public JavaPersistenceContext(PersistenceWork persistenceWork, EntityManagerProvider entityManagerProvider)
     {
@@ -89,8 +89,7 @@ public class JavaPersistenceContext
  
     /**
      * Execute task in process 
-     * @param exe Executable
-     * @return
+     * @return Executable to track progress
      */
     public Executable executeInProcess()
     {
@@ -149,8 +148,6 @@ public class JavaPersistenceContext
     
     /**
      * Execute persistence work. 
-     * @param persistenceWork Object specifying unit of work
-     * @param transactionInfo Enclosing transaction and associated information
      * @return Boolean result - TRUE = success, FALSE = failure/rollback 
      *          or null if exception thrown on transaction begin() called.
      */

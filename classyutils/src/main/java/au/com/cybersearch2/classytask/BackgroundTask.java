@@ -1,5 +1,5 @@
 /**
-    Copyright (C) 2015  www.cybersearch2.com.au
+    Copyright (C) 2016  www.cybersearch2.com.au
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,6 +33,10 @@ public abstract class BackgroundTask implements Callable<Boolean>
     /** Thread helper to lower priority according to system platform */
     private ThreadHelper threadHelper;
 
+    /**
+     * Construct BackgroundTask object
+     * @param threadHelper ThreadHelper allows thread priority adjustment
+     */
     public BackgroundTask(ThreadHelper threadHelper)
     {
         this.threadHelper = threadHelper;
@@ -44,14 +48,14 @@ public abstract class BackgroundTask implements Callable<Boolean>
      * @return Boolean object to flag success (true), failure (false) or cancel (null)
      *
      * @see #onPreExecute()
-     * @see #onPostExecute(Object)
+     * @see #onPostExecute(Boolean)
      */
     public abstract boolean doInBackground();
 
     /**
      * Runs on the UI thread before {@link #doInBackground()}.
      *
-     * @see #onPostExecute(Object)
+     * @see #onPostExecute(Boolean)
      * @see #doInBackground()
      */
     public void onPreExecute() 
@@ -74,18 +78,22 @@ public abstract class BackgroundTask implements Callable<Boolean>
 
 
     /**
-     * Runs on separate thread after {@link #cancel(boolean)} is invoked. 
+     * Runs on separate thread after {@link TaskRunner#cancel(boolean)} is invoked. 
      *
      *
      * @param result The result of the operation computed by {@link #doInBackground()}.
      *
-     * @see #cancel(boolean)
-     * @see TaskRunner.isCancelled()
+     * @see TaskRunner#cancel(boolean)
+     * @see TaskRunner#isCancelled()
      */
     public void onCancelled(Boolean result) 
     {
     }
 
+    /**
+     * Start task on background thread
+     * @see java.util.concurrent.Callable#call()
+     */
     @Override
     public Boolean call() throws Exception
     {

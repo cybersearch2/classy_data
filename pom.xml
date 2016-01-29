@@ -71,8 +71,8 @@
     <module>classyutils</module>
     <module>many2many-example</module>
     <module>hello-two-dbs-example</module>
-    <module>install</module>
-    <!-- Comment out next module for Java-only development -->
+    <!-- Comment out next modules for Java-only development -->
+    <module>classy_tools_lib</module>
     <module>classyandroid</module>
   </modules>
   <dependencyManagement>

@@ -79,7 +79,7 @@ public class PersistenceWorkModule
     
     /**
      * Set user transaction mode. The transaction is accessed by calling EntityManager getTransaction() method.
-     * @param value boolean
+     * @param isUserTransactions boolean
      */
     public void setUserTransactions(boolean isUserTransactions)
     {
