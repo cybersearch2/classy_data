@@ -1,5 +1,7 @@
 .classpath
 .project
+.factorypath
 /.settings/
+/bin/
 /target/
 /pom.xml.*
