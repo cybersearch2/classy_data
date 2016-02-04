@@ -94,22 +94,6 @@
 		      </execution>
 		    </executions>
 		</plugin>
-        <plugin>
-          <groupId>org.bitbucket.komo81</groupId>
-          <artifactId>eclipse-aar-maven-plugin</artifactId>
-          <version>1.0.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>clean</goal>
-                <goal>generate</goal>
-              </goals>
-              <configuration>
-                 <androidSdk>${android.platform.version}</androidSdk>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
     </plugins>
     <pluginManagement>
     	<plugins>
@@ -167,20 +151,6 @@
     </pluginManagement>
   </build>
   <dependencies>
-    <!-- Supress Dex warnings -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
-      <scope>provided</scope>
-     </dependency> 
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.2.1</version>
-      <scope>provided</scope>
-    </dependency> 
-    <!-- Supress Dex warnings -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>classyjava</artifactId>
@@ -320,4 +290,31 @@
       <version>${dagger.version}</version>
     </dependency>
   </dependencies>
+  <profiles>
+	<profile>
+	  <id>eclipse</id>
+      <build>
+        <plugins>
+			<plugin>
+              <groupId>org.bitbucket.komo81</groupId>
+              <artifactId>eclipse-aar-maven-plugin</artifactId>
+              <version>1.0.0</version>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>clean</goal>
+                    <goal>generate</goal>
+                  </goals>
+                  <phase>initialize</phase>
+                  <configuration>
+                     <androidSdk>${android.platform.version}</androidSdk>
+                     <outputDirectory>${basedir}/eclipse-aar</outputDirectory>
+                  </configuration>
+                </execution>
+              </executions>
+			</plugin>
+        </plugins>
+      </build>
+	</profile>
+  </profiles>
 </project>

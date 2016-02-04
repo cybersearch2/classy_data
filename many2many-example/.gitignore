@@ -6,4 +6,5 @@
 /target/
 /libs/
 /test-libs/
+/resources/db/
 /pom.xml.releaseBackup
