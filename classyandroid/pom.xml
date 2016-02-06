@@ -152,24 +152,19 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>classyjava</artifactId>
-       <exclusions>
-        <exclusion>
-          <groupId>com.j256.ormlite</groupId>
-          <artifactId>ormlite-jdbc</artifactId>
-        </exclusion>
-        <exclusion>
-           <groupId>net.sf.kxml</groupId>
-           <artifactId>kxml2</artifactId>
-        </exclusion>  
-      </exclusions>
-      <version>${project.version}</version>
-     </dependency>
-    <dependency>
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>classyjava</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+	      <groupId>commons-logging</groupId>
+	      <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-collections</groupId>
+	      <artifactId>commons-collections</artifactId>
+        </exclusion>
+      </exclusions>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -177,7 +172,34 @@
       <groupId>au.com.cybersearch2</groupId>
       <artifactId>classy_tools_lib</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.android.support</groupId>
+          <artifactId>support-v4</artifactId>        
+        </exclusion>
+        <exclusion>
+          <groupId>com.android.support</groupId>
+          <artifactId>appcompat-v7</artifactId>        
+        </exclusion>
+        <exclusion>
+          <groupId>com.j256.ormlite</groupId>
+          <artifactId>ormlite-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+           <groupId>net.sf.kxml</groupId>
+           <artifactId>kxml2</artifactId>
+        </exclusion>
+        <exclusion>
+	      <groupId>commons-logging</groupId>
+	      <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-collections</groupId>
+	      <artifactId>commons-collections</artifactId>
+        </exclusion>
+      </exclusions>
       <type>aar</type>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -205,6 +227,7 @@
       <groupId>com.j256.ormlite</groupId>
       <artifactId>ormlite-android</artifactId>
       <version>${ormlite.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.j256.ormlite</groupId>

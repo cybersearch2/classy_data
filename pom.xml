@@ -10,7 +10,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
-    <android.plugin.version>4.3.0</android.plugin.version>
+    <android.plugin.version>4.4.1</android.plugin.version>
     <android.platform.version>23</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
     <android.sdk.version>6.0.0_r2</android.sdk.version>
@@ -71,7 +71,7 @@
     <module>classyutils</module>
     <module>many2many-example</module>
     <module>hello-two-dbs-example</module>
-    <!-- Comment out next modules for Java-only development -->
+    <!-- Comment out next modules for Java-only development --> 
     <module>classy_tools_lib</module>
     <module>classyandroid</module>
   </modules>
