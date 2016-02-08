@@ -328,7 +328,6 @@
                     <goal>clean</goal>
                     <goal>generate</goal>
                   </goals>
-                  <phase>initialize</phase>
                   <configuration>
                      <androidSdk>${android.platform.version}</androidSdk>
                      <outputDirectory>${basedir}/eclipse-aar</outputDirectory>
