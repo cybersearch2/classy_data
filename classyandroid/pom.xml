@@ -7,7 +7,7 @@
     <version>1.3-SNAPSHOT</version>
   </parent>
   <artifactId>classyandroid</artifactId>
-  <packaging>apk</packaging>
+  <packaging>jar</packaging>
   <name>classyandroid</name>
   <description>Tests classy_ttols_lib, an Android lightweight JPA library for persisting objects to SQL databases.</description>
   <url>http://cybersearch2.com.au</url>
@@ -32,22 +32,8 @@
       <timezone>+10</timezone>
     </developer>
   </developers>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>dropbox</id>
-      <url>https://dl.dropboxusercontent.com/u/52711537/maven-repo/</url>
-    </pluginRepository>
-  </pluginRepositories>
   <build>
     <plugins>
-        <!-- Do not install test-only project -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-install-plugin</artifactId>
-             <configuration>
-                 <skip>true</skip>
-             </configuration>
-		</plugin>
        <plugin>
            <groupId>org.apache.maven.plugins</groupId>
            <artifactId>maven-jar-plugin</artifactId>
@@ -59,41 +45,24 @@
                </execution>
            </executions>
         </plugin>
-        <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <executions>
-          <execution>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-javadoc-plugin</artifactId>
+         <executions>
+           <execution>
              <goals>
                <goal>jar</goal>
              </goals>
              <configuration>
-               <skip>true</skip>
+               <additionalparam>-tag inheritDoc:X</additionalparam>
              </configuration>
            </execution>
-          </executions>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-        <plugin>
-			<groupId>com.simpligility.maven.plugins</groupId>
-			<artifactId>android-maven-plugin</artifactId>
-			<extensions>true</extensions>
-		    <configuration>
-		      <failOnNonStandardStructure>false</failOnNonStandardStructure>   
-              <androidManifestFile>${project.basedir}/src/main/AndroidManifest.xml</androidManifestFile>
-              <assetsDirectory>${project.basedir}/src/main//assets</assetsDirectory>
-              <resourceDirectory>${project.basedir}/src/main/res</resourceDirectory>
-		    </configuration>
-			<executions>
-		      <execution>
-		      	<id>default-proguard</id>
-	            <phase>install</phase>
-	            <configuration><skip>true</skip></configuration>
-		      </execution>
-		    </executions>
-		</plugin>
+        </executions>
+        <configuration>
+          <doctitle><![CDATA[<h1>ClassyTools API - Android Library</h1>]]></doctitle>
+          <windowtitle>ClassyTools API - Android Library</windowtitle> 
+        </configuration>
+       </plugin>
     </plugins>
     <pluginManagement>
     	<plugins>
@@ -105,25 +74,6 @@
     			<configuration>
     				<lifecycleMappingMetadata>
     					<pluginExecutions>
-    						<pluginExecution>
-    							<pluginExecutionFilter>
-    								<groupId>
-    									org.bitbucket.komo81
-    								</groupId>
-    								<artifactId>
-    									eclipse-aar-maven-plugin
-    								</artifactId>
-    								<versionRange>
-    									[1.0.0,)
-    								</versionRange>
-    								<goals>
-    									<goal>generate</goal>
-    								</goals>
-    							</pluginExecutionFilter>
-    							<action>
-    								<ignore />
-    							</action>
-    						</pluginExecution>
     						<pluginExecution>
     							<pluginExecutionFilter>
     								<groupId>
@@ -169,18 +119,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>au.com.cybersearch2</groupId>
-      <artifactId>classy_tools_lib</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.android.support</groupId>
-          <artifactId>support-v4</artifactId>        
-        </exclusion>
-        <exclusion>
-          <groupId>com.android.support</groupId>
-          <artifactId>appcompat-v7</artifactId>        
-        </exclusion>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>classyjava</artifactId>
+       <exclusions>
         <exclusion>
           <groupId>com.j256.ormlite</groupId>
           <artifactId>ormlite-jdbc</artifactId>
@@ -188,31 +129,33 @@
         <exclusion>
            <groupId>net.sf.kxml</groupId>
            <artifactId>kxml2</artifactId>
-        </exclusion>
-        <exclusion>
-	      <groupId>commons-logging</groupId>
-	      <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-collections</groupId>
-	      <artifactId>commons-collections</artifactId>
-        </exclusion>
+        </exclusion>  
       </exclusions>
-      <type>aar</type>
-      <scope>compile</scope>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.j256.ormlite</groupId>
+      <artifactId>ormlite-android</artifactId>
+      <version>${ormlite.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.j256.ormlite</groupId>
+      <artifactId>ormlite-jdbc</artifactId>
+      <version>${ormlite.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>many2many-example</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-     </dependency>
+    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>hello-two-dbs-example</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-     </dependency>
+    </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -225,28 +168,22 @@
     </dependency>
     <dependency>
       <groupId>com.j256.ormlite</groupId>
-      <artifactId>ormlite-android</artifactId>
-      <version>${ormlite.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.j256.ormlite</groupId>
       <artifactId>ormlite-jdbc</artifactId>
       <version>${ormlite.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.android.support</groupId>
-      <artifactId>appcompat-v7</artifactId>
+      <artifactId>cas_support-v4</artifactId>
       <version>${android.support.version}</version>
-      <type>aar</type>
+      <type>jar</type>
       <scope>compile</scope>
-    </dependency>  
+    </dependency>
     <dependency>
       <groupId>com.android.support</groupId>
-      <artifactId>support-v4</artifactId>
+      <artifactId>cas_support-v4-impl</artifactId>
       <version>${android.support.version}</version>
-      <type>aar</type>
+      <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -313,30 +250,4 @@
       <version>${dagger.version}</version>
     </dependency>
   </dependencies>
-  <profiles>
-	<profile>
-	  <id>eclipse</id>
-      <build>
-        <plugins>
-			<plugin>
-              <groupId>org.bitbucket.komo81</groupId>
-              <artifactId>eclipse-aar-maven-plugin</artifactId>
-              <version>1.0.0</version>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>clean</goal>
-                    <goal>generate</goal>
-                  </goals>
-                  <configuration>
-                     <androidSdk>${android.platform.version}</androidSdk>
-                     <outputDirectory>${basedir}/eclipse-aar</outputDirectory>
-                  </configuration>
-                </execution>
-              </executions>
-			</plugin>
-        </plugins>
-      </build>
-	</profile>
-  </profiles>
 </project>

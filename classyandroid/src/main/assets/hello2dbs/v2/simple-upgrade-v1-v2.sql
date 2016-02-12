@@ -1,1 +1,0 @@
-ALTER TABLE `Simple` ADD COLUMN `quote` VARCHAR DEFAULT ``;
