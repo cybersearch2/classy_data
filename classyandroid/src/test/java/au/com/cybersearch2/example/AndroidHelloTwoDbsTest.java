@@ -20,7 +20,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
+import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classytask.Executable;
 
 /**
@@ -29,6 +31,7 @@ import au.com.cybersearch2.classytask.Executable;
  * 24 Apr 2015
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(application = TestRoboApplication.class)
 public class AndroidHelloTwoDbsTest 
 {
 	private static AndroidHelloTwoDbs helloTwoDbsMain;

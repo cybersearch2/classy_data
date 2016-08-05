@@ -61,7 +61,7 @@ public class AndroidConnectionSourceFactory implements ConnectionSourceFactory
             throw new PersistenceException("Database name \"" + databaseName + "\" not configured");
         // The SQLiteOpenHelper onCreate and onUpgrade overrides are delegated to the OpenHelperCallbacks implementation 
         // The OpenHelperConnectionSource object is constructed with an SQLiteDatabase object so it can
-        // implement get/set dataabase version methods.
+        // implement get/set database version methods.
         OpenHelperConnectionSource openHelperConnectionSource = 
         		new OpenHelperConnectionSource(getSQLiteDatabase(openEventHandler), openEventHandler);
         return openHelperConnectionSource;

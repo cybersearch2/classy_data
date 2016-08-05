@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.util.Transcript;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -44,7 +45,6 @@ import au.com.cybersearch2.classyapp.TestResourceEnvironment;
 import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classyfy.data.Model;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
-
 import au.com.cybersearch2.classyjpa.entity.EntityManagerDelegate;
 import au.com.cybersearch2.classyjpa.entity.PersistenceContainer;
 import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
@@ -71,6 +71,7 @@ import dagger.Subcomponent;
  * 20/06/2014
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(application = TestRoboApplication.class)
 public class AndroidJpaIntegrationTest
 {
     @Singleton

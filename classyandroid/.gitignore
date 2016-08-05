@@ -9,7 +9,3 @@ project.properties
 /test-libs/
 /eclipse-aar/
 /pom.xml.*
-AndroidManifest.xml
-/res/
-/assets/
-/gen/

@@ -22,9 +22,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import com.j256.ormlite.support.ConnectionSource;
 
+import au.com.cybersearch2.classyapp.TestRoboApplication;
 import au.com.cybersearch2.classydb.DatabaseSupport;
 import au.com.cybersearch2.classyjpa.persist.PersistenceAdmin;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
@@ -36,6 +38,7 @@ import au.com.cybersearch2.example.HelloTwoDbsMain;
  * 24 Apr 2015
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(application = TestRoboApplication.class)
 public class HelloTwoDbsUpgradeTest 
 {
 

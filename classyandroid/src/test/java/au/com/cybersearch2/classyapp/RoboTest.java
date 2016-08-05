@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.j256.ormlite.db.SqliteAndroidDatabaseType;
@@ -40,6 +41,7 @@ import dagger.Component;
  * 19/06/2014
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(application = TestRoboApplication.class)
 public class RoboTest
 {
     @Singleton

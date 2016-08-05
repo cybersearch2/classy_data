@@ -53,29 +53,33 @@ public class AndroidDatabaseSupport implements DatabaseSupport
                 String[] selectionArgs, String groupBy, String having,
                 String orderBy, String limit);
     }
+    /** SqliteAndroidDatabaseType */
+    public static DatabaseType databaseType;
     
     private static final String TAG = "DatabaseSupport";
     static Log log = JavaLogger.getLogger(TAG);
 
-    /** SqliteAndroidDatabaseType */
-    protected DatabaseType databaseType;
     /** Maps database name to a single connection associated with it */
     protected Map<String, ConnectionSource> androidSQLiteMap;
     protected List<OpenHelperCallbacks> openHelperCallbacksList;
 
+    static
+    {
+        databaseType = new SqliteAndroidDatabaseType()
+        {
+            @Override
+            public boolean isLimitSqlSupported() {
+                return false;
+            }
+
+        };
+    }
+    
     /**
      * Construct an AndroidDatabaseSupport instance. 
      */
     public AndroidDatabaseSupport()
     {
-        databaseType = new SqliteAndroidDatabaseType()
-        {
-            @Override
-            public boolean isLimitAfterSelect() {
-                return true;
-            }
-
-        };
         androidSQLiteMap = new HashMap<String, ConnectionSource>();
         openHelperCallbacksList = Collections.emptyList();
     }

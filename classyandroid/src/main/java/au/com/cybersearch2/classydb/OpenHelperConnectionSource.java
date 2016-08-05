@@ -35,6 +35,7 @@ import javax.persistence.PersistenceException;
 
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.android.AndroidConnectionSource;
+import com.j256.ormlite.db.DatabaseType;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -69,6 +70,12 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
         super(sqLiteDatabase);
         this.sqLiteDatabase = sqLiteDatabase;
         this.sqLiteOpenHelper = sqLiteOpenHelper;
+    }
+
+    @Override
+    public DatabaseType getDatabaseType() 
+    {
+        return AndroidDatabaseSupport.databaseType;
     }
 
     /**
