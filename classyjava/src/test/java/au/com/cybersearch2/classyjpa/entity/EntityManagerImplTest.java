@@ -41,6 +41,7 @@ import org.mockito.Mockito;
 import au.com.cybersearch2.classyapp.JavaTestResourceEnvironment;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
 import au.com.cybersearch2.classydb.DatabaseSupport;
+import au.com.cybersearch2.classydb.DatabaseSupportBase;
 import au.com.cybersearch2.classydb.NativeScriptDatabaseWork;
 import au.com.cybersearch2.classyfy.data.alfresco.RecordCategory;
 import au.com.cybersearch2.classyjpa.persist.PersistenceConfig;
@@ -115,6 +116,7 @@ public class EntityManagerImplTest
     @Before
     public void setUp() throws Exception 
     {
+        @SuppressWarnings("unused")
         ApplicationComponent component = 
                 DaggerEntityManagerImplTest_ApplicationComponent.builder()
                 .classyEntityManagerTestModule(new ClassyEntityManagerTestModule())
@@ -133,7 +135,7 @@ public class EntityManagerImplTest
         transaction = mock(EntityTransactionImpl.class);
         objectMonitor = mock(ObjectMonitor.class);
         connection = mock(DatabaseConnection.class);
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true);
         Savepoint savePoint = mock(Savepoint.class);

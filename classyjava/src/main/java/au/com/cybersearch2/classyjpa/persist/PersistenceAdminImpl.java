@@ -23,6 +23,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import au.com.cybersearch2.classydb.DatabaseAdmin;
 import au.com.cybersearch2.classydb.DatabaseSupport;
+import au.com.cybersearch2.classydb.DatabaseSupportBase;
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
 import au.com.cybersearch2.classyjpa.entity.EntityManagerImpl;
@@ -248,7 +249,7 @@ public class PersistenceAdminImpl implements PersistenceAdmin
 	public void setSingleConnection()
 	{
 		ConnectionSource connectionSource = getConnectionSource();
-		singleConnection = Boolean.valueOf(connectionSource.isSingleConnection());
+		singleConnection = Boolean.valueOf(connectionSource.isSingleConnection(DatabaseSupportBase.DATABASE_INFO_NAME));
 	}
 
 	@Override

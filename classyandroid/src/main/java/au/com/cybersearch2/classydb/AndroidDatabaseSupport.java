@@ -68,7 +68,14 @@ public class AndroidDatabaseSupport implements DatabaseSupport
      */
     public AndroidDatabaseSupport()
     {
-        databaseType = new SqliteAndroidDatabaseType();
+        databaseType = new SqliteAndroidDatabaseType()
+        {
+            @Override
+            public boolean isLimitAfterSelect() {
+                return true;
+            }
+
+        };
         androidSQLiteMap = new HashMap<String, ConnectionSource>();
         openHelperCallbacksList = Collections.emptyList();
     }

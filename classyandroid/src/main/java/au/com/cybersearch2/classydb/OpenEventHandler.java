@@ -119,7 +119,7 @@ public class OpenEventHandler extends SQLiteOpenHelper
      */
     protected void wrappedDatabaseOperation(SQLiteDatabase db, AndroidConnectionSource connectionSource, Runnable runnable)
     {
-        DatabaseConnection conn = connectionSource.getSpecialConnection();
+        DatabaseConnection conn = connectionSource.getSpecialConnection(DatabaseSupportBase.DATABASE_INFO_NAME);
         boolean clearSpecial = false;
         if (conn == null) 
         {

@@ -363,7 +363,7 @@ public class AndroidDatabaseSupportTest
         when(androidConnectionSourceFactory.getConnectionSource(eq(DATABASE_NAME), isA(Properties.class))).thenReturn(openHelperConnectionSource);
         connectionSource = mock(ConnectionSource.class);
         dbConnection = mock(DatabaseConnection.class);
-        when(connectionSource.getReadWriteConnection()).thenReturn(dbConnection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(dbConnection);
     }
 
     @Test

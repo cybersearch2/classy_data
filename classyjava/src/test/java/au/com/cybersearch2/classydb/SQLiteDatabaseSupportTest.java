@@ -87,7 +87,7 @@ public class SQLiteDatabaseSupportTest
         results = mock(DatabaseResults.class);
         sqlException = new SQLException("Database error");
         dbConnection = mock(DatabaseConnection.class);
-        when(connectionSource.getReadWriteConnection()).thenReturn(dbConnection);
+        when(connectionSource.getReadWriteConnection(any(String.class))).thenReturn(dbConnection);
     }
 
     @Test
@@ -101,7 +101,8 @@ public class SQLiteDatabaseSupportTest
                 isA(String.class), 
                 eq(StatementType.SELECT_RAW), 
                 eq(fieldTypes),
-                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS))).thenReturn(compiledStatement);
+                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS),
+                eq(true))).thenReturn(compiledStatement);
         when(compiledStatement.runQuery(isNull(ObjectCache.class))).thenReturn(results);
         when(compiledStatement.getColumnCount()).thenReturn(2);
         when(results.first()).thenReturn(true);
@@ -125,7 +126,8 @@ public class SQLiteDatabaseSupportTest
                 isA(String.class), 
                 eq(StatementType.SELECT_RAW), 
                 eq(fieldTypes),
-                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS))).thenReturn(compiledStatement);
+                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS),
+                eq(true))).thenReturn(compiledStatement);
         when(compiledStatement.runQuery(isNull(ObjectCache.class))).thenReturn(results);
         when(compiledStatement.getColumnCount()).thenReturn(2);
         when(results.first()).thenReturn(false);
@@ -144,7 +146,8 @@ public class SQLiteDatabaseSupportTest
                 isA(String.class), 
                 eq(StatementType.SELECT_RAW), 
                 eq(fieldTypes),
-                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS))).thenReturn(compiledStatement);
+                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS),
+                eq(true))).thenReturn(compiledStatement);
         when(compiledStatement.runQuery(isNull(ObjectCache.class))).thenReturn(results);
         when(compiledStatement.getColumnCount()).thenReturn(2);
         when(results.first()).thenReturn(true);
@@ -166,7 +169,8 @@ public class SQLiteDatabaseSupportTest
                 isA(String.class), 
                 eq(StatementType.SELECT_RAW), 
                 eq(fieldTypes),
-                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS))).thenReturn(compiledStatement);
+                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS),
+                eq(true))).thenReturn(compiledStatement);
         when(compiledStatement.runQuery(isNull(ObjectCache.class))).thenReturn(results);
         when(compiledStatement.getColumnCount()).thenReturn(2);
         when(results.first()).thenReturn(false);
@@ -186,7 +190,8 @@ public class SQLiteDatabaseSupportTest
                 statementArg.capture(), 
                 eq(StatementType.SELECT_RAW), 
                 eq(fieldTypes),
-                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS))).thenReturn(compiledStatement);
+                eq(DatabaseConnection.DEFAULT_RESULT_FLAGS),
+                eq(true))).thenReturn(compiledStatement);
 
         when(compiledStatement.runQuery(isNull(ObjectCache.class))).thenReturn(databaseResults);
         when(compiledStatement.getColumnCount()).thenReturn(2);

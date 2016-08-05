@@ -407,7 +407,7 @@ public class HelloTwoDbsMain
 		DatabaseConnection connection = null;
 		try 
 		{
-			connection = connectionSource.getReadOnlyConnection();
+			connection = connectionSource.getReadOnlyConnection(DATABASE_INFO_NAME);
 			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
 			if (tableExists)
 			{

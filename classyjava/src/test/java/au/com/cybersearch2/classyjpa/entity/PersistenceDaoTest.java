@@ -34,24 +34,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.dao.CloseableIterable;
 import com.j256.ormlite.dao.CloseableIterator;
@@ -84,6 +66,7 @@ import com.j256.ormlite.table.TableUtils;
 
 public class PersistenceDaoTest 
 {
+	public static final String FOO_TABLE_NAME = "foo"; 
     protected static class Foo {
         public static final String ID_COLUMN_NAME = "id";
         public static final String VAL_COLUMN_NAME = "val";
@@ -485,7 +468,7 @@ public class PersistenceDaoTest
 		assertEquals(1, dao.countOf());
 		assertEquals(1, dao.countOf(dao.queryBuilder().setCountOf(true).prepare()));
 		PreparedQuery<Foo> prepared = dao.queryBuilder().prepare();
-		DatabaseConnection conn = connectionSource.getReadOnlyConnection();
+		DatabaseConnection conn = connectionSource.getReadOnlyConnection(FOO_TABLE_NAME);
 		CompiledStatement compiled = null;
 		try 
 		{

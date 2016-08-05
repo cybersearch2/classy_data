@@ -18,6 +18,7 @@ package au.com.cybersearch2.classyjpa.transaction;
 import org.junit.Before;
 import org.junit.Test;
 
+import au.com.cybersearch2.classydb.DatabaseSupportBase;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.db.DatabaseType;
@@ -53,7 +54,7 @@ public class TransactionStateTest
     {
         int transactionId = TransactionState.savePointCounter.get() + 1;
         String savepointName = "ORMLITE" + transactionId;
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true);
@@ -73,7 +74,7 @@ public class TransactionStateTest
     {
         DatabaseType databaseType = mock(DatabaseType.class);
         when(databaseType.isNestedSavePointsSupported()).thenReturn(true);
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(false);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connectionSource.getDatabaseType()).thenReturn(databaseType);
@@ -91,7 +92,7 @@ public class TransactionStateTest
     public void test_begin_connection_exception() throws Exception
     {
         SQLException exception = new SQLException("Connection failed");
-        doThrow(exception).when(connectionSource).getReadWriteConnection();
+        doThrow(exception).when(connectionSource).getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME);
         try
         {
             new TransactionState(connectionSource);
@@ -107,7 +108,7 @@ public class TransactionStateTest
     public void test_begin_connection_source_exception() throws Exception
     {
         SQLException exception = new SQLException("saveSpecialConnection failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         doThrow(exception).when(connectionSource).saveSpecialConnection(connection);
         try
         {
@@ -125,7 +126,7 @@ public class TransactionStateTest
     public void test_begin_connection_source_exception_on_release() throws Exception
     {
         SQLException exception = new SQLException("saveSpecialConnection failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         doThrow(exception).when(connectionSource).saveSpecialConnection(connection);
         doThrow(new SQLException()).when(connectionSource).releaseConnection(connection);
         try
@@ -144,7 +145,7 @@ public class TransactionStateTest
     public void test_begin_auto_commit_supported_exception() throws Exception
     {
         SQLException exception = new SQLException("isAutoCommitSupported failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         doThrow(exception).when(connection).isAutoCommitSupported();
         try
@@ -163,7 +164,7 @@ public class TransactionStateTest
     public void test_begin_get_auto_commit_exception() throws Exception
     {
         SQLException exception = new SQLException("isAutoCommit failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         doThrow(exception).when(connection).isAutoCommit();
@@ -183,7 +184,7 @@ public class TransactionStateTest
     public void test_begin_set_auto_commit_exception() throws Exception
     {
         SQLException exception = new SQLException("setAutoCommit failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true);
@@ -204,7 +205,7 @@ public class TransactionStateTest
     public void test_begin_set_save_point_exception() throws Exception
     {
         SQLException exception = new SQLException("setSavePoint failed");
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true);
@@ -228,7 +229,7 @@ public class TransactionStateTest
     {
         int transactionId = TransactionState.savePointCounter.get() + 1;
         String savepointName = "ORMLITE" + transactionId;
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true, false);
@@ -251,7 +252,7 @@ public class TransactionStateTest
     {
         int transactionId = TransactionState.savePointCounter.get() + 1;
         String savepointName = "ORMLITE" + transactionId;
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true, false);
@@ -275,7 +276,7 @@ public class TransactionStateTest
         SQLException exception = new SQLException("doCommit failed");
         int transactionId = TransactionState.savePointCounter.get() + 1;
         String savepointName = "ORMLITE" + transactionId;
-        when(connectionSource.getReadWriteConnection()).thenReturn(connection);
+        when(connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME)).thenReturn(connection);
         when(connectionSource.saveSpecialConnection(connection)).thenReturn(true);
         when(connection.isAutoCommitSupported()).thenReturn(true);
         when(connection.isAutoCommit()).thenReturn(true, false);

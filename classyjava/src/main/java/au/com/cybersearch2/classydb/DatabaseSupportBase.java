@@ -54,6 +54,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport, Connection
     /** Limit clause validation */
     protected static final Pattern LIMIT_PATTERN =
             Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
+	public static final boolean CACHE_STORE = true;
     /** Connection type: memory, file or pooled */
     protected ConnectionType connectionType;
     /** ORMLite databaseType */
@@ -113,7 +114,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport, Connection
             {
                 connectionSource = getConnectionSourceForType(databaseName, properties);
                 connectionSourceMap.put(databaseName, connectionSource);
-                connectionSource.getReadWriteConnection();
+                connectionSource.getReadWriteConnection(DATABASE_INFO_NAME);
             }
             catch (SQLException e)
             {
@@ -181,7 +182,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport, Connection
 		DatabaseConnection connection = null;
 		try 
 		{
-			connection = connectionSource.getReadOnlyConnection();
+			connection = connectionSource.getReadOnlyConnection(DATABASE_INFO_NAME);
 			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
 			if (tableExists)
 				databaseVersion = ((Long)connection.queryForLong("select version from " + DATABASE_INFO_NAME)).intValue();
@@ -216,7 +217,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport, Connection
 		DatabaseConnection connection = null;
 		try 
 		{
-			connection = connectionSource.getReadOnlyConnection();
+			connection = connectionSource.getReadOnlyConnection(DATABASE_INFO_NAME);
 			tableExists = connection.isTableExists(DATABASE_INFO_NAME);
 			if (tableExists)
 				connection.executeStatement(getVersionUpdateStatement(version), DatabaseConnection.DEFAULT_RESULT_FLAGS);
@@ -259,7 +260,7 @@ public abstract class DatabaseSupportBase implements DatabaseSupport, Connection
         String databaseName = databaseType.getDatabaseName();
         try
         {
-            connection = connectionSource.getReadWriteConnection();
+            connection = connectionSource.getReadWriteConnection(queryInfo.getTable());
             DatabaseResults results = getDatabaseResults(connection, queryInfo, startPosition, maxResults);
             if (results.first())
             {
@@ -392,7 +393,8 @@ public abstract class DatabaseSupportBase implements DatabaseSupport, Connection
                 statement, 
                 StatementType.SELECT_RAW, 
                 new FieldType[] {},
-                DatabaseConnection.DEFAULT_RESULT_FLAGS);
+                DatabaseConnection.DEFAULT_RESULT_FLAGS,
+                CACHE_STORE);
         int parameterIndex = 0;
         for (String arg: queryInfo.getSelectionArgs())
         {

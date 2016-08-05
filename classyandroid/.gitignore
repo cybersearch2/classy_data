@@ -12,3 +12,4 @@ project.properties
 AndroidManifest.xml
 /res/
 /assets/
+/gen/

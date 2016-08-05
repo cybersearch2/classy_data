@@ -140,6 +140,7 @@ public class ClassyEntityTransactionTest
     @Before
     public void setUp()
     {
+        @SuppressWarnings("unused")
         ApplicationComponent component = 
                 DaggerClassyEntityTransactionTest_ApplicationComponent.builder()
                 .classyEntityTransactionTestModule(new ClassyEntityTransactionTestModule())

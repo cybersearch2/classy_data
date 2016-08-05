@@ -22,6 +22,7 @@ import java.sql.Savepoint;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
+import au.com.cybersearch2.classydb.DatabaseSupportBase;
 import au.com.cybersearch2.classylog.*;
 
 import com.j256.ormlite.support.ConnectionSource;
@@ -101,7 +102,7 @@ public class TransactionState
          * </p>
          * 
          */
-    	connection = connectionSource.getReadWriteConnection();
+    	connection = connectionSource.getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME);
     	savedSpecialConnection = connectionSource.saveSpecialConnection(connection);
     	transactionId = savePointCounter.incrementAndGet();
     	if (savedSpecialConnection || connectionSource.getDatabaseType().isNestedSavePointsSupported())

@@ -17,7 +17,7 @@
     <!-- Android Suport Library version - always 3-part -->
     <android.support.version>23.1.1</android.support.version>
     <robolectric.version>3.0</robolectric.version>
-    <ormlite.version>4.49-SNAPSHOT</ormlite.version>
+    <ormlite.version>5.0</ormlite.version>
     <!--<dagger.version>1.2.2</dagger.version>-->
     <dagger.version>2.0.2</dagger.version>
     <h2.version>1.2.128</h2.version>
@@ -301,6 +301,7 @@
     	  								</versionRange>
     	  								<goals>
     	  									<goal>copy-dependencies</goal>
+    	  									<goal>emma</goal>
     	  								</goals>
     	  							</pluginExecutionFilter>
     	  							<action>

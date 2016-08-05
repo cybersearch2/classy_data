@@ -85,7 +85,7 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 		int version = 0;
 		try 
 		{
-			connection = getReadWriteConnection();
+			connection = getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME);
 			version = sqLiteDatabase.getVersion();
 		} 
 		catch (SQLException e) 
@@ -113,7 +113,7 @@ public class OpenHelperConnectionSource extends AndroidConnectionSource
 		DatabaseConnection connection = null;
 		try 
 		{
-			connection = getReadWriteConnection();
+			connection = getReadWriteConnection(DatabaseSupportBase.DATABASE_INFO_NAME);
 			sqLiteDatabase.setVersion(version);
 		} 
 		catch (SQLException e) 
