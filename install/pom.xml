@@ -95,6 +95,27 @@
 	        <id>android</id>
 	        <build>
 	            <plugins>
+          <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-install-plugin</artifactId>
+           <executions>
+              <execution>
+                 <id>android</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>initialize</phase>
+                 <configuration>
+                   <packaging>jar</packaging>
+                   <file>${sdk.android.jar.path}</file>
+                   <generatePom>true</generatePom>
+                   <groupId>android</groupId>
+                   <artifactId>android</artifactId>
+                   <version>${android.sdk.version}</version>
+                 </configuration>
+              </execution>
+           </executions>
+          </plugin>      
           <!-- Install RobolectricTestRunner Maven dependencies now rather than wait for first
                test run. These dependencies are inserted in the TestRunner's classpath, hence
                the use of maven-dependency-plugin "build-classpath" goal which does the same thing as the TestRunner. 
