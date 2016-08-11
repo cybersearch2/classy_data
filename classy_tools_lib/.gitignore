@@ -1,6 +1,7 @@
 .classpath
 .project
 .factorypath
+project.properties
 /.settings/
 /bin/
 /target/
