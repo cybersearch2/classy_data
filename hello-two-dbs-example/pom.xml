@@ -54,11 +54,11 @@
                <goal>jar</goal>
              </goals>
              <configuration>
-               <additionalparam>-tag inheritDoc:X</additionalparam>
-             </configuration>
+              </configuration>
            </execution>
         </executions>
         <configuration>
+          <additionalparam>-tag inheritDoc:X</additionalparam>
           <doctitle><![CDATA[<h1>ClassyTools API - >Hello Two Dbs example</h1>]]></doctitle>
           <windowtitle>ClassyTools API - &gt;Hello Two Dbs example</windowtitle> 
           <links>
@@ -126,4 +126,39 @@
       <version>${dagger.version}</version>
     </dependency>
   </dependencies>
+    <profiles>
+        <profile>
+          <id>doclint-java8-disable</id>
+          <activation>
+            <jdk>[1.8,)</jdk>
+          </activation>
+          <build>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                  <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
+              </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                  <reportPlugins>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-javadoc-plugin</artifactId>
+                      <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                      </configuration>
+                    </plugin>
+                  </reportPlugins>
+                </configuration>
+              </plugin>
+            </plugins>
+          </build>
+        </profile>
+    </profiles>
 </project>

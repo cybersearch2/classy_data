@@ -63,10 +63,13 @@ import com.j256.ormlite.support.DatabaseResults;
 import com.j256.ormlite.table.DatabaseTableConfig;
 import com.j256.ormlite.table.ObjectFactory;
 import com.j256.ormlite.table.TableUtils;
+import com.j256.ormlite.table.DatabaseTable;
 
 public class PersistenceDaoTest 
 {
 	public static final String FOO_TABLE_NAME = "foo"; 
+	
+	@DatabaseTable(tableName = FOO_TABLE_NAME)
     protected static class Foo {
         public static final String ID_COLUMN_NAME = "id";
         public static final String VAL_COLUMN_NAME = "val";
@@ -178,8 +181,8 @@ public class PersistenceDaoTest
 			boolean found = false;
 
 			// coverage magic
-			if (daoMethod.getName().equals("$VRi")) 
-			{
+			if (daoMethod.getName().equals("$VRi") || daoMethod.getName().equals("spliterator") /* java 8 method */
+					|| daoMethod.getName().equals("forEach") /* java 8 method */) {
 				continue;
 			}
 
@@ -437,6 +440,7 @@ public class PersistenceDaoTest
 		assertEquals(1, rawResults.getResults().size());
 		GenericRawResults<Foo> mappedResults = dao.queryRaw("select * from foo", new RawRowMapper<Foo>() 
 		{
+			@Override
 			public Foo mapRow(String[] columnNames, String[] resultColumns) 
 			{
 				Foo fooResult = new Foo();
@@ -459,6 +463,7 @@ public class PersistenceDaoTest
 		final String someVal = "fpowejfpjfwe";
 		assertEquals(someVal, dao.callBatchTasks(new Callable<String>() 
 		{
+			@Override
 			public String call()
 			{
 				return someVal;
@@ -501,6 +506,7 @@ public class PersistenceDaoTest
 		dao.endThreadConnection(conn);
 		ObjectFactory<Foo> objectFactory = new ObjectFactory<Foo>() 
 	    {
+			@Override
 			public Foo createObject(Constructor<Foo> construcor, Class<Foo> dataClass) 
 			{
 				return new Foo();

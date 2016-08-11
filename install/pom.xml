@@ -21,16 +21,6 @@
     <developerConnection>scm:git:ssh://git@github.com/andrew-bowley/classy-tools.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-  <repositories>
-  <!-- For Robolectric shadows-core API 16 to 19 -->
-    <repository>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>Robolectric Snapshots Repository</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-  </repositories>
   <developers>
     <developer>
       <id>andrew-bowley</id>
@@ -172,96 +162,21 @@
       </pluginManagement>
     </build>
     <dependencies>
-   <!-- Assume Robolectric SDK Version = 21. Other supported version are 16 to 19.
-        For each version, there is a VERY LARGE "Android all" jar dependency. 
+   <!-- For each Android version, there is a VERY LARGE "Android all" jar dependency. 
         RobolectricTestRunner will install this jar in the local repository if required.
-        It is better to let Maven handle all dependencies for consistency.
-        Please uncomment other version dependencies, if required. -->
-      <!-- API 21 Lollipop -->
+        It is better to let Maven handle all dependencies for consistency. -->
         <dependency>
           <groupId>org.robolectric</groupId>
-          <artifactId>android-all</artifactId>
-          <version>5.0.0_r2-robolectric-1</version>
-          <scope>test</scope>
-       </dependency> 
+          <artifactId>shadows-core-v${android.platform.version}</artifactId>
+        </dependency> 
         <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core</artifactId>
-          <scope>test</scope>
-       </dependency> 
-      
-  <!-- For Robolectric shadows-core API 16 to 19, use snapshots, which are updated regularly. -->
-      <!-- API 19 Kit Kat
+            <groupId>org.robolectric</groupId>
+            <artifactId>android-all</artifactId>
+        </dependency>
         <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>android-all</artifactId>
-          <version>4.4_r1-robolectric-1</version>
-          <scope>test</scope>
-       </dependency> 
-        <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core</artifactId>
-          <version>shadows-core-3.0-20150413.181813-344-19</version>
-          <classifier>19</classifier>
-          <scope>test</scope>
-       </dependency> 
-       -->
-      <!-- API 18
-        <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>android-all</artifactId>
-          <version>4.3_r2-robolectric-0</version>
-          <scope>test</scope>
-       </dependency> 
-        <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core</artifactId>
-          <version>shadows-core-3.0-20150413.181813-344-18</version>
-          <classifier>18</classifier>
-          <scope>test</scope>
-       </dependency> 
-       -->
-       <!-- API 17
-       <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>android-all</artifactId>
-          <version>4.2.2_r1.2-robolectric-0</version>
-          <scope>test</scope>
-       </dependency> 
-        <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core</artifactId>
-          <version>shadows-core-3.0-20150413.181813-344-17</version>
-          <classifier>17</classifier>
-          <scope>test</scope>
-       </dependency> 
-       -->
-       <!-- API 16
-       <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>android-all</artifactId>
-          <version>4.1.2_r1-robolectric-0</version>
-          <scope>test</scope> 
-       </dependency> 
-        <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core</artifactId>
-          <version>shadows-core-3.0-20150413.181813-344-16</version>
-          <classifier>17</classifier>
-          <scope>test</scope>
-       </dependency> 
-       -->
-       <dependency>
-          <groupId>org.json</groupId>
-          <artifactId>json</artifactId>
-          <version>20080701</version>
-          <scope>test</scope>
-       </dependency>
-       <dependency>
-          <groupId>org.ccil.cowan.tagsoup</groupId>
-          <artifactId>tagsoup</artifactId>
-          <version>1.2</version>
-          <scope>test</scope>
-       </dependency>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-ant-tasks</artifactId>
+          <version>2.1.3</version>
+        </dependency> 
     </dependencies>
 </project>

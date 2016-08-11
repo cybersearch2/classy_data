@@ -5,6 +5,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.res.Fs;
 import org.robolectric.res.FsFile;
+import org.robolectric.annotation.Config;
 
 import java.io.File;
 
@@ -26,8 +27,8 @@ public class TestRunnerWithManifest extends RobolectricTestRunner {
     return new File(testDir, "AndroidManifest.xml").isFile();
   }
 
-  @Override
-  protected AndroidManifest createAppManifest(FsFile manifestFile, FsFile resDir, FsFile assetsDir, String packageName) {
+@Override
+protected AndroidManifest getAppManifest(Config config) {
     return new AndroidManifest(resourceFile("AndroidManifest.xml"), resourceFile("res"), resourceFile("assets"));
   }
 }
