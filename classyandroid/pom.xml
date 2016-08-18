@@ -38,12 +38,6 @@
         <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
     </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>dropbox</id>
-      <url>https://dl.dropboxusercontent.com/u/52711537/maven-repo/</url>
-    </pluginRepository>
-  </pluginRepositories>
   <build>
     <plugins>
        <plugin>
