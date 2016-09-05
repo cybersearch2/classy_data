@@ -149,6 +149,7 @@
       <groupId>com.google.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
       <version>${dagger.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <profiles>

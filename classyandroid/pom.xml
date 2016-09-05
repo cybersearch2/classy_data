@@ -174,17 +174,31 @@
     </dependency>
     <dependency>
       <groupId>com.android.support</groupId>
-      <artifactId>cas_support-v4</artifactId>
+      <artifactId>cas_support-core-utils</artifactId>
       <version>${android.support.version}</version>
       <type>jar</type>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.android.support</groupId>
-      <artifactId>cas_support-v4-impl</artifactId>
+      <artifactId>cas_support-core-utils-impl</artifactId>
       <version>${android.support.version}</version>
       <type>jar</type>
-      <scope>compile</scope>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>cas_support-compat</artifactId>
+      <version>${android.support.version}</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>cas_support-compat-impl</artifactId>
+      <version>${android.support.version}</version>
+      <type>jar</type>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -252,6 +266,7 @@
       <groupId>com.google.dagger</groupId>
       <artifactId>dagger-compiler</artifactId>
       <version>${dagger.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
     <profiles>

@@ -11,18 +11,20 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
     <android.plugin.version>4.4.3</android.plugin.version>
-    <android.platform.version>23</android.platform.version>
+    <android.platform.version>24</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>6.0.0_r3</android.sdk.version>
+    <android.sdk.version>7.0.0_r2</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
-    <android.support.version>23.4.0</android.support.version>
+    <android.support.version>24.2.0</android.support.version>
     <ormlite.version>5.0</ormlite.version>
-    <dagger.version>2.6</dagger.version>
+    <dagger.version>2.6.1</dagger.version>
     <h2.version>1.2.128</h2.version>
     <release.repo.id>artifactory</release.repo.id>
     <release.repo.url>http://microserver/artifactory/libs-release-local</release.repo.url>
     <snapshot.repo.id>artifactory</snapshot.repo.id>
     <snapshot.repo.url>http://microserver/artifactory/libs-snapshot-local</snapshot.repo.url>
+    <!-- Roboletric Android API Level. Must be equal to or less than Platform API Level.  -->
+    <robolectric.platform.version>23</robolectric.platform.version>
     <robolectric.version>3.1.2</robolectric.version>
     <robolectric.all.version>6.0.0_r1-robolectric-0</robolectric.all.version>
  </properties>
@@ -80,9 +82,11 @@
     <module>classyutils</module>
     <module>many2many-example</module>
     <module>hello-two-dbs-example</module>
-    <!-- Comment out next modules for Java-only development --> 
-    <module>classy_tools_lib</module>
+    <!-- 
+    Comment out next modules for Java-only development. -->
+    <module>support-v4</module> 
     <module>classyandroid</module>
+    <module>classy_tools_lib</module> 
   </modules>
   <dependencyManagement>
 	<dependencies>
@@ -179,7 +183,7 @@
         </dependency> 
         <dependency>
           <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core-v${android.platform.version}</artifactId>
+          <artifactId>shadows-core-v${robolectric.platform.version}</artifactId>
           <version>${robolectric.version}</version>
         </dependency> 
         <dependency>

@@ -188,7 +188,7 @@
         It is better to let Maven handle all dependencies for consistency. -->
         <dependency>
           <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core-v${android.platform.version}</artifactId>
+          <artifactId>shadows-core-v${robolectric.platform.version}</artifactId>
         </dependency> 
         <dependency>
             <groupId>org.robolectric</groupId>

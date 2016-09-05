@@ -167,28 +167,39 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>classyandroid</artifactId>
       <version>${project.version}</version>
+      <!--
       <exclusions>
         <exclusion>
           <groupId>com.android.support</groupId>
-          <artifactId>cas_support-v4</artifactId>
+          <artifactId>cas_support-compat</artifactId>
         </exclusion>
         <exclusion>
           <groupId>com.android.support</groupId>
-          <artifactId>cas_support-v4-impl</artifactId>
+          <artifactId>cas_support-compat-impl</artifactId>
         </exclusion>
-      </exclusions>
+        <exclusion>
+          <groupId>com.android.support</groupId>
+          <artifactId>cas_support-core-utils</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.android.support</groupId>
+          <artifactId>cas_support-core-utils-impl</artifactId>
+        </exclusion>
+      </exclusions>-->
     </dependency>
     <dependency>
-      <groupId>android</groupId>
-      <artifactId>android</artifactId>
-      <version>${android.sdk.version}</version>
-      <scope>provided</scope>
-    </dependency>  
-    <dependency>
       <groupId>com.android.support</groupId>
-      <artifactId>support-v4</artifactId>
+      <artifactId>support-compat</artifactId>
       <version>${android.support.version}</version>
       <type>aar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-core-utils</artifactId>
+      <version>${android.support.version}</version>
+      <type>aar</type>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

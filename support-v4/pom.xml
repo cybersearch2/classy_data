@@ -9,7 +9,10 @@
   <artifactId>support-v4-lib</artifactId>
   <version>${android.support.version}</version>
   <packaging>aar</packaging>
-  <name>Classy Tools AAR</name>
+  <name>Android Support v4 Library Jars</name>
+  <description>This module provides Support v4 jar libraries for the classyandroid module, which because it is a jar package, does not support AAR dependency.
+  	Note that a "support-v4-lib" artifact is NOT installed in the local Maven repository.
+  </description>
   <licenses>
      <license>
        <name>GPLv3</name>
@@ -51,10 +54,6 @@
                 <versionName>${project.version}</versionName>
                 <versionCodeUpdateFromVersion>true</versionCodeUpdateFromVersion>
               </manifestMerger>
-			  <!--
-              <androidManifestFile>${project.basedir}/src/main/AndroidManifest.xml</androidManifestFile>
-              <assetsDirectory>${project.basedir}/src/main//assets</assetsDirectory>
-              <resourceDirectory>${project.basedir}/src/main/res</resourceDirectory>-->
 	  		  <attachJar>true</attachJar>
 		    </configuration>
 			<extensions>true</extensions>
@@ -106,6 +105,68 @@
             <configuration>
             	<skip>true</skip>
             </configuration>
+            <executions>
+              <execution>
+                 <id>android-support-core-utils-jar</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>compile</phase>
+                 <configuration>
+                   <groupId>com.android.support</groupId>
+                   <artifactId>cas_support-core-utils</artifactId>
+                   <version>${android.support.version}</version>
+                   <packaging>jar</packaging>
+                   <file>${project.build.directory}/unpacked-libs/cas_support-core-utils_${android.support.version}/classes.jar</file>
+                   <generatePom>true</generatePom>
+                </configuration>
+              </execution> 
+              <execution>
+                 <id>android-support-core-utils-internal-jar</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>compile</phase>
+                 <configuration>
+                   <groupId>com.android.support</groupId>
+                   <artifactId>cas_support-core-utils-impl</artifactId>
+                   <version>${android.support.version}</version>
+                   <packaging>jar</packaging>
+                   <file>${project.build.directory}/unpacked-libs/cas_support-compat_${android.support.version}/libs/internal_impl-${android.support.version}.jar</file>
+                   <generatePom>true</generatePom>
+                </configuration>
+              </execution> 
+              <execution>
+                 <id>android-support-compat-jar</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>compile</phase>
+                 <configuration>
+                   <groupId>com.android.support</groupId>
+                   <artifactId>cas_support-compat</artifactId>
+                   <version>${android.support.version}</version>
+                   <packaging>jar</packaging>
+                   <file>${project.build.directory}/unpacked-libs/cas_support-compat_${android.support.version}/classes.jar</file>
+                   <generatePom>true</generatePom>
+                </configuration>
+              </execution> 
+              <execution>
+                 <id>android-support-compat-internal-jar</id>
+                 <goals>
+                    <goal>install-file</goal>
+                 </goals>
+                 <phase>compile</phase>
+                 <configuration>
+                   <groupId>com.android.support</groupId>
+                   <artifactId>cas_support-compat-impl</artifactId>
+                   <version>${android.support.version}</version>
+                   <packaging>jar</packaging>
+                   <file>${project.build.directory}/unpacked-libs/cas_support-compat_${android.support.version}/libs/internal_impl-${android.support.version}.jar</file>
+                   <generatePom>true</generatePom>
+                </configuration>
+              </execution> 
+            </executions>
 		</plugin>
      </plugins>
       <pluginManagement>
@@ -147,54 +208,41 @@
   <dependencies>
     <dependency>
       <groupId>com.android.support</groupId>
-      <artifactId>support-v4</artifactId>
+      <artifactId>support-compat</artifactId>
       <version>${android.support.version}</version>
       <type>aar</type>
+      <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-core-utils</artifactId>
+      <version>${android.support.version}</version>
+      <type>aar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- The following artifacts are not currently required -->
+    <!--
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-media-compat</artifactId>
+      <version>${android.support.version}</version>
+      <type>aar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-core-ui</artifactId>
+      <version>${android.support.version}</version>
+      <type>aar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-fragment</artifactId>
+      <version>${android.support.version}</version>
+      <type>aar</type>
+      <scope>provided</scope>
+    </dependency>
+    -->
   </dependencies>
-  <profiles>
-	<profile>
-	  <id>eclipse</id>
-      <build>
-        <plugins>
-           <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-install-plugin</artifactId>
-           <executions>
-              <execution>
-                 <id>android-support-jar</id>
-                 <goals>
-                    <goal>install-file</goal>
-                 </goals>
-                 <phase>compile</phase>
-                 <configuration>
-                   <groupId>com.android.support</groupId>
-                   <artifactId>cas_support-v4</artifactId>
-                   <version>${android.support.version}</version>
-                   <packaging>jar</packaging>
-                   <file>${basedir}/target/unpacked-libs/cas_support-v4_${android.support.version}/classes.jar</file>
-                   <generatePom>true</generatePom>
-                </configuration>
-              </execution> 
-              <execution>
-                 <id>android-support-internal-jar</id>
-                 <goals>
-                    <goal>install-file</goal>
-                 </goals>
-                 <phase>compile</phase>
-                 <configuration>
-                   <groupId>com.android.support</groupId>
-                   <artifactId>cas_support-v4-impl</artifactId>
-                   <version>${android.support.version}</version>
-                   <packaging>jar</packaging>
-                   <file>${basedir}/target/unpacked-libs/cas_support-v4_${android.support.version}/libs/internal_impl-${android.support.version}.jar</file>
-                   <generatePom>true</generatePom>
-                </configuration>
-              </execution> 
-             </executions>
-           </plugin>
-        </plugins>
-      </build>
-	</profile>
-  </profiles>
-</project>
+ </project>

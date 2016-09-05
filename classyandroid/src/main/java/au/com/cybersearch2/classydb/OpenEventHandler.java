@@ -15,14 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classydb;
 
-import java.sql.SQLException;
-
 import com.j256.ormlite.android.AndroidConnectionSource;
-import com.j256.ormlite.android.AndroidDatabaseConnection;
-import com.j256.ormlite.support.DatabaseConnection;
+import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
+import com.j256.ormlite.support.ConnectionSource;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * OpenEventHandler - SQLiteOpenHelper for AndroidConnectionSource
@@ -35,7 +32,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * @see android.database.sqlite.SQLiteOpenHelper
  * @see com.j256.ormlite.android.AndroidConnectionSource
  */
-public class OpenEventHandler extends SQLiteOpenHelper
+public class OpenEventHandler extends OrmLiteSqliteOpenHelper
 {
     /** Implementation of onCreate() and onUpdate() SQLiteOpenHelper abstract methods */
     protected OpenHelperCallbacks openHelperCallbacks;
@@ -56,45 +53,51 @@ public class OpenEventHandler extends SQLiteOpenHelper
 	}
 
     /**
-     * Satisfies the {@link SQLiteOpenHelper#onCreate(SQLiteDatabase)} interface method.
+     * What to do when your database needs to be created. Usually this entails creating the tables and loading any
+     * initial data.
+     * 
+     * <p>
+     * <b>NOTE:</b> You should use the connectionSource argument that is passed into this method call or the one
+     * returned by getConnectionSource(). If you use your own, a recursive call or other unexpected results may result.
+     * </p>
+     * 
+     * @param database
+     *            Database being created.
+     * @param connectionSource
+     *            To use get connections to the database to be created.
      */
-	@Override
-    public final void onCreate(final SQLiteDatabase db) 
+    @Override
+    public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource)
     {
-        /*
-         * The method is called by Android database helper's get-database calls when Android detects that we need to
-         * create or update the database. So we have to use the database argument and save a connection to it on the
-         * AndroidConnectionSource, otherwise it will go recursive if the subclass calls getConnectionSource().
-         */
-    	final AndroidConnectionSource connectionSource = new AndroidConnectionSource(db);
-        wrappedDatabaseOperation(db, connectionSource, new Runnable(){
-
-            @Override
-            public void run() {
-                openHelperCallbacks.onCreate(connectionSource);
-            }});
+        openHelperCallbacks.onCreate(connectionSource);
     }
 
     /**
-     * Satisfies the {@link SQLiteOpenHelper#onUpgrade(SQLiteDatabase, int, int)} interface method.
+     * What to do when your database needs to be updated. This could mean careful migration of old data to new data.
+     * Maybe adding or deleting database columns, etc..
+     * 
+     * <p>
+     * <b>NOTE:</b> You should use the connectionSource argument that is passed into this method call or the one
+     * returned by getConnectionSource(). If you use your own, a recursive call or other unexpected results may result.
+     * </p>
+     * 
+     * @param database
+     *            Database being upgraded.
+     * @param connectionSource
+     *            To use get connections to the database to be updated.
+     * @param oldVersion
+     *            The version of the current database so we can know what to do to the database.
+     * @param newVersion
+     *            The version that we are upgrading the database to.
      */
-	@Override
-    public final void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) 
+    @Override
+    public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion,
+            int newVersion)
     {
-        /*
-         * The method is called by Android database helper's get-database calls when Android detects that we need to
-         * create or update the database. So we have to use the database argument and save a connection to it on the
-         * AndroidConnectionSource, otherwise it will go recursive if the subclass calls getConnectionSource().
-         */
-       	final AndroidConnectionSource connectionSource = new AndroidConnectionSource(db);
-        wrappedDatabaseOperation(db, connectionSource, new Runnable(){
-
-            @Override
-            public void run() {
-                openHelperCallbacks.onUpgrade(new AndroidConnectionSource(db), oldVersion, newVersion);
-            }});
+        // TODO: Why use new connection source rather than follow Gary's advice?
+        openHelperCallbacks.onUpgrade(new AndroidConnectionSource(database), oldVersion, newVersion);
     }
-
+    
     /**
      * Called when the database needs to be downgraded. This is strictly similar to
      * {@link #onUpgrade} method, but is called whenever current version is newer than requested one.
@@ -110,41 +113,6 @@ public class OpenEventHandler extends SQLiteOpenHelper
     	onUpgrade(db, oldVersion, newVersion);
     }
 
-    /**
-     * Execute a task in the context database create or update. 
-     * Saves a database connection to the specified SQLiteDatabase object to avoid recursion on calls to getConnectionSource().
-     * @param db SQLiteDatabase undergoing create or update task
-     * @param connectionSource AndroidConnectionSource object
-     * @param runnable Create or update task
-     */
-    protected void wrappedDatabaseOperation(SQLiteDatabase db, AndroidConnectionSource connectionSource, Runnable runnable)
-    {
-        DatabaseConnection conn = connectionSource.getSpecialConnection(DatabaseSupportBase.DATABASE_INFO_NAME);
-        boolean clearSpecial = false;
-        if (conn == null) 
-        {
-            conn = new AndroidDatabaseConnection(db, true, cancelQueriesEnabled);
-            try 
-            {   // Note that multi-threading not permitted due to use of ThreadLocal variable:
-                //  private ThreadLocal<NestedConnection> specialConnection = new ThreadLocal<NestedConnection>();
-            	connectionSource.saveSpecialConnection(conn);
-                clearSpecial = true;
-            } 
-            catch (SQLException e) 
-            {
-                throw new IllegalStateException("Could not save special connection", e);
-            }
-        }
-        try 
-        {
-            runnable.run();
-        } 
-        finally 
-        {
-            if (clearSpecial) 
-            	connectionSource.clearSpecialConnection(conn);
-        }
-    }
 
     /**
      * Returns flag for support of optional android.os.CancellationSignal
