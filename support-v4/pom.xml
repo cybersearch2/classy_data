@@ -7,7 +7,6 @@
   </parent>
   <groupId>com.android.support</groupId>
   <artifactId>support-v4-lib</artifactId>
-  <version>${android.support.version}</version>
   <packaging>aar</packaging>
   <name>Android Support v4 Library Jars</name>
   <description>This module provides Support v4 jar libraries for the classyandroid module, which because it is a jar package, does not support AAR dependency.

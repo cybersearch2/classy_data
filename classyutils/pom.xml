@@ -71,7 +71,7 @@
           <doctitle><![CDATA[<h1>ClassyTools API - Utils Library</h1>]]></doctitle>
           <windowtitle>ClassyTools API - Java Library</windowtitle> 
           <links>
-           <link>http://google.github.io/dagger/api/2.0/</link>
+           <link>http://google.github.io/dagger/api/latest/</link>
           </links>
          </configuration>
        </plugin>
