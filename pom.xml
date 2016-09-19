@@ -20,9 +20,9 @@
     <dagger.version>2.6.1</dagger.version>
     <h2.version>1.2.128</h2.version>
     <release.repo.id>artifactory</release.repo.id>
-    <release.repo.url>http://microserver/artifactory/libs-release-local</release.repo.url>
+    <release.repo.url>http://build.cybersearch2.local/artifactory/libs-release-local</release.repo.url>
     <snapshot.repo.id>artifactory</snapshot.repo.id>
-    <snapshot.repo.url>http://microserver/artifactory/libs-snapshot-local</snapshot.repo.url>
+    <snapshot.repo.url>http://build.cybersearch2.local/artifactory/libs-snapshot-local</snapshot.repo.url>
     <!-- Roboletric Android API Level. Must be equal to or less than Platform API Level.  -->
     <robolectric.platform.version>23</robolectric.platform.version>
     <robolectric.version>3.1.2</robolectric.version>
