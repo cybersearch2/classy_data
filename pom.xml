@@ -88,6 +88,16 @@
     <module>classyandroid</module>
     <module>classy_tools_lib</module> 
   </modules>
+  <repositories>
+    <repository>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <id>bintray-melix-thirdparty-apache</id>
+        <name>bintray</name>
+        <url>http://dl.bintray.com/melix/thirdparty-apache</url>
+    </repository>
+  </repositories>  
   <dependencyManagement>
 	<dependencies>
         <dependency>
@@ -97,7 +107,7 @@
           <scope>provided</scope>
         </dependency>  
         <dependency>
-          <groupId>com.googlecode.openbeans</groupId>
+          <groupId>com.googlecode</groupId>
           <artifactId>openbeans</artifactId>
           <version>1.0</version>
         </dependency>
