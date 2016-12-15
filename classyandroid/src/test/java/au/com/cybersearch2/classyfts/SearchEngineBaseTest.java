@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
@@ -46,6 +47,7 @@ import au.com.cybersearch2.classyapp.TestRoboApplication;
  * 22 Jun 2015
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = 23, application = TestRoboApplication.class)
 public class SearchEngineBaseTest
 {
     static class TestSearchEngine extends SearchEngineBase
