@@ -47,7 +47,7 @@
   </licenses>
   <scm>
     <url>scm:git:ssh://git@gitserver:/opt/git/classy_data.git</url>
-	<connection>scm:git:ssh://git@github.com/cybersearch2/classy_data.git</connection>
+	<connection>scm:git:ssh://git@gitserver:/opt/git/classy_data.git</connection>
     <developerConnection>scm:git:ssh://git@gitserver:/opt/git/classy_data.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
