@@ -47,8 +47,8 @@
   </licenses>
   <scm>
 	<url>https://github.com/andrew-bowley/classy_tools</url>
-	<connection>scm:git:ssh://git@github.com/andrew-bowley/classy_tools.git</connection>
-    <developerConnection>scm:git:ssh://git@gitserver:/opt/git/classy_tools.git</developerConnection>
+	<connection>scm:git:ssh://git@github.com/cybersearch2/classy_data.git</connection>
+    <developerConnection>scm:git:ssh://git@gitserver:/opt/git/classy_data.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
   <distributionManagement>
