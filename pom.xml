@@ -88,20 +88,10 @@
     <module>classyandroid</module>
     <module>classy_data_lib</module> 
   </modules>
-  <repositories>
-    <repository>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <id>bintray-melix-thirdparty-apache</id>
-        <name>bintray</name>
-        <url>http://dl.bintray.com/melix/thirdparty-apache</url>
-    </repository>
-  </repositories>  
   <dependencyManagement>
 	<dependencies>
         <dependency>
-          <groupId>android</groupId>
+          <groupId>com.google.android</groupId>
           <artifactId>android</artifactId>
           <version>${android.sdk.version}</version>
           <scope>provided</scope>
