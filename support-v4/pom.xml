@@ -40,8 +40,6 @@
 		</repository>
 	</repositories>
     <properties>
-		<!-- ANDROID_HOME environment variable -->
-		<android.sdk.path>${env.ANDROID_HOME}</android.sdk.path>
 		<!-- Absolute Android jar location in SDK -->
 		<sdk.android.jar.path>${android.sdk.path}/platforms/android-${android.platform.version}/android.jar</sdk.android.jar.path>
     </properties>
