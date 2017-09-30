@@ -8,7 +8,7 @@
   </parent>
    <artifactId>many2many-example</artifactId>
   <name>many2many-example</name>
-  <description>Many to many example using lightweight Java Persistence API for persisting objects to SQL databases.</description>
+  <description>Demonstrates many-to-many relationship with 2 databases</description>
   <url>http://cybersearch2.com.au</url>
   <licenses>
      <license>

@@ -7,6 +7,7 @@
   </parent>
   <artifactId>classyutils</artifactId>
   <name>classyutils</name>
+  <description>Small utilities library relating to Java beans, logging and multi-tasking</description>
   <url>http://cybersearch2.com.au</url>
   <licenses>
      <license>

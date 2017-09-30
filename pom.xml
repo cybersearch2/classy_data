@@ -15,7 +15,7 @@
 	<!-- ANDROID_HOME environment variable -->
 	<android.sdk.path>${env.ANDROID_HOME}</android.sdk.path>
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
-    <android.plugin.version>4.4.3</android.plugin.version>
+    <android.plugin.version>4.5.0</android.plugin.version>
     <android.platform.version>24</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
     <android.sdk.version>7.0.0_r2</android.sdk.version>
@@ -83,7 +83,18 @@
     </developer>
   </developers>
   <modules>
-    <!-- Modules are defined in profiles "java-only" and "android-build" -->
+    <!-- Modules are defined in profiles "java-only" and "android-build" for staged installation.
+         Uncomment following to avoid using profiles:
+    -->
+    <!-- 
+        <module>classyjava</module>
+        <module>classyutils</module>
+        <module>many2many-example</module>
+        <module>hello-two-dbs-example</module>
+        <module>support-v4</module> 
+        <module>classyandroid</module>
+        <module>classy_data_lib</module>
+    --> 
   </modules>
   <repositories>
     <repository>
@@ -361,10 +372,10 @@
   </build>
   <profiles>
   	<profile>
-  	  <id>java-only</id>
+  	  <id>java-build</id>
   	  <activation>
   	    <property>
-  	   	  <name>java.only</name>
+  	   	  <name>project.properties.java.build</name>
   	  	</property>
   	  </activation>
   	  <modules>
@@ -378,14 +389,10 @@
   	  <id>android-build</id>
   	  <activation>
   	    <property>
-  	   	  <name>android.build</name>
+  	   	  <name>project.properties.android.build</name>
   	  	</property>
   	  </activation>
   	  <modules>
-        <module>classyjava</module>
-        <module>classyutils</module>
-        <module>many2many-example</module>
-        <module>hello-two-dbs-example</module>
         <module>support-v4</module> 
         <module>classyandroid</module>
         <module>classy_data_lib</module> 
