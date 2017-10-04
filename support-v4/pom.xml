@@ -33,12 +33,6 @@
 		  <timezone>+10</timezone>
 		</developer>
     </developers>
-    <repositories>
-		<repository>
-			<id>android-support</id>
-			<url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
-		</repository>
-	</repositories>
     <properties>
 		<!-- Absolute Android jar location in SDK -->
 		<sdk.android.jar.path>${android.sdk.path}/platforms/android-${android.platform.version}/android.jar</sdk.android.jar.path>
@@ -124,6 +118,7 @@
                    <generatePom>true</generatePom>
                 </configuration>
               </execution> 
+              <!--
               <execution>
                  <id>android-support-core-utils-internal-jar</id>
                  <goals>
@@ -139,6 +134,7 @@
                    <generatePom>true</generatePom>
                 </configuration>
               </execution> 
+              -->
               <execution>
                  <id>android-support-compat-jar</id>
                  <goals>
@@ -154,6 +150,7 @@
                    <generatePom>true</generatePom>
                 </configuration>
               </execution> 
+              <!--
               <execution>
                  <id>android-support-compat-internal-jar</id>
                  <goals>
@@ -169,6 +166,7 @@
                    <generatePom>true</generatePom>
                 </configuration>
               </execution> 
+              -->
             </executions>
 		</plugin>
      </plugins>
@@ -257,7 +255,7 @@
 				It is better to let Maven handle all dependencies for consistency. -->
 				<dependency>
 				  <groupId>org.robolectric</groupId>
-				  <artifactId>shadows-core-v${robolectric.platform.version}</artifactId>
+				  <artifactId>shadows-core</artifactId>
 				</dependency> 
 				<dependency>
 					<groupId>org.robolectric</groupId>

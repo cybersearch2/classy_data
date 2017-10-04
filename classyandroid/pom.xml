@@ -32,12 +32,6 @@
       <timezone>+10</timezone>
     </developer>
   </developers>
-  <repositories>
-    <repository>
-        <id>android-support</id>
-        <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
        <plugin>
@@ -181,21 +175,7 @@
     </dependency>
     <dependency>
       <groupId>com.android.support</groupId>
-      <artifactId>cas_support-core-utils-impl</artifactId>
-      <version>${android.support.version}</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.android.support</groupId>
       <artifactId>cas_support-compat</artifactId>
-      <version>${android.support.version}</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.android.support</groupId>
-      <artifactId>cas_support-compat-impl</artifactId>
       <version>${android.support.version}</version>
       <type>jar</type>
       <scope>provided</scope>
@@ -287,21 +267,21 @@
               <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                  <reportPlugins>
-                    <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-javadoc-plugin</artifactId>
-                      <configuration>
-                        <additionalparam>-Xdoclint:none</additionalparam>
-                      </configuration>
-                    </plugin>
-                  </reportPlugins>
-                </configuration>
+                <version>3.6</version>
               </plugin>
             </plugins>
           </build>
+          <reporting>
+            <plugins>
+	          <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-javadoc-plugin</artifactId>
+	            <configuration>
+	              <additionalparam>-Xdoclint:none</additionalparam>
+	            </configuration>
+	          </plugin>
+            </plugins>
+          </reporting>
         </profile>
     </profiles>
 </project>

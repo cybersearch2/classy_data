@@ -47,7 +47,7 @@ import au.com.cybersearch2.classyapp.TestRoboApplication;
  * 22 Jun 2015
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 23, application = TestRoboApplication.class)
+@Config(sdk = 25, application = TestRoboApplication.class)
 public class SearchEngineBaseTest
 {
     static class TestSearchEngine extends SearchEngineBase

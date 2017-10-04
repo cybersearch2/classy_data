@@ -16,11 +16,11 @@
 	<android.sdk.path>${env.ANDROID_HOME}</android.sdk.path>
     <!-- Android API Level. Aim for highest available, but check Support Library does not break -->
     <android.plugin.version>4.5.0</android.plugin.version>
-    <android.platform.version>24</android.platform.version>
+    <android.platform.version>25</android.platform.version>
     <!-- Specific Android SDK release - version + "_r" + release. Used to identify Android jar. -->
-    <android.sdk.version>7.0.0_r2</android.sdk.version>
+    <android.sdk.version>7.1.1_r3</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
-    <android.support.version>24.2.0</android.support.version>
+    <android.support.version>25.3.1</android.support.version>
     <ormlite.version>5.0</ormlite.version>
     <dagger.version>2.6.1</dagger.version>
     <h2.version>1.2.128</h2.version>
@@ -29,9 +29,9 @@
     <snapshot.repo.id>artifactory</snapshot.repo.id>
     <snapshot.repo.url>http://build.cybersearch2.local/artifactory/libs-snapshot-local</snapshot.repo.url>
     <!-- Roboletric Android API Level. Must be equal to or less than Platform API Level.  -->
-    <robolectric.platform.version>23</robolectric.platform.version>
-    <robolectric.version>3.1.2</robolectric.version>
-    <robolectric.all.version>6.0.0_r1-robolectric-0</robolectric.all.version>
+    <robolectric.platform.version>25</robolectric.platform.version>
+    <robolectric.version>3.3.2</robolectric.version>
+    <robolectric.all.version>7.1.0_r7-robolectric-0</robolectric.all.version>
  </properties>
  <!-- robolectric.all versions
     16 (JELLY_BEAN)      "4.1.2_r1-robolectric-0"
@@ -41,7 +41,10 @@
     21 (LOLLIPOP),       "5.0.0_r2-robolectric-1"
     22 (LOLLIPOP_MR1),   "5.1.1_r9-robolectric-1"
     23 (M),              "6.0.0_r1-robolectric-0"
- -->
+    24 (N),              "7.0.0_r1-robolectric-0"
+    25 (N_MR1),          "7.1.0_r7-robolectric-0"
+    26 (O),              "o-preview-4-robolectric-0"
+-->
  <url>http://cybersearch2.com.au</url>
  <licenses>
      <license>
@@ -200,11 +203,6 @@
           <version>${robolectric.version}</version>
         </dependency> 
         <dependency>
-          <groupId>org.robolectric</groupId>
-          <artifactId>shadows-core-v${robolectric.platform.version}</artifactId>
-          <version>${robolectric.version}</version>
-        </dependency> 
-        <dependency>
             <groupId>org.robolectric</groupId>
             <artifactId>android-all</artifactId>
             <version>${robolectric.all.version}</version>
@@ -334,6 +332,7 @@
                 </sdk>
                 <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 <disableConflictingDependenciesWarning>true</disableConflictingDependenciesWarning>
+                <attachJar>false</attachJar>
               </configuration>
               <extensions>true</extensions>
             </plugin>
