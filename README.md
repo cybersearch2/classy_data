@@ -20,9 +20,10 @@ Maven to install it. Both Java SE version 7 and above and Maven need to be insta
 the project is installed you can progress through the eamples starting with [many2many example](http://cybersearch2.com.au/develop/many2many.html).
 
 
-## classy_apps
+## classy_data_lib
 
-A separate [Android](https://github.com/cybersearch2/classy_apps) library provides an Android SQLite adapter and other features including an Android-specific Persistence Container 
-and a Fast Text Search engine to support automatic search suggestions.  
+The classy_data_lib module produces a library with an Android SQLite adapter and other features including an Android-specific Persistence Container 
+and a Fast Text Search engine to support automatic search suggestions. [Classy Android](https://github.com/cybersearch2/classy_android) and [Classy Apps](https://github.com/cybersearch2/classy_apps)
+Demonstrate classy_data_lib development with Android Studio and Eclipse Andmore respectively.
    
 
