@@ -1,0 +1,7 @@
+<factorypath>
+    <factorypathentry kind="WKSPJAR" id="/classyandroid/libs/guava-22.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/classyandroid/libs/dagger-compiler-2.6.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/classyandroid/libs/dagger-producers-2.6.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/classyandroid/libs/dagger-2.6.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/classyandroid/libs/javax.inject-1.jar" enabled="true" runInBatchMode="false"/>
+</factorypath>
