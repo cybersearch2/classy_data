@@ -1,10 +1,9 @@
 .classpath
-.factorypath
 /.settings/
 /bin/
 /.apt_generated/
 /target/
-/libs/
 /test-libs/
 /eclipse-aar/
 /pom.xml.*
+/.apt_generated_tests/

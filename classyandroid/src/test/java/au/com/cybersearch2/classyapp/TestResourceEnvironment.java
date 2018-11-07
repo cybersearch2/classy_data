@@ -15,11 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyapp;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
 import android.content.Context;
+import au.com.cybersearch2.classyjpa.entity.EntityClassLoader;
 
 /**
  * TestResourceEnvironment
@@ -42,5 +44,17 @@ public class TestResourceEnvironment implements ResourceEnvironment
     {
         return locale;
     }
+
+	@Override
+	public File getDatabaseDirectory() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EntityClassLoader getEntityClassLoader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.example;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -25,6 +26,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import au.com.cybersearch2.classyapp.ResourceEnvironment;
+import au.com.cybersearch2.classyjpa.entity.EntityClassLoader;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWork;
 import au.com.cybersearch2.classyjpa.entity.PersistenceWorkModule;
 import au.com.cybersearch2.classyjpa.persist.PersistenceContext;
@@ -73,7 +75,19 @@ public class AndroidManyToManyFactory
                 public Locale getLocale()
                 {
                     return new Locale("en", "AU");
-                }};
+                }
+
+				@Override
+				public File getDatabaseDirectory() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public EntityClassLoader getEntityClassLoader() {
+					// TODO Auto-generated method stub
+					return null;
+				}};
         component = 
                 DaggerAndroidManyToManyFactory_ApplicationComponent.builder()
                 .androidManyToManyModule(new AndroidManyToManyModule(context, resourceEnvironment, ManyToManyMain.PU_NAME))
