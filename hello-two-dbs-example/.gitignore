@@ -5,3 +5,4 @@
 /libs/
 /test-libs/
 /pom.xml.*
+/.apt_generated_tests/

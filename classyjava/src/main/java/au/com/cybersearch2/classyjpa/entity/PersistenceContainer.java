@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyjpa.entity;
 
+import javax.persistence.PersistenceException;
+
 import au.com.cybersearch2.classyjpa.EntityManagerLite;
 import au.com.cybersearch2.classyjpa.EntityManagerLiteFactory;
 import au.com.cybersearch2.classyjpa.entity.JavaPersistenceContext.EntityManagerProvider;
@@ -55,6 +57,10 @@ public class PersistenceContainer
         this.puName = puName;
         /** Reference PersistenceUnitAdmin Unit specified by name to extract EntityManagerFactory object */
         PersistenceAdmin persistenceAdmin = persistenceContext.getPersistenceAdmin(puName);
+        if (persistenceAdmin == null) 
+		{
+			throw new PersistenceException("Persistence Unit \"" + puName + "\" is invalid");
+		}
         if (async && persistenceAdmin.isSingleConnection())
         	async = false;
         this.async = async;

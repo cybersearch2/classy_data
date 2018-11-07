@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
+import au.com.cybersearch2.classyjpa.entity.EntityClassLoader;
+
 /**
  * JavaTestResourceEnvironment
  * @author Andrew Bowley
@@ -59,4 +61,16 @@ public class JavaTestResourceEnvironment implements ResourceEnvironment
     {
         return locale;
     }
+
+	@Override
+	public File getDatabaseDirectory() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EntityClassLoader getEntityClassLoader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

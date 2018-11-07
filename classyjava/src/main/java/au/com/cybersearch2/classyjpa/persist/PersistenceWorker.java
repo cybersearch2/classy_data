@@ -66,7 +66,7 @@ public abstract class PersistenceWorker
     /**
      * Execute task
      * @param persistenceWork Task to execute
-     * @returns Executable object to track progress
+     * @return Executable object to track progress
      */
     public abstract Executable doWork(PersistenceWork persistenceWork);
 

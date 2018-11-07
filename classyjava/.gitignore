@@ -6,3 +6,4 @@
 /bin/
 /target/
 /pom.xml.*
+/.apt_generated_tests/

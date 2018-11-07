@@ -6,3 +6,4 @@
 /test-libs/
 /resources/db/
 /pom.xml.releaseBackup
+/.apt_generated_tests/

@@ -21,7 +21,7 @@
     <android.sdk.version>7.1.1_r3</android.sdk.version>
     <!-- Android Suport Library version - always 3-part -->
     <android.support.version>25.3.1</android.support.version>
-    <ormlite.version>5.0</ormlite.version>
+    <ormlite.version>5.1</ormlite.version>
     <dagger.version>2.6.1</dagger.version>
     <h2.version>1.2.128</h2.version>
     <release.repo.id>artifactory</release.repo.id>
@@ -91,7 +91,6 @@
     -->
     <!-- 
         <module>classyjava</module>
-        <module>classyutils</module>
         <module>many2many-example</module>
         <module>hello-two-dbs-example</module>
         <module>support-v4</module> 
@@ -379,7 +378,6 @@
   	  </activation>
   	  <modules>
         <module>classyjava</module>
-        <module>classyutils</module>
         <module>many2many-example</module>
         <module>hello-two-dbs-example</module>
   	  </modules>
@@ -419,6 +417,22 @@
                <link>http://docs.oracle.com/javase/7/docs/api/</link>
             </links>
             <additionalparam>-tag inheritDoc:X</additionalparam>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.3</version>
+        <configuration>
+          <reportPlugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <configuration>
+                <additionalparam>-Xdoclint:none</additionalparam>
+              </configuration>
+            </plugin>
+          </reportPlugins>
         </configuration>
       </plugin>
     </plugins>

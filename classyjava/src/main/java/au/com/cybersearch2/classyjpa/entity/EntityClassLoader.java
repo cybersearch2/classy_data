@@ -1,5 +1,5 @@
 /**
-    Copyright (C) 2014  www.cybersearch2.com.au
+    Copyright (C) 2018  www.cybersearch2.com.au
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -13,26 +13,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
-package au.com.cybersearch2.classyapp;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
-import au.com.cybersearch2.classybean.BeanMapTest;
-import au.com.cybersearch2.classybean.BeanUtilTest;
+package au.com.cybersearch2.classyjpa.entity;
 
 /**
- * JUnitTestSuite
+ * Instantiates entity classes
  * @author Andrew Bowley
- * 19/06/2014
+ * 05/09/2018
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    BeanMapTest.class,
-    BeanUtilTest.class
-})
-public class JUnitTestSuite 
-{   
+public interface EntityClassLoader {
+	/**
+	 * @param name The name of the class to load.
+	 * @return The Class object for the requested class.
+	 * @throws ClassNotFoundException If no such class can be found 
+	 */
+	Class<?> loadClass(String name) throws ClassNotFoundException;
+
 }
-
-

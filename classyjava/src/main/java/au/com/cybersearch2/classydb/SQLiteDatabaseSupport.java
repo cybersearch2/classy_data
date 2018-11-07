@@ -58,6 +58,7 @@ public class SQLiteDatabaseSupport extends DatabaseSupportBase
     private static final String IN_MEMORY_PATH = "jdbc:sqlite::memory:";
     /** SQLite location for file database */
     private static final String FILE_LOCATION = "resources/db";
+    private File databaseDirectory;
  
     /**
      * Construct a SQLiteDatabaseSupport object
@@ -68,6 +69,10 @@ public class SQLiteDatabaseSupport extends DatabaseSupportBase
     	super(new SqliteDatabaseType(), connectionType, log, TAG);
     }
 
+    public SQLiteDatabaseSupport(File databaseDirectory) {
+    	super(new SqliteDatabaseType(), ConnectionType.file, log, TAG);
+    	this.databaseDirectory = databaseDirectory;
+    }
 
     protected File getDatabaseLocation()
     {
@@ -95,12 +100,13 @@ public class SQLiteDatabaseSupport extends DatabaseSupportBase
 	@Override
 	protected ConnectionSource getConnectionSourceForType(String databaseName, Properties properties) throws SQLException
     {
+		String fileLocation = databaseDirectory == null ? FILE_LOCATION : databaseDirectory.getAbsolutePath();
         switch(connectionType)
 	        {
 	        case file:
-	            return new JdbcConnectionSource("jdbc:sqlite:" + FILE_LOCATION  + "/" + databaseName);
+	            return new JdbcConnectionSource("jdbc:sqlite:" + fileLocation  + "/" + databaseName);
 	        case pooled:
-	            return new JdbcPooledConnectionSource("jdbc:sqlite:" + FILE_LOCATION  + "/" + databaseName); 
+	            return new JdbcPooledConnectionSource("jdbc:sqlite:" + fileLocation  + "/" + databaseName); 
 	        case memory: 
 	        default:
 	            return new JdbcConnectionSource(IN_MEMORY_PATH /*+ databaseName*/);

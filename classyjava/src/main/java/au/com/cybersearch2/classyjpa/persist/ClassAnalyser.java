@@ -32,6 +32,7 @@ import au.com.cybersearch2.classylog.JavaLogger;
 import au.com.cybersearch2.classylog.Log;
 import au.com.cybersearch2.classybean.BeanException;
 import au.com.cybersearch2.classybean.BeanUtil;
+import au.com.cybersearch2.classyjpa.entity.EntityClassLoader;
 
 import com.j256.ormlite.db.DatabaseType;
 import com.j256.ormlite.field.DataPersisterManager;
@@ -89,6 +90,7 @@ public class ClassAnalyser
     protected static Log log = JavaLogger.getLogger(TAG);
     protected DatabaseType databaseType;
     protected ClassRegistry classRegistry;
+    protected EntityClassLoader entityClassLoader;
 
     /**
      * Construct a ClassAnalyser instance
@@ -97,8 +99,20 @@ public class ClassAnalyser
      */
     public ClassAnalyser(DatabaseType databaseType, ClassRegistry classRegistry)
     {
+        this(databaseType, classRegistry, null);
+    }
+
+    /**
+     * Construct a ClassAnalyser instance
+     * @param databaseType DatabaseType which specifies database feature set
+     * @param classRegistry ClassRegistry implementation
+     * @param entityClassLoader Class loader to instantiate entity classes (optional)
+     */
+    public ClassAnalyser(DatabaseType databaseType, ClassRegistry classRegistry, EntityClassLoader entityClassLoader)
+    {
         this.databaseType = databaseType;
         this.classRegistry = classRegistry;
+        this.entityClassLoader = entityClassLoader;
     }
 
     /**
@@ -119,7 +133,12 @@ public class ClassAnalyser
             boolean success = false;
             try
             {
-                classList.add(Class.forName(className));
+            	Class<?> clazz;
+            	if (entityClassLoader != null)
+            		clazz = entityClassLoader.loadClass(className);
+            	else
+            		clazz = Class.forName(className);
+                classList.add(clazz);
                 success = true;
             }
             catch (ClassNotFoundException e)
@@ -311,8 +330,8 @@ public class ClassAnalyser
         config.setFieldName(fieldName);
         if (config.getDataPersister() == null) 
             config.setDataPersister(DataPersisterManager.lookupForField(field));
-        config.setUseGetSet((DatabaseFieldConfig.findGetMethod(field, false) != null) &&
-                            (DatabaseFieldConfig.findSetMethod(field, false) != null));
+        config.setUseGetSet((DatabaseFieldConfig.findGetMethod(field, databaseType, false) != null) &&
+                            (DatabaseFieldConfig.findSetMethod(field, databaseType, false) != null));
         // Defaults from ForeignCollectionField
         config.setForeignCollection(true);
         config.setForeignCollectionMaxEagerLevel(1);

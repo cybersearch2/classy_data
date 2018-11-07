@@ -15,9 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
 package au.com.cybersearch2.classyapp;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+
+import au.com.cybersearch2.classyjpa.entity.EntityClassLoader;
 
 /**
  * ResourceEnvironment
@@ -38,4 +41,16 @@ public interface ResourceEnvironment
      * Android lint complains if Locale is omitted where it can be specified as an optional parameter.
      */
     Locale getLocale();
+  
+    /**
+     * Returns database location when ConnectionType = "file"
+     * @return File object for a directory location
+     */
+    File getDatabaseDirectory();
+
+    /**
+     * Returns Class Loader for instantiating entity classes
+     * @return EntityClassLoader object or null if not provided
+     */
+    EntityClassLoader getEntityClassLoader();
 }

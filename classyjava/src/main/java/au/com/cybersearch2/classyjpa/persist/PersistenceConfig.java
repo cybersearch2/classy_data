@@ -39,6 +39,7 @@ import java.util.Map;
 
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import au.com.cybersearch2.classyjpa.entity.EntityClassLoader;
 import au.com.cybersearch2.classyjpa.entity.OrmDaoHelperFactory;
 import au.com.cybersearch2.classyjpa.persist.ClassAnalyser.ClassRegistry;
 import au.com.cybersearch2.classyjpa.query.DaoQueryFactory;
@@ -77,6 +78,8 @@ public class PersistenceConfig
     protected PersistenceUnitInfo puInfo;
     /** Database type */
     protected DatabaseType databaseType;
+    /** Class loader to instantiate entity classes (optional) */
+    protected EntityClassLoader entityClassLoader;
 
     /**
      * Construct a PersistenceConfig instance
@@ -176,6 +179,10 @@ public class PersistenceConfig
         	registerClasses(managedClassNames);
     }
 
+    public void setEntityClassLoader(EntityClassLoader entityClassLoader) 
+    {
+    	this.entityClassLoader = entityClassLoader;
+    }
     protected void registerClasses(List<String> managedClassNames)
     {
         ClassRegistry classRegistry = new ClassRegistry(){
@@ -187,7 +194,7 @@ public class PersistenceConfig
                 String key = entityClass.getName();
                 helperFactoryMap.put(key, new OrmDaoHelperFactory<T,ID>(entityClass));
            }};
-        ClassAnalyser classAnlyser = new ClassAnalyser(databaseType, classRegistry);
+        ClassAnalyser classAnlyser = new ClassAnalyser(databaseType, classRegistry, entityClassLoader);
         List<DatabaseTableConfig<?>> configs = classAnlyser.getDatabaseTableConfigList(managedClassNames);
         if (!configs.isEmpty())
             DaoManager.addCachedDatabaseConfigs(configs);

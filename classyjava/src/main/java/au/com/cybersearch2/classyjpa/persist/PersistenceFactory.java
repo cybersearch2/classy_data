@@ -131,6 +131,7 @@ public class PersistenceFactory
             // Create configuration object and initialize it according to PU info read from persistence.xml
             // This includes setting up DAOs for all entity classes
             PersistenceConfig persistenceConfig = new PersistenceConfig(databaseSupport.getDatabaseType());
+            persistenceConfig.setEntityClassLoader(resourceEnvironment.getEntityClassLoader());
             persistenceConfig.setPuInfo(puMap.get(name));
             // Create objects for JPA and native support which are accessed using PersistenceFactory
             PersistenceAdminImpl persistenceAdmin = new PersistenceAdminImpl(name, databaseSupport, persistenceConfig);
