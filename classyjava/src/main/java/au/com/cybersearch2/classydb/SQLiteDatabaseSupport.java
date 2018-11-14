@@ -58,6 +58,7 @@ public class SQLiteDatabaseSupport extends DatabaseSupportBase
     private static final String IN_MEMORY_PATH = "jdbc:sqlite::memory:";
     /** SQLite location for file database */
     private static final String FILE_LOCATION = "resources/db";
+    
     private File databaseDirectory;
  
     /**
