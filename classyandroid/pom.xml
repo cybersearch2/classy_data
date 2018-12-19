@@ -4,7 +4,7 @@
   <parent>
     <groupId>au.com.cybersearch2</groupId>
     <artifactId>classy_data</artifactId>
-    <version>2.3.1-SNAPSHOT</version>
+    <version>2.3.2-SNAPSHOT</version>
   </parent>
   <artifactId>classyandroid</artifactId>
   <packaging>jar</packaging>
