@@ -13,9 +13,10 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/> */
-package au.com.cybersearch2.classynode;
+package au.com.cybersearch2.node;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -24,6 +25,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.j256.ormlite.stmt.QueryBuilder;
+
+import au.com.cybersearch2.classyjpa.EntityManagerLite;
+import au.com.cybersearch2.classyjpa.entity.PersistenceDao;
+import au.com.cybersearch2.classyjpa.query.DaoQuery;
+import au.com.cybersearch2.classyjpa.query.DaoQuery.SimpleSelectArg;
+import au.com.cybersearch2.classyjpa.query.EntityQuery;
 import au.com.cybersearch2.classynode.NodeType;
 
 /**
@@ -44,7 +52,7 @@ public class Node implements Serializable
     /** Node properties defined by model */
     Map<String,Object> properties;
     /** Persistence object */
-    NodeEntity nodeEntity;
+    NodeBean nodeBean;
     Node parent;
     /** Child nodes list. When this node is fetched from a database, the list may contain place holders with only primary key set */
     List<Node> children;
@@ -59,13 +67,13 @@ public class Node implements Serializable
      */
     private Node()
     {
-    	nodeEntity = new NodeEntity();
-        nodeEntity.setModel(NodeType.ROOT);
-        nodeEntity.setParent(nodeEntity);
-        nodeEntity.setLevel(1);
-        nodeEntity.set_id(0);
-        nodeEntity.setName(ROOT);
-        nodeEntity.setTitle(ROOT);
+    	nodeBean = new NodeBean();
+        //nodeBean.setModel(NodeType.ROOT);
+        nodeBean.setParent(nodeBean);
+        //nodeBean.setLevel(0);
+        nodeBean.set_id(0);
+        nodeBean.setName(ROOT);
+        //nodeBean.setTitle(ROOT);
         parent = this;
     }
  
@@ -75,7 +83,7 @@ public class Node implements Serializable
      */
     public int getId()
     {
-        return nodeEntity.get_id();
+        return nodeBean.get_id();
     }
     
      /**
@@ -84,7 +92,7 @@ public class Node implements Serializable
      */
     public int getModel() 
     {
-        return nodeEntity.getModel();
+        return 0; //nodeBean.getModel();
     }
     
     /**
@@ -93,7 +101,7 @@ public class Node implements Serializable
      */
     public String getName() 
     {
-        return nodeEntity.getName();
+        return nodeBean.getName();
     }
     
     /**
@@ -102,7 +110,7 @@ public class Node implements Serializable
      */
     public String getTitle() 
     {
-        return nodeEntity.getTitle();
+        return ""; //nodeBean.getTitle();
     }
     
     /**
@@ -111,14 +119,14 @@ public class Node implements Serializable
      */
     public int getLevel() 
     {
-        return nodeEntity.getLevel();
+        return 0; //nodeBean.getLevel();
     }
     
     
 
     /**
      * Returns parent node or, if root node, self
-     * @return NodeEntity
+     * @return NodeBean
      */
     public Node getParent() 
     {
@@ -131,20 +139,20 @@ public class Node implements Serializable
      */
     public int getParentId()
     {
-        return nodeEntity.get_parent_id();
+        return nodeBean.getParent().get_id();
     }
     
 
     /**
      * Construct a Node from its persisted state. 
-     * @param nodeEntity The persisted object
+     * @param nodeBean The persisted object
      * @param parent The parent on the graph under construction or null if this is the first node of the graph
      */
-    public Node(NodeEntity nodeEntity, Node parent)
+    public Node(NodeBean nodeBean, Node parent)
     {
-        if (nodeEntity  == null)
-            throw new IllegalArgumentException("Parameter nodeEntity is null");
-        this.nodeEntity = nodeEntity;
+        if (nodeBean  == null)
+            throw new IllegalArgumentException("Parameter nodeBean is null");
+        this.nodeBean = nodeBean;
         if (parent != null)
         {
             // Check if a Node with same id already in children list
@@ -152,7 +160,7 @@ public class Node implements Serializable
             Node existingNode = null;
             for (Node childNode: parent.getChildren())
             {   
-                if (childNode.getId() == nodeEntity.get_id())
+                if (childNode.getId() == nodeBean.get_id())
                 {
                     existingNode = childNode;
                     break;
@@ -168,19 +176,18 @@ public class Node implements Serializable
         else
         {   // No parent specified, so create a root node to be parent
             parent = new Node();
-            parent.setId(nodeEntity._parent_id);
+            parent.setId(nodeBean.getParent().get_id());
             parent.getChildren().add(this);
-            parent.setLevel(nodeEntity.level - 1);
+            //parent.setLevel(nodeBean.level - 1);
         }
     	this.parent = parent;
-      	nodeEntity._parent_id = parent.getId();
-    	nodeEntity.parent = parent.getNodeEntity();
-        // Transfer nodeEntity's chidren to this Node 
-        if ((nodeEntity._children != null))
+    	nodeBean.parent = parent.getNodeBean();
+        // Transfer nodeBean's chidren to this Node 
+        if ((nodeBean.get_children() != null))
         {
-            for (NodeEntity childEntity: nodeEntity._children)
+            for (NodeBean childEntity: nodeBean.get_children())
             {
-                if (childEntity._id != childEntity._parent_id) // Never add top node as a child
+                if (childEntity._id != childEntity.getParent().get_id()) // Never add top node as a child
                     new Node(childEntity, this);
             }
         }
@@ -195,10 +202,10 @@ public class Node implements Serializable
     {
         if (parent == null)
             throw new IllegalArgumentException("Parameter parent is null");
-    	nodeEntity = new NodeEntity();
-        nodeEntity.setModel(model);
-        nodeEntity.setParent(parent.getNodeEntity());
-        nodeEntity.setLevel(parent.getLevel() + 1);
+    	nodeBean = new NodeBean();
+        //nodeBean.setModel(model);
+        nodeBean.setParent(parent.getNodeBean());
+        //nodeBean.setLevel(parent.getLevel() + 1);
         this.parent = parent;
         parent.getChildren().add(this);
     }
@@ -245,9 +252,9 @@ public class Node implements Serializable
         return properties;
     }
 
-    protected NodeEntity getNodeEntity()
+    protected NodeBean getNodeBean()
     {
-    	return nodeEntity;
+    	return nodeBean;
     }
 
     /**
@@ -256,7 +263,7 @@ public class Node implements Serializable
      */
     protected void setLevel(int level) 
     {
-        nodeEntity.setLevel(level);
+        //nodeBean.setLevel(level);
     }
 
     /**
@@ -265,7 +272,7 @@ public class Node implements Serializable
      */
     protected void setId(int id)
     {
-        nodeEntity.set_id(id);
+        nodeBean.set_id(id);
     }
 
     /**
@@ -298,33 +305,63 @@ public class Node implements Serializable
     }
     
     /**
-     * Marshall a nodeEntity object into a graph fragment containing all ancestors and immediate children.
+     * Marshall a nodeBean object into a graph fragment containing all ancestors and immediate children.
      * Deletes children of other Nodes in graph to prevent triggering lazy fetches and thus potentially fetching the entire graph
-     * @param nodeEntity The object to marshall
+     * @param nodeBean The object to marshall
      * @return Root node of graph
      */
-    public static Node marshall(NodeEntity nodeEntity)
+    public static Node marshall(NodeBean nodeBean)
     {
-    	NodeEntity marshallee = nodeEntity;
-        Deque<NodeEntity> nodeEntityDeque = new ArrayDeque<NodeEntity>();
+    	NodeBean marshallee = nodeBean;
+        Deque<NodeBean> nodeBeanDeque = new ArrayDeque<NodeBean>();
         // Walk up to top node
-        while (nodeEntity != null)
+        while (nodeBean != null)
         {
-             nodeEntityDeque.add(nodeEntity);
-             if  (nodeEntity.get_id() == nodeEntity.get_parent_id())// Top of tree indicated by self parent
+             nodeBeanDeque.add(nodeBean);
+             NodeBean parentBean = nodeBean.getParent();
+             if (parentBean == null) { // Encountered root node pending merge commit
+            	 nodeBean.setParent(nodeBean);
+            	 break;
+             }
+             if  (nodeBean.get_id() == parentBean.get_id())// Top of tree indicated by self parent
                 break;
-             nodeEntity = nodeEntity.getParent();
+             nodeBean = nodeBean.getParent();
         }
         // Now build graph fragment
         Node node = Node.rootNodeNewInstance();
         node.isFragment = true;
-        Iterator<NodeEntity> nodeEntityIterator = nodeEntityDeque.descendingIterator();
-        while (nodeEntityIterator.hasNext())
+        Iterator<NodeBean> nodeBeanIterator = nodeBeanDeque.descendingIterator();
+        while (nodeBeanIterator.hasNext())
         {
-            nodeEntity = nodeEntityIterator.next();
-            node = new Node(nodeEntity, node);
+            nodeBean = nodeBeanIterator.next();
+            node = new Node(nodeBean, node);
             node.isFragment = true;
         }
+        if (nodeBean.get_children().isEmpty()) {
+        }
+        	 
         return node;
+    }
+
+    public <T> DaoQuery<T> generateQuery(PersistenceDao<T, ?> dao, Integer parentId)
+            throws SQLException 
+    {   // Only one select argument required for primary key 
+        final SimpleSelectArg nodeIdArg = new SimpleSelectArg();
+        nodeIdArg.setValue(parentId);
+        // Set primary key column name
+        nodeIdArg.setMetaInfo("_parent_id");
+        return new DaoQuery<T>(dao, nodeIdArg){
+
+            /**
+             * Update supplied QueryBuilder object to add where clause
+             * @see au.com.cybersearch2.classyjpa.query.DaoQuery#buildQuery(com.j256.ormlite.stmt.QueryBuilder)
+             */
+            @Override
+            protected QueryBuilder<T, ?> buildQuery(QueryBuilder<T, ?> queryBuilder)
+                    throws SQLException {
+                // build a query with the WHERE clause set to 'node_id = ?'
+                queryBuilder.where().eq("_parent_id", nodeIdArg);
+                return queryBuilder;
+            }};
     }
 }

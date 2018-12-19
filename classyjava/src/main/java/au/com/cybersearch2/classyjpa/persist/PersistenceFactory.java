@@ -82,6 +82,8 @@ public class PersistenceFactory
      */
     public PersistenceUnitAdmin getPersistenceUnit(final String puName)
     {
+    	if (!persistenceImplMap.containsKey(puName))
+    		throw new PersistenceException("Persistence Unit named \"" + puName + "\" not found");
         return new PersistenceUnitAdmin(){
 
             /**

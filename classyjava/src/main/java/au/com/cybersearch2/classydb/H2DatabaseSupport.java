@@ -47,7 +47,16 @@ public class H2DatabaseSupport extends DatabaseSupportBase
     /** SQLite location for file database */
     private static final String FILE_LOCATION = "resources/db";
     
-    private static final String[] EXCLUDE_KEYS = { DatabaseAdmin.DATABASE_NAME, PersistenceUnitInfoImpl.PU_NAME_PROPERTY };
+    private static final String[] EXCLUDE_KEYS = 
+    { 
+		DatabaseAdmin.DATABASE_NAME, 
+		DatabaseAdmin.DATA_FILENAME,
+		DatabaseAdmin.DATABASE_VERSION,
+		DatabaseAdmin.DROP_SCHEMA_FILENAME,
+		DatabaseAdmin.SCHEMA_FILENAME,
+		DatabaseAdmin.UPGRADE_FILENAME_FORMAT,
+		PersistenceUnitInfoImpl.PU_NAME_PROPERTY 
+    };
     
     private File databaseDirectory;
 

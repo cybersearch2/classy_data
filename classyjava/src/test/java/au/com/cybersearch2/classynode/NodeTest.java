@@ -46,10 +46,10 @@ public class NodeTest
     {
         Node node = Node.rootNodeNewInstance();
         assertThat(Model.values()[node.getModel()]).isEqualTo(Model.root);
-        assertThat(node.getParent()).isEqualTo((NodeEntity)node);
-        assertThat(node.getLevel()).isEqualTo(0);
-        assertThat(node.get_id()).isEqualTo(0);
-        assertThat(node.get_parent_id()).isEqualTo(0);
+        assertThat(node.getParent()).isEqualTo(node);
+        assertThat(node.getLevel()).isEqualTo(1);
+        assertThat(node.getId()).isEqualTo(0);
+        assertThat(node.getParentId()).isEqualTo(0);
     }
     
     @Test
@@ -73,14 +73,14 @@ public class NodeTest
         child.setTitle(CHILD_TITLE);
         List<NodeEntity> childList = new ArrayList<NodeEntity>();
         childList.add(child);
-        childList.add(Node.rootNodeNewInstance()); // This one should be ignored
+        childList.add(Node.rootNodeNewInstance().nodeEntity); // This one should be ignored
         nodeEntity.set_children(childList);
         Node node = new Node(nodeEntity, null);
         assertThat(node.getModel()).isEqualTo(Model.recordCategory.ordinal());
         assertThat(node.getName()).isEqualTo(NODE_NAME);
         assertThat(node.getTitle()).isEqualTo(NODE_TITLE);
-        assertThat(node.get_id()).isEqualTo(NODE_ID);
-        assertThat(node.get_parent_id()).isEqualTo(0);
+        assertThat(node.getId()).isEqualTo(NODE_ID);
+        assertThat(node.getParentId()).isEqualTo(PARENT_NODE_ID);
         assertThat(node.getParent().getModel()).isEqualTo(Model.root.ordinal());
         assertThat(node.getLevel()).isEqualTo(NODE_LEVEL);
         assertThat(node.getProperties()).isNotNull();
@@ -89,7 +89,7 @@ public class NodeTest
         List<Node> children = node.getChildren();
         assertThat(children.size()).isEqualTo(1);
         Node childNode = children.get(0);
-        assertThat(childNode.get_id()).isEqualTo(CHILD_ID);
+        assertThat(childNode.getId()).isEqualTo(CHILD_ID);
         assertThat(childNode.getModel()).isEqualTo(Model.recordFolder.ordinal());
         assertThat(childNode.getName()).isEqualTo(CHILD_NAME);
         assertThat(childNode.getTitle()).isEqualTo(CHILD_TITLE);
@@ -100,7 +100,7 @@ public class NodeTest
     public void test_NodeEntity_constructor()
     {
         Node parent = mock(Node.class);
-        when(parent.get_id()).thenReturn(PARENT_NODE_ID);
+        when(parent.getId()).thenReturn(PARENT_NODE_ID);
         List<Node> childList = new ArrayList<Node>();
         when(parent.getChildren()).thenReturn(childList);
         when(parent.getLevel()).thenReturn(NODE_LEVEL - 1);
@@ -114,13 +114,13 @@ public class NodeTest
         NodeEntity entityParent = new NodeEntity();
         entityParent.setModel(Model.recordCategory.ordinal());
         entityParent.set_id(PARENT_NODE_ID);
-        nodeEntity.setParent(parent);
+        nodeEntity.setParent(entityParent);
         Node node = new Node(nodeEntity, parent);
         assertThat(node.getModel()).isEqualTo(Model.recordCategory.ordinal());
         assertThat(node.getName()).isEqualTo(NODE_NAME);
         assertThat(node.getTitle()).isEqualTo(NODE_TITLE);
-        assertThat(node.get_id()).isEqualTo(NODE_ID);
-        assertThat(node.get_parent_id()).isEqualTo(PARENT_NODE_ID);
+        assertThat(node.getId()).isEqualTo(NODE_ID);
+        assertThat(node.getParentId()).isEqualTo(PARENT_NODE_ID);
         assertThat(node.getParent()).isEqualTo(parent);
         assertThat(node.getLevel()).isEqualTo(NODE_LEVEL);
         assertThat(node.getProperties()).isNotNull();
@@ -132,10 +132,10 @@ public class NodeTest
     public void test_NodeEntity_constructor_existing_child()
     {
         Node parent = mock(Node.class);
-        when(parent.get_id()).thenReturn(PARENT_NODE_ID);
+        when(parent.getId()).thenReturn(PARENT_NODE_ID);
         List<Node> childList = new ArrayList<Node>();
         Node childNode = mock(Node.class);
-        when(childNode.get_id()).thenReturn(NODE_ID);
+        when(childNode.getId()).thenReturn(NODE_ID);
         childList.add(childNode);
         when(parent.getChildren()).thenReturn(childList);
         when(parent.getLevel()).thenReturn(NODE_LEVEL - 1);
@@ -149,13 +149,13 @@ public class NodeTest
         NodeEntity entityParent = new NodeEntity();
         entityParent.setModel(Model.recordCategory.ordinal());
         entityParent.set_id(PARENT_NODE_ID);
-        nodeEntity.setParent(parent);
+        nodeEntity.setParent(entityParent);
         Node node = new Node(nodeEntity, parent);
         assertThat(node.getModel()).isEqualTo(Model.recordCategory.ordinal());
         assertThat(node.getName()).isEqualTo(NODE_NAME);
         assertThat(node.getTitle()).isEqualTo(NODE_TITLE);
-        assertThat(node.get_id()).isEqualTo(NODE_ID);
-        assertThat(node.get_parent_id()).isEqualTo(PARENT_NODE_ID);
+        assertThat(node.getId()).isEqualTo(NODE_ID);
+        assertThat(node.getParentId()).isEqualTo(PARENT_NODE_ID);
         assertThat(node.getParent()).isEqualTo(parent);
         assertThat(node.getLevel()).isEqualTo(NODE_LEVEL);
         assertThat(node.getProperties()).isNotNull();
@@ -210,17 +210,18 @@ public class NodeTest
     @Test
     public void test_marshall()
     {
-        NodeEntity nodeEntity = new NodeEntity();
-        nodeEntity.setModel(Model.recordFolder.ordinal());
-        nodeEntity.set_id(NODE_ID);
-        nodeEntity.set_parent_id(PARENT_NODE_ID);
-        nodeEntity.setName(NODE_NAME);
-        nodeEntity.setTitle(NODE_TITLE);
-        nodeEntity.setLevel(NODE_LEVEL);
         NodeEntity parent = new NodeEntity();
         parent.setModel(Model.recordCategory.ordinal());
         parent.set_id(PARENT_NODE_ID);
-        parent.setParent(Node.rootNodeNewInstance());
+        Node parentNode = new Node(parent, null);
+        NodeEntity level2Entity = new NodeEntity();
+        level2Entity.setModel(Model.recordFolder.ordinal());
+        level2Entity.set_id(NODE_ID);
+        level2Entity.setName(NODE_NAME);
+        level2Entity.setTitle(NODE_TITLE);
+        level2Entity.setLevel(NODE_LEVEL);
+        Node level2Node = new Node(level2Entity, parentNode);
+        assert(level2Node.getParentId() == parentNode.getId());
         NodeEntity child1 = new NodeEntity();
         child1.setModel(Model.recordFolder.ordinal());
         child1.set_id(CHILD_ID + 1);
@@ -228,8 +229,8 @@ public class NodeTest
         child1.setTitle(CHILD_TITLE);
         List<NodeEntity> childList1 = new ArrayList<NodeEntity>();
         childList1.add(child1);
+        //child1._parent_id = parent.get_id();
         parent.set_children(childList1);
-        nodeEntity.setParent(parent);
         NodeEntity child2 = new NodeEntity();
         child2.setModel(Model.recordFolder.ordinal());
         child2.set_id(CHILD_ID + 2);
@@ -237,8 +238,8 @@ public class NodeTest
         child2.setTitle(CHILD_TITLE);
         List<NodeEntity> childList2 = new ArrayList<NodeEntity>();
         childList2.add(child2);
+        child2.set_parent_id(child1.get_id());
         child1.set_children(childList2);
-        nodeEntity.setParent(parent);
         NodeEntity child = new NodeEntity();
         child.setModel(Model.recordFolder.ordinal());
         child.set_id(CHILD_ID);
@@ -246,17 +247,18 @@ public class NodeTest
         child.setTitle(CHILD_TITLE);
         List<NodeEntity> childList = new ArrayList<NodeEntity>();
         childList.add(child);
-        nodeEntity.set_children(childList);
-        Node node = Node.marshall(nodeEntity);
-        assertThat(node.get_id()).isEqualTo(NODE_ID);
-        assertThat(node.getModel()).isEqualTo(Model.recordFolder.ordinal());
-        assertThat(node.getChildren().get(0).get_id()).isEqualTo(CHILD_ID);
-        Node parentNode = (Node)node.getParent();
-        assertThat(parentNode.get_id()).isEqualTo(PARENT_NODE_ID);
-        assertThat(parentNode.getModel()).isEqualTo(Model.recordCategory.ordinal());
-        assertThat(parentNode.getChildren().get(0).get_id()).isEqualTo(CHILD_ID + 1);
-        assertThat(parentNode.getChildren().get(0).getChildren().size()).isEqualTo(0);
-        Node root = (Node)parentNode.getParent();
+        child.set_parent_id(level2Entity.get_id());
+        level2Entity.set_children(childList);
+        Node testNode = Node.marshall(level2Entity);
+        assertThat(testNode.getId()).isEqualTo(NODE_ID);
+        assertThat(testNode.getModel()).isEqualTo(Model.recordFolder.ordinal());
+        assertThat(testNode.getChildren().get(0).getId()).isEqualTo(CHILD_ID);
+        Node testParentNode = (Node)testNode.getParent();
+        assertThat(testParentNode.getId()).isEqualTo(PARENT_NODE_ID);
+        assertThat(testParentNode.getModel()).isEqualTo(Model.recordCategory.ordinal());
+        assertThat(testParentNode.getChildren().get(0).getId()).isEqualTo(NODE_ID);
+        assertThat(testParentNode.getChildren().size()).isEqualTo(1);
+        Node root = (Node)testParentNode.getParent();
         assertThat(root.getModel()).isEqualTo(Model.root.ordinal());
     }
 }

@@ -49,8 +49,8 @@ import au.com.cybersearch2.classynode.NodeTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    SQLiteSupportTest.class,
     JpaIntegrationTest.class,
+    SQLiteSupportTest.class,
     OrmDaoHelperTest.class,
     OrmDaoHelperFactoryTest.class,
     ObjectMonitorTest.class,
@@ -59,12 +59,12 @@ import au.com.cybersearch2.classynode.NodeTest;
     PersistenceXmlParserTest.class,
     TransactionStateTest.class,
     DatabaseAdminImplTest.class,
-    NativeScriptDatabaseWorkTest.class,
     PersistenceDaoTest.class,
     JavaPersistenceContextTest.class,
     PersistenceContainerTest.class,
     SingleConnectPersistenceContainerTest.class,
     SQLiteDatabaseSupportTest.class,
+    NativeScriptDatabaseWorkTest.class,
     DaoQueryTest.class,
     EntityQueryTest.class,
     NativeQueryTest.class,

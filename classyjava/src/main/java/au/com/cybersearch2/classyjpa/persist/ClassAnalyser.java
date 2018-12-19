@@ -173,12 +173,11 @@ public class ClassAnalyser
         // Resolve foreign field mapping and foreign table configs
         // Set ForeignCollectionForeignFieldName for foreign collections (OneToMany) 
         for (Entry<FieldKey, DatabaseFieldConfig> entry: foreignFieldData.foreignCollectionMap.entrySet())
-        {   // Get associated field and assign it's field name to ForeignCollectionColumnName
+        {	// This wires a foreign collection that is not actually foreign, but maps to same table
+            // If associated field is defined, the assign it's field name to ForeignCollectionColumnName
             DatabaseFieldConfig fieldConfig = foreignFieldData.foreignFieldMap.get(entry.getKey());
-            if (fieldConfig == null)
-                throw new PersistenceException("Field of type " + entry.getKey().getEntityClass().getName() + 
-                        " could not be found with column name '" + entry.getKey().getColumnName() + "'");
-            entry.getValue().setForeignCollectionForeignFieldName(fieldConfig.getFieldName());
+            if (fieldConfig != null)
+            	entry.getValue().setForeignCollectionForeignFieldName(fieldConfig.getFieldName());
         }
         // Set ForeignTableConfig for foreign fields (ManyToOne) 
         for (Entry<FieldKey, DatabaseFieldConfig> entry: foreignFieldData.foreignFieldMap.entrySet())

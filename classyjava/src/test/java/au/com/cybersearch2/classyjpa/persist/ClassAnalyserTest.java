@@ -287,23 +287,6 @@ public class ClassAnalyserTest
     }
     
     @Test
-    public void test_one_to_many_no_foreign_field()
-    {
-        List<String> managedClassNames = new ArrayList<String>();
-        managedClassNames.add(Department.class.getName());
-        ClassAnalyser classAnalyser = new ClassAnalyser(new SqliteDatabaseType(), new TestClassRegistry(Department.class));
-        try
-        {
-            classAnalyser.getDatabaseTableConfigList(managedClassNames);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        }
-        catch(PersistenceException e)
-        {
-            assertThat(e.getMessage()).isEqualTo("Field of type au.com.cybersearch2.classyjpa.persist.Department could not be found with column name 'dept_id'");
-        }
-    }
-    
-    @Test
     public void test_getDatabaseTableConfigList_non_entity()
     {
         List<String> managedClassNames = new ArrayList<String>();

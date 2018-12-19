@@ -55,7 +55,7 @@ public class DatabaseAdminImplTest
         connectionSource = mock(ConnectionSource.class);
         when(persistenceAdmin.getConnectionSource()).thenReturn(connectionSource);
         when(persistenceAdmin.getProperties()).thenReturn(properties);
-        resourceEnvironment = new JavaTestResourceEnvironment();
+        resourceEnvironment = new JavaTestResourceEnvironment("src/test/resources/sqlite");
     }
 
     @Test
